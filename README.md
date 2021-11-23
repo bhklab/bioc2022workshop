@@ -7,12 +7,27 @@
 
 ## Workshop Description
 This workshop will introduce users to the CoreGx and PharmacoGx R packages,
-which are useful tools for pharmacogenomic analysis to discover biomarkers of
+which are useful tools for pharmacogenomic modelling to discover biomarkers of
 treatment response in cancer model systems. PharmacoGx specifically focuses on
-drug sensitivity experiments 
+drug sensitivity experiments in cancer cell lines, which will be the major
+focus of this workshop. Additional infrastructure from our lab includes
+ToxicoGx for toxicogenomics in healthy human cell-lines, RadioGx for
+radiogenomics in cancer cell-lines and Xeva for pharmacogenomics in patient
+derived xenograph (PDX) murine models.
+
+Participants will learn the fundamentals of using CoreGx and PharmacoGx to
+create a PharmacoSet---an integrative container for the storage, analysis and
+visualization of pharmacogenomic experiments. Particular focus will be placed
+on newly developed support for storing, analyzing and visualizing drug 
+combination sensitivity experiments and correlating results therefrom for
+multiomic biomarker discovery. 
 
 ### Pre-requisites
-* Familiarity with 
+* Basic knowledge of R syntax
+* Knowledge of or interest in pharmacogenomics
+* Familiarity with core Bioconductor classes such as the `SummarizedExperiment` and `MultiAssayExperiment`
+* Curiosity or experience about `data.table` an assest!
+
 
 Useful publications:
 * Smirnov, P., Safikhani, Z., El-Hachem, N., Wang, D., She, A., Olsen, C., Freeman, M., Selby, H., Gendoo, D. M. A., Grossmann, P., Beck, A. H., Aerts, H. J. W. L., Lupien, M., Goldenberg, A., & Haibe-Kains, B. (2016). PharmacoGx: An R package for analysis of large pharmacogenomic datasets. Bioinformatics (Oxford, England), 32(8), 1244–1246. https://doi.org/10.1093/bioinformatics/btv723
@@ -36,6 +51,8 @@ CRAN:
 * https://cran.r-project.org/web/packages/data.table/index.html
 
 ## Time outline
+
+**Tentative, likely to change!**
 
 For a 1-hr workshop:
 
