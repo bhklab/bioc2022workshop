@@ -16,7 +16,7 @@ radiogenomics in cancer cell-lines and Xeva for pharmacogenomics in patient
 derived xenograph (PDX) murine models.
 
 Participants will learn the fundamentals of using CoreGx and PharmacoGx to
-create a PharmacoSet &mdash an integrative container for the storage, analysis and
+create a PharmacoSet&mdash;an integrative container for the storage, analysis and
 visualization of pharmacogenomic experiments. Particular focus will be placed
 on newly developed support for storing, analyzing and visualizing drug 
 combination sensitivity experiments and correlating results therefrom for
