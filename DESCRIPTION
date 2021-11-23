@@ -1,0 +1,18 @@
+Package: bioc2022workshop
+Title: Analyzing drug combination experiments for high-throughput pharmacogenomic 
+    biomarkers discovery
+Version: 0.0.0.9000
+Authors@R:
+    person("Christopher", "Eeles", , "christopher.eeles@uhnresearch.ca", 
+        role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9962-7385"))
+Description: What the package does (one paragraph).
+License: CC BY 4.0 + file LICENSE
+Encoding: UTF-8
+Imports:
+    CoreGx, PharmacoGx, data.table
+Suggests:
+    knitr, rmarkdown, BiocStyle
+URL: https://github.com/bhklab/bioc2022workshop
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
