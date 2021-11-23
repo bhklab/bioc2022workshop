@@ -1,4 +1,4 @@
-# Drug combination experiments for high throughput biomarker discovery
+# Analyzing drug combination experiments for high-throughput pharmacogenomic biomarkers discovery
 
 ## Instructor(s) name(s) and contact information
 
@@ -20,7 +20,8 @@ create a PharmacoSet&mdash;an integrative container for the storage, analysis an
 visualization of pharmacogenomic experiments. Particular focus will be placed
 on newly developed support for storing, analyzing and visualizing drug 
 combination sensitivity experiments and correlating results therefrom for
-multiomic biomarker discovery. 
+with multi-omic molecular profiles to discover biomarkers of drug senstivity
+or resistance.
 
 ### Pre-requisites
 * Basic knowledge of R syntax
