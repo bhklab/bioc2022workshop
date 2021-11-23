@@ -56,20 +56,24 @@ CRAN:
 
 For a 1-hr workshop:
 
-| Activity                                               | Time |
-|--------------------------------------------------------|------|
-| Introduction to CoreGx and PharmacoGx                  |  5m  |
-| Overview of Data Structures                            |  10m |
-| New Features for Drug Combination Support              |  15m |
-| Generalizing Package Nomenclature                      |  5m  |
-| Building a Drug Combination PharmacoSet                |  10m |
-| Drug Combination Modelling (development in progress)   |  10m |
-| Visualizing Drug Combination Signature (brainstorming) |  10m |
+| Activity                                                   | Time |
+|------------------------------------------------------------|------|
+| Introduction to CoreGx and PharmacoGx                      |  5m  |
+| Generalizing Package Nomenclature                          |  5m  |
+| Overview of Data Structures                                |  10m |
+| New Features for Drug Combination Support                  |  15m |
+| Building a Drug Combination PharmacoSet                    |  10m |
+| Drug Combination Modelling (development in progress)       |  10m |
+| Visualizing Drug Combination Experiments (brainstorming)   |  10m |
 
 ## Workshop goals and objectives
 
+T.B.D.
+
 ### Learning goals
 
-
+T.B.D.
 
 ### Learning objectives
+
+T.B.D.
