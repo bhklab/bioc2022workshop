@@ -5,11 +5,18 @@ Version: 0.0.0.9000
 Authors@R:
     person("Christopher", "Eeles", , "christopher.eeles@uhnresearch.ca", 
         role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9962-7385"))
-Description: What the package does (one paragraph).
+Description: This workshop will introduce users to the CoreGx and PharmacoGx R 
+    packages, which are useful tools for pharmacogenomic modelling to discover 
+    biomarkers of treatment response in cancer model systems. PharmacoGx 
+    specifically focuses on drug sensitivity experiments in cancer cell lines, 
+    which will be the major focus of this workshop. Additional infrastructure 
+    from our lab includes ToxicoGx for toxicogenomics in healthy human 
+    cell-lines, RadioGx for radiogenomics in cancer cell-lines and Xeva for 
+    pharmacogenomics in patient derived xenograph (PDX) models.
 License: CC BY 4.0 + file LICENSE
 Encoding: UTF-8
 Imports:
-    CoreGx, PharmacoGx, data.table
+    CoreGx, PharmacoGx, MultiAssayExperiment, data.table
 Suggests:
     knitr, rmarkdown, BiocStyle
 URL: https://github.com/bhklab/bioc2022workshop
