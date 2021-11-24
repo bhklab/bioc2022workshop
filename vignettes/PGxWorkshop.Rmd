@@ -1,6 +1,6 @@
 ---
-title: "Analyzing Drug Combination Experiments for High-throughput Pharmacogenomic 
-    Biomarker Discovery"
+title: "Pharmacogenomic Analysis of Drug Combination Experiments to Identify
+  Biomarkers of Response or Resistance"
 author: 
   - name: Christopher Eeles
     email: christopher.eeles@uhnresearch.ca
@@ -8,7 +8,7 @@ author:
         - &pm Princess Margaret Cancer Centre
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Analyzing Drug Combination Experiments for High-throughput Pharmacogenomic Biomarker Discovery}
+  %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -34,7 +34,7 @@ radiogenomics in cancer cell-lines and Xeva for pharmacogenomics in patient
 derived xenograph (PDX) murine models.
 
 Participants will learn the fundamentals of using CoreGx and PharmacoGx to
-create a PharmacoSet&mdash;an integrative container for the storage, analysis and
+create a `PharmacoSet`&mdash;an integrative container for the storage, analysis and
 visualization of pharmacogenomic experiments. Particular focus will be placed
 on newly developed support for storing, analyzing and visualizing drug 
 combination sensitivity experiments and correlating results therefrom for
@@ -42,6 +42,7 @@ with multi-omic molecular profiles to discover biomarkers of drug senstivity
 or resistance.
 
 ### Pre-requisites {-}
+
 * Basic knowledge of R syntax
 * Knowledge of or interest in pharmacogenomics
 * Familiarity with core Bioconductor classes such as the `SummarizedExperiment` and `MultiAssayExperiment`
@@ -49,6 +50,7 @@ or resistance.
 
 
 Useful publications:
+
 * Smirnov, P., Safikhani, Z., El-Hachem, N., Wang, D., She, A., Olsen, C., Freeman, M., Selby, H., Gendoo, D. M. A., Grossmann, P., Beck, A. H., Aerts, H. J. W. L., Lupien, M., Goldenberg, A., & Haibe-Kains, B. (2016). PharmacoGx: An R package for analysis of large pharmacogenomic datasets. Bioinformatics (Oxford, England), 32(8), 1244–1246. https://doi.org/10.1093/bioinformatics/btv723
 * T.B.D. PharmacoGx Drug Combo Experiment Paper!
 
@@ -63,10 +65,12 @@ on their machines to be able to run commands allow with the instructors. ...
 ### _R_ / _Bioconductor_ packages used {-}
 
 Bioconductor:
+
 * https://www.bioconductor.org/packages/devel/bioc/html/CoreGx.html
 * https://www.bioconductor.org/packages/devel/bioc/html/PharmacoGx.html
 
 CRAN:
+
 * https://cran.r-project.org/web/packages/data.table/index.html
 
 ## Time outline {-}
@@ -96,3 +100,103 @@ T.B.D.
 ### Learning objectives {-}
 
 T.B.D.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+library(CoreGx)
+library(PharmacoGx)
+#library(PGxBioc2022Workshop)
+```
+
+# Introduction
+
+This tutorial, titled Pharmacogenomic Analysis of Drug Combination Experiments 
+to Identify Biomarkers of Response or Resistance, focuses on using the
+`PharmacoGx` R package to correlate treatment response, measured as the
+viability of cancer cell-lines after _in vivo_ drug treatment, with their
+respective multi-omic profiles. `CoreGx` provides the core infrastructure
+for storing, analyzing and visualizing generic treatment response experiments.
+It provides functions and classes which can be inherited in downstream packages,
+such as `ToxicoGx` and `RadioGx`. We hope that the `CoreSet` object is Generalizing
+enough that it can be reused by other developers for their specific treatment
+response use case.
+
+# Generalizing Package Nomenclature
+
+To facilitate modularization of the GxSuite of R packages, we are shifting
+the nomenclature within a `CoreSet`&ndash;and therefore in inheriting packages
+&ndash;to be more general.
+
+To this end, we are making the following changes:
+
+* Previous reference to cell (cell-line) will become sample, allowing the `CoreSet` to be used for other model systems
+* Drug (radiation in `RadioGx`) will become treatment, allowing the `CoreSet` to be treatment type agnostic
+* 
+
+As a result of these changes, the names of some common accessors will be updated.
+The old accessors will still remain, ensuring backwards compatibility for at
+least two Bioconductor releases. A deprecation warning will be added to old 
+accessors informing users of the corresponding new function, as per Bioconductor
+best practices.
+
+
+# Data Structures Overview
+
+The GxSuite of packages make use of various Bioconductor classes for storing
+molecular profile data. 
+
+## CoreSet
+
+
+
+## PharmacoSet
+
+
+
+## TreatmentResponseExperiment
+
+
+## MultiAssayExperiment
+
+
+# New Features for Drug Combination Support
+
+
+
+# Building a Drug Combiation PharmacoSet
+
+## Raw Data
+
+
+## Building a Treatment Response Experiment
+
+
+## Building a MultiAssayExperiment
+
+
+## Building the PharmacoSet
+
+
+## Computing 
+
+
+# Drug Combination Modelling
+
+_Currently in development_
+
+# Visiualizing Drug Combination Experiments
+
+_Brainstorming session!_
+
+
+# References
+
+
+
+
+# SessionInfo
+
+```{r session_info, include=FALSE}
+sessionInfo()
+```

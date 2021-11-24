@@ -1,7 +1,7 @@
-Package: bioc2022workshop
-Title: Analyzing drug combination experiments for high-throughput pharmacogenomic 
-    biomarkers discovery
-Version: 0.0.0.9000
+Package: pgxBioc2022Workshop
+Title: Pharmacogenomic analysis of drug combination experiments to identify
+    biomarkers of response or resistance
+Version: 0.0.0.1
 Authors@R:
     person("Christopher", "Eeles", , "christopher.eeles@uhnresearch.ca", 
         role = c("aut", "cre"), comment = c(ORCID = "0000-0002-9962-7385"))
