@@ -13,6 +13,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<!-- Remove {-} from header to show numbering -->
 # Workshop Overview {-}
 
 *This workshop is currently under development!*
@@ -24,34 +25,50 @@ vignette: >
 
 ## Workshop Description {-}
 
-This workshop will introduce users to the CoreGx and PharmacoGx R packages,
-which are useful tools for pharmacogenomic modelling to discover biomarkers of
-treatment response in cancer model systems. PharmacoGx specifically focuses on
-drug sensitivity experiments in cancer cell lines, which will be the major
-focus of this workshop. Additional infrastructure from our lab includes
-ToxicoGx for toxicogenomics in healthy human cell-lines, RadioGx for
-radiogenomics in cancer cell-lines and Xeva for pharmacogenomics in patient
-derived xenograph (PDX) murine models.
+This workshop will introduce users to the `r BiocStyle::Biocpkg("CoreGx")` and 
+`r BiocStyle::Biocpkg("PharmacoGx")` R packages, which are useful tools for 
+pharmacogenomic modelling to discover biomarkers of treatment response in cancer 
+model systems. PharmacoGx specifically focuses on drug sensitivity experiments 
+in cancer cell lines, which will be the major focus of this workshop. 
 
-Participants will learn the fundamentals of using CoreGx and PharmacoGx to
-create a `PharmacoSet`&mdash;an integrative container for the storage, analysis and
-visualization of pharmacogenomic experiments. Particular focus will be placed
-on newly developed support for storing, analyzing and visualizing drug 
-combination sensitivity experiments and correlating results therefrom for
-with multi-omic molecular profiles to discover biomarkers of drug senstivity
-or resistance.
+Participants will learn the fundamentals of using `r BiocStyle::Biocpkg("CoreGx")` 
+and `r BiocStyle::Biocpkg("PharmacoGx")` to create a `PharmacoSet`&mdash;an 
+integrative container for the storage, analysis and visualization of 
+pharmacogenomic experiments. Particular focus will be placed on newly developed 
+support for storing, analyzing and visualizing drug combination sensitivity 
+experiments and correlating results therefrom with multi-omic molecular 
+profiles to discover biomarkers of drug senstivity or resistance.
+
+Additional infrastructure from our lab includes`r BiocStyle::Biocpkg("ToxicoGx")` 
+for toxicogenomics in healthy human cell-lines, `r BiocStyle::Biocpkg("RadioGx")`  
+for radiogenomics in cancer cell-lines and `r BiocStyle::Biocpkg("Xeva")` 
+for pharmacogenomics in patient derived xenograft (PDX) models. To learn
+more about these additional packages, see our
+[Bioc2020 Workshop](http://bhklab.ca/bioc2020workshop/articles/GxWorkshop.html)
+on Biomarker Discovery from High Throughput Screening Datasets.
 
 ### Pre-requisites {-}
 
 * Basic knowledge of R syntax
 * Knowledge of or interest in pharmacogenomics
-* Familiarity with core Bioconductor classes such as the `SummarizedExperiment` and `MultiAssayExperiment`
-* Curiosity or experience about `data.table` an assest!
-
+* Familiarity with core Bioconductor classes such as the `SummarizedExperiment` 
+and `MultiAssayExperiment`
+* Curiosity about or experience with `data.table` an assest!
 
 Useful publications:
 
-* Smirnov, P., Safikhani, Z., El-Hachem, N., Wang, D., She, A., Olsen, C., Freeman, M., Selby, H., Gendoo, D. M. A., Grossmann, P., Beck, A. H., Aerts, H. J. W. L., Lupien, M., Goldenberg, A., & Haibe-Kains, B. (2016). PharmacoGx: An R package for analysis of large pharmacogenomic datasets. Bioinformatics (Oxford, England), 32(8), 1244–1246. https://doi.org/10.1093/bioinformatics/btv723
+* Smirnov, P., Safikhani, Z., El-Hachem, N., Wang, D., She, A., Olsen, C., 
+Freeman, M., Selby, H., Gendoo, D. M. A., Grossmann, P., Beck, A. H., 
+Aerts, H. J. W. L., Lupien, M., Goldenberg, A., & Haibe-Kains, B. (2016). 
+PharmacoGx: An R package for analysis of large pharmacogenomic datasets. 
+Bioinformatics (Oxford, England), 32(8), 1244–1246. 
+https://doi.org/10.1093/bioinformatics/btv723
+* Feizi, N., Nair, S. K., Smirnov, P., Beri, G., Eeles, C., Esfahani, P. N., 
+Nakano, M., Tkachuk, D., Mammoliti, A., Gorobets, E., Mer, A. S., Lin, E., 
+Yu, Y., Martin, S., Hafner, M., & Haibe-Kains, B. (2021). 
+PharmacoDB 2.0: Improving scalability and transparency of in vitro 
+pharmacogenomics analysis (p. 2021.09.21.461211). 
+https://doi.org/10.1101/2021.09.21.461211
 * T.B.D. PharmacoGx Drug Combo Experiment Paper!
 
 
@@ -68,6 +85,7 @@ Bioconductor:
 
 * https://www.bioconductor.org/packages/devel/bioc/html/CoreGx.html
 * https://www.bioconductor.org/packages/devel/bioc/html/PharmacoGx.html
+* https://bioconductor.org/packages/devel/bioc/html/MultiAssayExperiment.html
 
 CRAN:
 
@@ -84,8 +102,8 @@ For a 1-hr workshop:
 | Introduction to CoreGx and PharmacoGx                      |  5m  |
 | Generalizing Package Nomenclature                          |  5m  |
 | Overview of Data Structures                                |  10m |
-| New Features for Drug Combination Support                  |  15m |
-| Building a Drug Combination PharmacoSet                    |  10m |
+| New Features for Drug Combination Support                  |  5m |
+| Building a Drug Combination PharmacoSet                    |  15m |
 | Drug Combination Modelling (development in progress)       |  10m |
 | Visualizing Drug Combination Experiments (brainstorming)   |  10m |
 
@@ -103,26 +121,41 @@ T.B.D.
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE)
+knitr::opts_chunk$set(echo = TRUE)
 library(CoreGx)
 library(PharmacoGx)
-#library(PGxBioc2022Workshop)
+library(pgxBioc2022Workshop)
 ```
 
 # Introduction
 
 This tutorial, titled Pharmacogenomic Analysis of Drug Combination Experiments 
 to Identify Biomarkers of Response or Resistance, focuses on using the
-`PharmacoGx` R package to correlate treatment response, measured as the
-viability of cancer cell-lines after _in vivo_ drug treatment, with their
-respective multi-omic profiles. `CoreGx` provides the core infrastructure
-for storing, analyzing and visualizing generic treatment response experiments.
-It provides functions and classes which can be inherited in downstream packages,
-such as `ToxicoGx` and `RadioGx`. We hope that the `CoreSet` object is Generalizing
-enough that it can be reused by other developers for their specific treatment
-response use case.
+`r BiocStyle::Biocpkg("PharmacoGx")` R package to correlate treatment response, 
+measured as the viability of cancer cell-lines after _in vitro_ drug tre#atment, 
+with their respective multi-omic profiles. `r BiocStyle::Biocpkg("CoreGx")` 
+provides the core infrastructure for storing, analyzing and visualizing generic 
+treatment response experiments. It provides functions and classes which can be 
+inherited in downstream packages, such as `r BiocStyle::Biocpkg("ToxicoGx")` and 
+`r BiocStyle::Biocpkg("RadioGx")`. We hope that the `CoreSet` object is 
+generalized enough that it can be reused by other developers for their specific 
+treatment response use case.
 
-# Generalizing Package Nomenclature
+## PharmacoGx
+
+PharmacoGx stores drug screening data together with molecular profiling of 
+cell lines in an object called a `PharmacoSet`, or `PSet` for short. This object
+inherits for the `CoreSet` class defined in our package `CoreGx`, which abstracts
+the common functionality across our similar packages.
+
+<!--
+## CoreGx
+
+{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+knitr::include_graphics("./CoreSetClassDiagram.png")
+-->
+
+# Package Nomenclature
 
 To facilitate modularization of the GxSuite of R packages, we are shifting
 the nomenclature within a `CoreSet`&ndash;and therefore in inheriting packages
@@ -130,9 +163,11 @@ the nomenclature within a `CoreSet`&ndash;and therefore in inheriting packages
 
 To this end, we are making the following changes:
 
-* Previous reference to cell (cell-line) will become sample, allowing the `CoreSet` to be used for other model systems
-* Drug (radiation in `RadioGx`) will become treatment, allowing the `CoreSet` to be treatment type agnostic
-* 
+* Previous reference to cell (cell-line) will become sample, allowing the 
+`CoreSet` to be used for other model systems
+* Drug (radiation in `RadioGx`) will become treatment, allowing the 
+`CoreSet` to be treatment type agnostic
+* Sensitivity will become response (sensitivty slot becomes treatmentResponse)
 
 As a result of these changes, the names of some common accessors will be updated.
 The old accessors will still remain, ensuring backwards compatibility for at
@@ -148,28 +183,76 @@ molecular profile data.
 
 ## CoreSet
 
-
+__Need to update the class diagram__
 
 ## PharmacoSet
 
+The basic structure of a PharmacoSet is as follows:
+
+```{r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap = "**PharmacoSet class diagram**. Objects comprising a `PharmacoSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+knitr::include_graphics("./PharmacoGxClassDiagram.png")
+```
 
 
 ## TreatmentResponseExperiment
 
+```{r treatmentresponseexperiment, echo=FALSE, fig.wide=TRUE, fig.cap = "**TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+knitr::include_graphics("./LongTableClassDiagram.png")
+```
 
 ## MultiAssayExperiment
 
 
+```{r mutliassayexperiment, echo=FALSE, fig.wide=TRUE, fig.cap = "**MutliAssayExperiment class diagram**. Objects comprising a `MutliAssayExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+knitr::include_graphics("./LongTableClassDiagram.png")
+```
+
 # New Features for Drug Combination Support
 
+## Installing the Development packages
 
+__This section is temporary, until all changes are pushed to Bioconductor__
+
+Because the package changes for this workshop are not complete or tested yet,
+we will need to install the development packages directly from GitHub.
+
+```{r install_github_pkgs, eval=FALSE}
+remotes::install_github("bhklab/CoreGx@development")
+remotes::install_github("bhklab/PharmacoGx@development")
+```
+
+```{r install_bioc_pkgs, eval=FALSE}
+if (!require("MultiAssayExperiment"))
+    BiocManager::install("MultiAssayExperiment")
+```
+
+```{r install_cran_pkgs, eval=FALSE}
+if (!require("data.table"))
+    install.packages("data.table", type = "source") # compile locally
+```
+
+## Drug Combination Experiments
+
+The field of precision oncology is increasingly interested in exploring possible
+synergies between cancer therapies. To simplify the process of translating 
+drug combination experiments conducted in cancer model systems, we have extended
+the `CoreSet` and `PharmacoSet` classes with a new object, the 
+`TreatmentResponseExperiment`, which has been specifically designed to handle
+combination experiments. While drug combinations are the first use case for
+this data structure, as cancer model systems continue to advance we expected
+to also see sample-wise combinations. For example, 3D organoid models could
+include multiple cell-lines or patient tissue types.
 
 # Building a Drug Combiation PharmacoSet
+
+This section will teach the learner how to construct a drug combination
+`PharmacoSet` object from raw data.
 
 ## Raw Data
 
 
 ## Building a Treatment Response Experiment
+
 
 
 ## Building a MultiAssayExperiment
