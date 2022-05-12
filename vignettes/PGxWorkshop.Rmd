@@ -147,7 +147,7 @@ the common functionality across our similar packages.
 knitr::include_graphics("./CoreSetClassDiagram.png")
 -->
 
-## Package Nomenclature
+### Package Nomenclature
 
 To facilitate modularization of the GxSuite of R packages, we are shifting
 the nomenclature within a `CoreSet`&ndash;and therefore in inheriting packages
