@@ -32,7 +32,7 @@ RoxygenNote: 7.1.0
 Imports:
     CoreGx, PharmacoGx, MultiAssayExperiment, data.table
 Suggests:
-    knitr, rmarkdown, BiocStyle
+    knitr, rmarkdown, BiocStyle, pkgdown
 URL: https://bhklab.github.io/bioc2022workshop
 VignetteBuilder: knitr
 DockerImage: ghcr.io/bhklab/pgxBioc2022Workshop:latest
