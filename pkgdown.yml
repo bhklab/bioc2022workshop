@@ -1,0 +1,10 @@
+pandoc: 2.17.1.1
+pkgdown: 2.0.3
+pkgdown_sha: ~
+articles:
+  PGxWorkshop: PGxWorkshop.html
+last_built: 2022-05-12T21:58Z
+urls:
+  reference: https://bhklab.github.io/bioc2022Workshop/reference
+  article: https://bhklab.github.io/bioc2022Workshop/articles
+
