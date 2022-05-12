@@ -1,0 +1,16 @@
+url: https://bhklab.github.io/bioc2022Workshop
+
+template:
+  params:
+    bootswatch: flatly
+    #ganalytics: UA-99999999-9
+
+home:
+  title: "pgxBioc2022Workshop"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://bhklab.github.io/bioc2022Workshop
