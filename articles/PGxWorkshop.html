@@ -98,13 +98,15 @@ Centre<br><a class="author_email" href="mailto:#"></a><a href="mailto:christophe
 </h2>
 <p><em>This workshop is currently under development!</em></p>
 <div class="section level3">
-<h3 class="unnumbered" id="instructors-names-and-contact-information">Instructor(s) name(s) and contact
-information<a class="anchor" aria-label="anchor" href="#instructors-names-and-contact-information"></a>
+<h3 id="instructors-names-and-contact-information">Instructor(s) name(s) and contact information<a class="anchor" aria-label="anchor" href="#instructors-names-and-contact-information"></a>
 </h3>
 <ul>
 <li>Christopher Eeles <a href="mailto:christopher.eeles@uhnresearch.ca" class="email">christopher.eeles@uhnresearch.ca</a>
 </li>
-<li>Accepting volunteers! Who wants to help?</li>
+<li>Petr Smirnov <a href="mailto:petr.smirnov@utoronto.ca" class="email">petr.smirnov@utoronto.ca</a>
+</li>
+<li>Benjamin Haibe-Kains <a href="mailto:benjamin.haibe.kains@utoronto.ca" class="email">benjamin.haibe.kains@utoronto.ca</a>
+</li>
 </ul>
 </div>
 <div class="section level3">
@@ -308,37 +310,53 @@ be updated. The old accessors will still remain, ensuring backwards
 compatibility for at least two Bioconductor releases. A deprecation
 warning will be added to old accessors informing users of the
 corresponding new function, as per Bioconductor best practices.</p>
-</div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="overview-of-data-structures">Overview of Data Structures<a class="anchor" aria-label="anchor" href="#overview-of-data-structures"></a>
-</h2>
-<p>The GxSuite of packages make use of various Bioconductor classes for
-storing molecular profile data.</p>
-<div class="section level3">
-<h3 id="coreset">CoreSet<a class="anchor" aria-label="anchor" href="#coreset"></a>
-</h3>
-<p><strong>Need to update the class diagram</strong></p>
-</div>
-<div class="section level3">
-<h3 id="pharmacoset">PharmacoSet<a class="anchor" aria-label="anchor" href="#pharmacoset"></a>
-</h3>
-<p>The basic structure of a PharmacoSet is as follows:</p>
-<!--
-r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap = "**PharmacoSet class diagram**. Objects comprising a `PharmacoSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
-knitr::include_graphics("./PharmacoGxClassDiagram.png")
-
--->
-</div>
-<div class="section level3">
-<h3 id="treatmentresponseexperiment">TreatmentResponseExperiment<a class="anchor" aria-label="anchor" href="#treatmentresponseexperiment"></a>
-</h3>
-<!--
+<table style="width:6%;" class="table">
+<colgroup><col width="5%"></colgroup>
+<tbody>
+<tr class="odd">
+<td># Overview of Data Structures</td>
+</tr>
+<tr class="even">
+<td>The GxSuite of packages make use of various Bioconductor classes for
+storing molecular profile data.</td>
+</tr>
+<tr class="odd">
+<td>## CoreSet</td>
+</tr>
+<tr class="even">
+<td><strong>Need to update the class diagram</strong></td>
+</tr>
+<tr class="odd">
+<td>## PharmacoSet</td>
+</tr>
+<tr class="even">
+<td>The basic structure of a PharmacoSet is as follows:</td>
+</tr>
+<tr class="odd">
+<td>&lt;!– r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap =
+“<strong>PharmacoSet class diagram</strong>. Objects comprising a
+<code>PharmacoSet</code> are enclosed in boxes. The first box indicates
+the type and name of each object. The second box indicates the structure
+of an object or class. The third box shows accessor methods from
+<code>PharmacoGx</code> for that specific object. ‘=&gt;’ represents
+return and specifies what is returned from that item or method.”}
+knitr::include_graphics(“./PharmacoGxClassDiagram.png”)</td>
+</tr>
+<tr class="even">
+<td>–&gt;</td>
+</tr>
+<tr class="odd">
+<td>## TreatmentResponseExperiment</td>
+</tr>
+<tr class="even">
+<td><!--
 {r treatmentresponseexperiment, echo=FALSE, fig.wide=TRUE, fig.cap = "**TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./LongTableClassDiagram.png")
--->
-<hr>
+--></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="section level2">
