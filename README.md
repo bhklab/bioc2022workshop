@@ -39,10 +39,12 @@ Useful publications:
 
 ### Workshop Participation
 
-**No interactive portion yet!**
+**Interactive Portion in Development, will be updated when needed.**
 
-Participants are expected to have the following required packages installed
-on their machines to be able to run commands allow with the instructors. ...
+
+Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors.
+PharmacoGx, synergyfinder from Bioconductor, data.table from CRAN. 
+<!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors available to explain the why and how of applying these functions to the given datasets. Learners will write analysis scripts as well as use interactive commands to explore the generated data structures and results. Learners will then brainstorm potential applications of the analysis results in their field as well as comment on use case examples presented by the instructors on research in our lab. -->
 
 ### _R_ / _Bioconductor_ packages used
 
