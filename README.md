@@ -32,6 +32,7 @@ or resistance.
 
 
 Useful publications:
+
 * Smirnov, P., Safikhani, Z., El-Hachem, N., Wang, D., She, A., Olsen, C., Freeman, M., Selby, H., Gendoo, D. M. A., Grossmann, P., Beck, A. H., Aerts, H. J. W. L., Lupien, M., Goldenberg, A., & Haibe-Kains, B. (2016). PharmacoGx: An R package for analysis of large pharmacogenomic datasets. Bioinformatics (Oxford, England), 32(8), 1244–1246. https://doi.org/10.1093/bioinformatics/btv723
 * Tonekaboni, M., Ali, S., Soltan Ghoraie, L., Manem, V. S. K. & Haibe-Kains, B. Predictive approaches for drug combination discovery in cancer. Brief Bioinform 19, 263–276 (2018).
 
@@ -49,10 +50,12 @@ PharmacoGx, synergyfinder from Bioconductor, data.table from CRAN.
 ### _R_ / _Bioconductor_ packages used
 
 Bioconductor:
+
 * https://www.bioconductor.org/packages/devel/bioc/html/CoreGx.html
 * https://www.bioconductor.org/packages/devel/bioc/html/PharmacoGx.html
 
 CRAN:
+
 * https://cran.r-project.org/web/packages/data.table/index.html
 
 ## Time outline
@@ -94,26 +97,20 @@ For a 1.5-hr workshop:
 * Calculate the AAC, AUC, IC50 metrics for response quantification in cell lines
 * Predict in vitro univariate biomarkers for drug response and drug synergy using the PharmacoGx
 
-
+---
 ## Outline
 
-### Introduction to CoreGx and PharmacoGx
-### Overview of Data Structures
-#### CoreSet
-#### TreatmentResponseExperiment
-----
-### How TRE Support Drug Combinations Data Analysis
-### Using Data Mapper to build a Drug Combo PSet
-#### Data Mapper
-#### Combining with Omics Data into a PharmacoSet
-----
-
-### Dose Response Models and Drug Sensitivity Measures
-### Drug Combination Synergy Models
-### Biomarker Discovery:
-#### Monotherapy response
-#### Combination Synergy
-
-----
-
-#### Introduction to Resources for Biomarker Validation
+1. Introduction to CoreGx and PharmacoGx
+2. Overview of Data Structures
+   1. CoreSet
+   2. TreatmentResponseExperiment
+3. How TRE Support Drug Combinations Data Analysis
+4. Using Data Mapper to build a Drug Combo PSet
+   1. Data Mapper
+   2. Combining with Omics Data into a PharmacoSet
+5. Dose Response Models and Drug Sensitivity Measures
+6. Drug Combination Synergy Models
+7. Biomarker Discovery:
+    1. Monotherapy response
+    2. Combination Synergy
+8. Introduction to Resources for Biomarker Validation
