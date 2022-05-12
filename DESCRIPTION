@@ -2,10 +2,21 @@ Package: pgxBioc2022Workshop
 Title: PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology
 Version: 1.0.0
 Authors@R: c(
-    person("Christopher", "Eeles", , "christopher.eeles@uhnresearch.ca",
-        role = c("aut"), comment = c(ORCID = "0000-0002-9962-7385")),
-    person("Petr", "Smirnov", "petr.smirnov@utoronto.ca", role=c("aut")),
-    person("Benjamin", "Haibe-Kains", "benjamin.haibe.kains@utoronto.ca",
+    person(
+        given="Christopher",
+        family="Eeles",
+        email="christopher.eeles@uhnresearch.ca",
+        role = c("aut"),
+        comment = c(ORCID = "0000-0002-9962-7385")),
+    person(
+        given="Petr",
+        family="Smirnov",
+        email="petr.smirnov@utoronto.ca",
+        role=c("aut")),
+    person(
+        given="Benjamin",
+        family="Haibe-Kains",
+        email="benjamin.haibe.kains@utoronto.ca",
         role=c("aut", "cre"))
     )
 Description: This workshop will introduce users to the CoreGx and PharmacoGx R
