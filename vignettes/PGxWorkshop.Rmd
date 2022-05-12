@@ -18,10 +18,11 @@ vignette: >
 
 *This workshop is currently under development!*
 
-## Instructor(s) name(s) and contact information {-}
+## Instructor(s) name(s) and contact information
 
 * Christopher Eeles <christopher.eeles@uhnresearch.ca>
-* Accepting volunteers! Who wants to help?
+* Petr Smirnov <petr.smirnov@utoronto.ca>
+* Benjamin Haibe-Kains <benjamin.haibe.kains@utoronto.ca>
 
 ## Workshop Description {-}
 
@@ -167,7 +168,7 @@ least two Bioconductor releases. A deprecation warning will be added to old
 accessors informing users of the corresponding new function, as per Bioconductor
 best practices.
 
-
+---
 # Overview of Data Structures
 
 The GxSuite of packages make use of various Bioconductor classes for storing
