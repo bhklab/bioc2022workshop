@@ -3,7 +3,8 @@
 ## Instructor(s) name(s) and contact information
 
 * Christopher Eeles <christopher.eeles@uhnresearch.ca>
-* Accepting volunteers! Who wants to help?
+* Petr Smirnov <petr.smirnov@utoronto.ca>
+* Benjamin Haibe-Kains 
 
 ## Workshop Description
 This workshop will introduce users to the CoreGx and PharmacoGx R packages,
@@ -32,7 +33,8 @@ or resistance.
 
 Useful publications:
 * Smirnov, P., Safikhani, Z., El-Hachem, N., Wang, D., She, A., Olsen, C., Freeman, M., Selby, H., Gendoo, D. M. A., Grossmann, P., Beck, A. H., Aerts, H. J. W. L., Lupien, M., Goldenberg, A., & Haibe-Kains, B. (2016). PharmacoGx: An R package for analysis of large pharmacogenomic datasets. Bioinformatics (Oxford, England), 32(8), 1244–1246. https://doi.org/10.1093/bioinformatics/btv723
-* T.B.D. PharmacoGx Drug Combo Experiment Paper!
+* Tonekaboni, M., Ali, S., Soltan Ghoraie, L., Manem, V. S. K. & Haibe-Kains, B. Predictive approaches for drug combination discovery in cancer. Brief Bioinform 19, 263–276 (2018).
+
 
 
 ### Workshop Participation
@@ -55,26 +57,64 @@ CRAN:
 
 **Tentative, likely to change!**
 
-For a 1-hr workshop:
+For a 1.5-hr workshop:
 
 | Activity                                                   | Time |
 |------------------------------------------------------------|------|
 | Introduction to CoreGx and PharmacoGx                      |  5m  |
-| Generalizing Package Nomenclature                          |  5m  |
-| Overview of Data Structures                                |  10m |
-| New Features for Drug Combination Support                  |  15m |
-| Building a Drug Combination PharmacoSet                    |  10m |
-| Drug Combination Modelling (development in progress)       |  10m |
-| Visualizing Drug Combination Experiments (brainstorming)   |  10m |
+| Overview of Data Structures                                |  15m |
+| How TRE Support Drug Combinations Data Analysis            |  10m |
+| Using Data Mapper to build a Drug Combo PharmacoSet.       |  10m |
+| Dose Response Models and Drug Sensitivity measures         |  10m |
+| Drug Combination Synergy Models                            |  10m |
+| Biomarker Discovery:                                       |  15m |
+| Introduction to Resources for Biomarker Validation         |  5m  | 
+
 
 ## Workshop goals and objectives
 
-T.B.D.
+**To Be Updated**
 
 ### Learning goals
 
-T.B.D.
+* Describe pharmacogenomic mono and combination datasets and usefulness in cancer research
+* Understand how experimental designs and research questions map onto data structures 
+* Learn how to extract information from these datasets 
+* Learn how to visualize experimental results from these datasets 
+* Learn how to model dose-response for both monotherapy and combination small compound datasets
+* Learn measures to quantify response and synergy in cell line sensitivity screens
 
 ### Learning objectives
 
-T.B.D.
+* List available standardized pharmacogenomic and radiogenomic datasets and download them
+* Access the molecular features, dose-response and metadata contained within the data structures defined in the packages
+* Create drug-dose and radiation-dose response plots for cell line experiments
+* Create tumor growth curve plots for PDX experiments
+* Fit linear-quadratic models to radiotherapy experiments in cell lines
+* Fit Hill Slope models to dose-response experiments using small compound treatments in cell lines
+* Calculate the AAC, AUC, IC50 metrics for response quantification in cell lines
+* Predict in vitro univariate biomarkers for drug response and drug synergy using the PharmacoGx
+
+
+### Outline
+
+#### Introduction to CoreGx and PharmacoGx 
+#### Overview of Data Structures  
+##### CoreSet 
+##### TreatmentResponseExperiment 
+---- 
+#### How TRE Support Drug Combinations Data Analysis
+#### Using Data Mapper to build a Drug Combo PSet
+##### Data Mapper 
+##### Combining with Omics Data into a PharmacoSet  
+----
+
+#### Dose Response Models and Drug Sensitivity measures 
+#### Drug Combination Synergy Models 
+#### Biomarker Discovery:	
+##### Monotherapy response
+##### Combination Synergy 
+
+---- 
+
+#### Introduction to Resources for Biomarker Validation 
