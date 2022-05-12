@@ -220,16 +220,19 @@ __Need to update the class diagram__
 
 The basic structure of a PharmacoSet is as follows:
 
+<!--
 ```{r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap = "**PharmacoSet class diagram**. Objects comprising a `PharmacoSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./PharmacoGxClassDiagram.png")
 ```
-
+-->
 
 ## TreatmentResponseExperiment
 
+<!--
 ```{r treatmentresponseexperiment, echo=FALSE, fig.wide=TRUE, fig.cap = "**TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./LongTableClassDiagram.png")
 ```
+-->
 
 ----
 
