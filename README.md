@@ -90,9 +90,6 @@ For a 1.5-hr workshop:
 
 * List available standardized pharmacogenomic and radiogenomic datasets and download them
 * Access the molecular features, dose-response and metadata contained within the data structures defined in the packages
-* Create drug-dose and radiation-dose response plots for cell line experiments
-* Create tumor growth curve plots for PDX experiments
-* Fit linear-quadratic models to radiotherapy experiments in cell lines
 * Fit Hill Slope models to dose-response experiments using small compound treatments in cell lines
 * Calculate the AAC, AUC, IC50 metrics for response quantification in cell lines
 * Predict in vitro univariate biomarkers for drug response and drug synergy using the PharmacoGx
