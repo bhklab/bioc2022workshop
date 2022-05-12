@@ -95,24 +95,24 @@ For a 1.5-hr workshop:
 * Predict in vitro univariate biomarkers for drug response and drug synergy using the PharmacoGx
 
 
-### Outline
+## Outline
 
-#### Introduction to CoreGx and PharmacoGx
-#### Overview of Data Structures
-##### CoreSet
-##### TreatmentResponseExperiment
+### Introduction to CoreGx and PharmacoGx
+### Overview of Data Structures
+#### CoreSet
+#### TreatmentResponseExperiment
 ----
-#### How TRE Support Drug Combinations Data Analysis
-#### Using Data Mapper to build a Drug Combo PSet
-##### Data Mapper
-##### Combining with Omics Data into a PharmacoSet
+### How TRE Support Drug Combinations Data Analysis
+### Using Data Mapper to build a Drug Combo PSet
+#### Data Mapper
+#### Combining with Omics Data into a PharmacoSet
 ----
 
-#### Dose Response Models and Drug Sensitivity Measures
-#### Drug Combination Synergy Models
-#### Biomarker Discovery:
-##### Monotherapy response
-##### Combination Synergy
+### Dose Response Models and Drug Sensitivity Measures
+### Drug Combination Synergy Models
+### Biomarker Discovery:
+#### Monotherapy response
+#### Combination Synergy
 
 ----
 
