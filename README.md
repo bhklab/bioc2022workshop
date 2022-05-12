@@ -4,7 +4,7 @@
 
 * Christopher Eeles <christopher.eeles@uhnresearch.ca>
 * Petr Smirnov <petr.smirnov@utoronto.ca>
-* Benjamin Haibe-Kains 
+* Benjamin Haibe-Kains <benjamin.haibe.kains@utoronto.ca>
 
 ## Workshop Description
 This workshop will introduce users to the CoreGx and PharmacoGx R packages,
@@ -19,7 +19,7 @@ derived xenograph (PDX) murine models.
 Participants will learn the fundamentals of using CoreGx and PharmacoGx to
 create a PharmacoSet&mdash;an integrative container for the storage, analysis and
 visualization of pharmacogenomic experiments. Particular focus will be placed
-on newly developed support for storing, analyzing and visualizing drug 
+on newly developed support for storing, analyzing and visualizing drug
 combination sensitivity experiments and correlating results therefrom for
 with multi-omic molecular profiles to discover biomarkers of drug senstivity
 or resistance.
@@ -43,7 +43,7 @@ Useful publications:
 
 
 Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors.
-PharmacoGx, synergyfinder from Bioconductor, data.table from CRAN. 
+PharmacoGx, synergyfinder from Bioconductor, data.table from CRAN.
 <!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors available to explain the why and how of applying these functions to the given datasets. Learners will write analysis scripts as well as use interactive commands to explore the generated data structures and results. Learners will then brainstorm potential applications of the analysis results in their field as well as comment on use case examples presented by the instructors on research in our lab. -->
 
 ### _R_ / _Bioconductor_ packages used
@@ -70,7 +70,7 @@ For a 1.5-hr workshop:
 | Dose Response Models and Drug Sensitivity measures         |  10m |
 | Drug Combination Synergy Models                            |  10m |
 | Biomarker Discovery:                                       |  15m |
-| Introduction to Resources for Biomarker Validation         |  5m  | 
+| Introduction to Resources for Biomarker Validation         |  5m  |
 
 
 ## Workshop goals and objectives
@@ -80,9 +80,9 @@ For a 1.5-hr workshop:
 ### Learning goals
 
 * Describe pharmacogenomic mono and combination datasets and usefulness in cancer research
-* Understand how experimental designs and research questions map onto data structures 
-* Learn how to extract information from these datasets 
-* Learn how to visualize experimental results from these datasets 
+* Understand how experimental designs and research questions map onto data structures
+* Learn how to extract information from these datasets
+* Learn how to visualize experimental results from these datasets
 * Learn how to model dose-response for both monotherapy and combination small compound datasets
 * Learn measures to quantify response and synergy in cell line sensitivity screens
 
@@ -97,23 +97,23 @@ For a 1.5-hr workshop:
 
 ### Outline
 
-#### Introduction to CoreGx and PharmacoGx 
-#### Overview of Data Structures  
-##### CoreSet 
-##### TreatmentResponseExperiment 
----- 
+#### Introduction to CoreGx and PharmacoGx
+#### Overview of Data Structures
+##### CoreSet
+##### TreatmentResponseExperiment
+----
 #### How TRE Support Drug Combinations Data Analysis
 #### Using Data Mapper to build a Drug Combo PSet
-##### Data Mapper 
-##### Combining with Omics Data into a PharmacoSet  
+##### Data Mapper
+##### Combining with Omics Data into a PharmacoSet
 ----
 
-#### Dose Response Models and Drug Sensitivity measures 
-#### Drug Combination Synergy Models 
-#### Biomarker Discovery:	
+#### Dose Response Models and Drug Sensitivity Measures
+#### Drug Combination Synergy Models
+#### Biomarker Discovery:
 ##### Monotherapy response
-##### Combination Synergy 
+##### Combination Synergy
 
----- 
+----
 
-#### Introduction to Resources for Biomarker Validation 
+#### Introduction to Resources for Biomarker Validation
