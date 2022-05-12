@@ -28,7 +28,7 @@ or resistance.
 * Basic knowledge of R syntax
 * Knowledge of or interest in pharmacogenomics
 * Familiarity with core Bioconductor classes such as the `SummarizedExperiment` and `MultiAssayExperiment`
-* Curiosity or experience about `data.table` an assest!
+* Curiosity about or experience with `data.table` an assest!
 
 
 Useful publications:
