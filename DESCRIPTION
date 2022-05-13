@@ -30,9 +30,15 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Imports:
-    CoreGx, PharmacoGx, MultiAssayExperiment, data.table
+    CoreGx,
+    PharmacoGx,
+    MultiAssayExperiment,
+    data.table
 Suggests:
-    knitr, rmarkdown, BiocStyle, pkgdown
+    knitr,
+    rmarkdown,
+    BiocStyle,
+    pkgdown
 URL: https://bhklab.github.io/bioc2022workshop
 VignetteBuilder: knitr
 DockerImage: ghcr.io/bhklab/pgxBioc2022Workshop:latest
