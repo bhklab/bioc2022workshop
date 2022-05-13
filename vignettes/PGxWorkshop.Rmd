@@ -5,18 +5,7 @@ author:
   - name: Christopher Eeles
     email: christopher.eeles@uhnresearch.ca
     affiliation:
-        - &pm Princess Margaret Cancer Centre, University Health Network, Toronto Canada
-  - name: Petr Smirnov
-    email: petr.smirnov@utoronto.ca
-    affiliation:
-        - *pm
-        - &mbp Department of Medical Biophysics, University of Toronto, Toronto Canada
-  - name: Benjamin Haibe-Kains
-    email: benjamin.haibe.kains@utoronto.ca
-    affiliation:
-      - *pm
-      - *mbp
-      - &cs Department of Computer Science, University of Toronto, Toronto Canada
+        - &pm Princess Margaret Cancer Centre
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance}
@@ -179,7 +168,7 @@ least two Bioconductor releases. A deprecation warning will be added to old
 accessors informing users of the corresponding new function, as per Bioconductor
 best practices.
 
-
+---
 # Overview of Data Structures
 
 The GxSuite of packages make use of various Bioconductor classes for storing
