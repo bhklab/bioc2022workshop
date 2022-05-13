@@ -1,6 +1,6 @@
 Package: pgxBioc2022Workshop
 Title: PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology
-Version: 1.0.3
+Version: 1.0.4
 Authors@R: c(
     person(
         given="Christopher",
@@ -23,7 +23,14 @@ Description: This workshop will introduce users to the CoreGx and PharmacoGx R
     packages, which are useful tools for pharmacogenomic modelling to discover
     biomarkers of treatment response in cancer model systems. PharmacoGx
     specifically focuses on drug sensitivity experiments in cancer cell lines,
-    which will be the major focus of this workshop.
+    which will be the major focus of this workshop. Recent updates to PharmacoGx have
+    added support for analyzing drug combination experiments to discover molecular biomarkers
+    of drug synergy or antagonism. In this workshop users will learn how to use CoreGx and
+    PharmacoGx to build a PharmacoSet object from cancer cell-lines with both their molecular
+    phenotype and response to drug combination therapy characterized. This object will then be used
+    to compute common metrics of drug synergy and antagonism and to use available molecular
+    data to discover genes associated with response or resistance to both mono and drug combination
+    therapies.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
