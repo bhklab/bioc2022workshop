@@ -3,7 +3,7 @@ name: Check, build, and push image
 on: [push, pull_request]
 
 env:
-  cache-version: v1
+  cache-version: v2
 
 jobs:
   r-build-and-check:
