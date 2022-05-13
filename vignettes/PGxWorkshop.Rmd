@@ -5,18 +5,18 @@ author:
   - name: Christopher Eeles
     email: christopher.eeles@uhnresearch.ca
     affiliation:
-        - &pm Princess Margaret Cancer Centre, University Health Network, Toronto Canada\n
+        - &pm Princess Margaret Cancer Centre, University Health Network, Toronto Canada
   - name: Petr Smirnov
     email: petr.smirnov@utoronto.ca
     affiliation:
         - *pm
-        - &mbp Department of Medical Biophysics, University of Toronto, Toronto Canada\n
+        - &mbp Department of Medical Biophysics, University of Toronto, Toronto Canada
   - name: Benjamin Haibe-Kains
     email: benjamin.haibe.kains@utoronto.ca
     affiliation:
       - *pm
       - *mbp
-      - &cs Department of Computer Science, University of Toronto, Toronto Canada\n
+      - &cs Department of Computer Science, University of Toronto, Toronto Canada
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance}
