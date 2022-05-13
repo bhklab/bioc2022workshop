@@ -1,6 +1,6 @@
 Package: pgxBioc2022Workshop
 Title: PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology
-Version: 1.0.4
+Version: 1.0.3
 Authors@R: c(
     person(
         given="Christopher",
