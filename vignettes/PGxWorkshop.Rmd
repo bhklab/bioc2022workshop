@@ -10,13 +10,13 @@ author:
     email: petr.smirnov@utoronto.ca
     affiliation:
         - *pm
-        - &mbp Department of Medical Biophysics, University of Toronto, Toronto Canada
+        &mbp Department of Medical Biophysics, University of Toronto, Toronto Canada
   - name: Benjamin Haibe-Kains
     email: benjamin.haibe.kains@utoronto.ca
     affiliation:
       - *pm
-      - *mbp
-      - &cs Department of Computer Science, University of Toronto, Toronto Canada
+      *mbp
+      &cs Department of Computer Science, University of Toronto, Toronto Canada
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance}
