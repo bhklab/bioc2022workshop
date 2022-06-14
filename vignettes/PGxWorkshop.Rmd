@@ -8,7 +8,7 @@ author:
         - &pm Princess Margaret Cancer Centre
   - name: Petr Smirnov
     email: petr.smirnov@utoronto.ca
-    affiliation: 
+    affiliation:
         - &pm Princess Margaret Cancer Centre
         - &uot University of Toronto
 output: BiocStyle::html_document
@@ -23,7 +23,7 @@ vignette: >
 
 *This workshop is currently under development!*
 
-## Instructor(s) name(s) and contact information
+## Instructor(s) name(s) and contact information {-}
 
 * Christopher Eeles <christopher.eeles@uhnresearch.ca>
 * Petr Smirnov <petr.smirnov@utoronto.ca>
@@ -31,10 +31,16 @@ vignette: >
 
 ## Workshop Description {-}
 
-This workshop will introduce users to the `r BiocStyle::Biocpkg("CoreGx")` and
-`r BiocStyle::Biocpkg("PharmacoGx")` R packages, which are useful tools for
+<!-- Alias package links -->
+```{r eval=TRUE, echo=FALSE}
+PGx <- BiocStyle::Biocpkg("PharmacoGx")
+CGx <- BiocStyle::Biocpkg("CoreGx")
+```
+
+This workshop will introduce users to the `r CGx` and
+`r PGx` R packages, which are useful tools for
 pharmacogenomic modelling to discover biomarkers of treatment response in cancer
-model systems. `r BiocStyle::Biocpkg("PharmacoGx")` specifically focuses on
+model systems. `r PGx` specifically focuses on
 drug sensitivity experiments in cancer cell lines, which will be the major
 focus of this workshop. Additional infrastructure from our lab includes
 `r BiocStyle::Biocpkg("ToxicoGx")` for toxicogenomics in healthy human
@@ -42,8 +48,8 @@ cell-lines, `r BiocStyle::Biocpkg("RadioGx")` for
 radiogenomics in cancer cell-lines and `r BiocStyle::Biocpkg("Xeva")` for
 pharmacogenomics in patient derived xenograph (PDX) murine models.
 
-Participants will learn the fundamentals of using `r BiocStyle::Biocpkg("CoreGx")`
-and `r BiocStyle::Biocpkg("PharmacoGx")` to create a `PharmacoSet`&mdash;an
+Participants will learn the fundamentals of using `r CGx`
+and `r PGx` to create a `PharmacoSet`&mdash;an
 integrative container for the storage, analysis and visualization of
 pharmacogenomic experiments. Particular focus will be placed
 on newly developed support for storing, analyzing and visualizing drug
@@ -51,39 +57,47 @@ combination sensitivity experiments and correlating results therefrom for
 with multi-omic molecular profiles to discover biomarkers of drug senstivity
 or resistance.
 
-### Pre-requisites
-* Basic knowledge of R syntax
-* Knowledge of or interest in pharmacogenomics
-* Familiarity with core Bioconductor classes such as the `SummarizedExperiment`
+### Pre-requisites {-}
+  * Basic knowledge of R syntax
+  * Knowledge of or interest in pharmacogenomics
+  * Familiarity with core Bioconductor classes such as the `SummarizedExperiment`
 and `MultiAssayExperiment`
-* Curiosity or experience about `data.table` an assest!
+  * Curiosity about or experience with `data.table` an assest!
 
 
 Useful publications:
+
 * Smirnov, P., Safikhani, Z., El-Hachem, N., Wang, D., She, A., Olsen, C., Freeman, M., Selby, H., Gendoo, D. M. A., Grossmann, P., Beck, A. H., Aerts, H. J. W. L., Lupien, M., Goldenberg, A., & Haibe-Kains, B. (2016). PharmacoGx: An R package for analysis of large pharmacogenomic datasets. Bioinformatics (Oxford, England), 32(8), 1244–1246. https://doi.org/10.1093/bioinformatics/btv723
 * Tonekaboni, M., Ali, S., Soltan Ghoraie, L., Manem, V. S. K. & Haibe-Kains, B. Predictive approaches for drug combination discovery in cancer. Brief Bioinform 19, 263–276 (2018).
 
 
 
-### Workshop Participation
+### Workshop Participation {-}
 
 **Interactive Portion in Development, will be updated when needed.**
 
+<!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors
+available to explain the why and how of applying these functions to the given datasets. Learners will write analysis
+scripts as well as use interactive commands to explore the generated data structures and results. Learners will then
+brainstorm potential applications of the analysis results in their field as well as comment on use case examples
+presented by the instructors on research in our lab. -->
 
-Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors.
-CoreGx and PharmacoGx from Bioconductor, data.table from CRAN.
-<!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors available to explain the why and how of applying these functions to the given datasets. Learners will write analysis scripts as well as use interactive commands to explore the generated data structures and results. Learners will then brainstorm potential applications of the analysis results in their field as well as comment on use case examples presented by the instructors on research in our lab. -->
 
-### _R_ / _Bioconductor_ packages used
+Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors:
+
+
+### _R_ / _Bioconductor_ packages used {-}
 
 Bioconductor:
+
 * https://www.bioconductor.org/packages/devel/bioc/html/CoreGx.html
 * https://www.bioconductor.org/packages/devel/bioc/html/PharmacoGx.html
 
 CRAN:
+
 * https://cran.r-project.org/web/packages/data.table/index.html
 
-## Time outline
+## Time outline {-}
 
 **Tentative, likely to change!**
 
@@ -101,11 +115,11 @@ For a 1.5-hr workshop:
 | Introduction to Resources for Biomarker Validation         |  5m  |
 
 
-## Workshop goals and objectives
+## Workshop goals and objectives {-}
 
 **To Be Updated**
 
-### Learning goals
+### Learning goals {-}
 
 * Describe pharmacogenomic mono and combination datasets and usefulness in cancer research
 * Understand how experimental designs and research questions map onto data structures
@@ -114,7 +128,7 @@ For a 1.5-hr workshop:
 * Learn how to model dose-response for both monotherapy and combination small compound datasets
 * Learn measures to quantify response and synergy in cell line sensitivity screens
 
-### Learning objectives
+### Learning objectives {-}
 
 * List available standardized pharmacogenomic and radiogenomic datasets and download them
 * Access the molecular features, dose-response and metadata contained within the data structures defined in the packages
@@ -161,11 +175,11 @@ the nomenclature within a `CoreSet`&ndash;and therefore in inheriting packages
 
 To this end, we are making the following changes:
 
-* Previous reference to cell (cell-line) will become sample, allowing the
+  * Previous reference to cell (cell-line) will become sample, allowing the
 `CoreSet` to be used for other model systems
-* Drug (radiation in `RadioGx`) will become treatment, allowing the
+  * Drug (radiation in `RadioGx`) will become treatment, allowing the
 `CoreSet` to be treatment type agnostic
-* Sensitivity will become response (sensitivty slot becomes treatmentResponse)
+  * Sensitivity will become response (sensitivty slot becomes treatmentResponse)
 
 As a result of these changes, the names of some common accessors will be updated.
 The old accessors will still remain, ensuring backwards compatibility for at
@@ -195,10 +209,11 @@ knitr::include_graphics("./PharmacoGxClassDiagram.png")
 
 ## TreatmentResponseExperiment
 
-<!--
-{r treatmentresponseexperiment, echo=FALSE, fig.wide=TRUE, fig.cap = "**TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
-knitr::include_graphics("./LongTableClassDiagram.png")
--->
+```{r treatmentresponseexperiment_class,
+  echo=FALSE, fig.wide=TRUE,
+  fig.cap = "**TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+knitr::include_graphics("./TreatmentResponseExperimentClassDiagram.drawio.png")
+```
 
 ----
 
@@ -226,29 +241,29 @@ include multiple cell-lines or patient tissue types.
 
 # Dose Response Models and Drug Sensitivity Measures
 
-Understanding monotherapy dose-viability data is an important step in assessing drug combination response. Drug synergy is assessed by 
-comparing the observed combination response compared to what is expected from the response of cells to each drug separately. While 
-different models for "expected" combination effect will be discussed in the next section, we first review how monotherapy data is analyzed. 
+Understanding monotherapy dose-viability data is an important step in assessing drug combination response. Drug synergy is assessed by
+comparing the observed combination response compared to what is expected from the response of cells to each drug separately. While
+different models for "expected" combination effect will be discussed in the next section, we first review how monotherapy data is analyzed.
 
-Monotherapy dose-response experiments are usually analyzed by first fitting a dose-viability model to the observed measurements. 
-The most common model used in the literature is a form of sigmoid function, called the Hill Curve. The Hill Curve has its 
-basis in the Michaelis-Menten chemical kinetics model, while adding an extra parameter to account for co-operativity of binding. 
-To better match real observed data, the model can also be extended to include parameters controlling the maximum and minimum observed 
+Monotherapy dose-response experiments are usually analyzed by first fitting a dose-viability model to the observed measurements.
+The most common model used in the literature is a form of sigmoid function, called the Hill Curve. The Hill Curve has its
+basis in the Michaelis-Menten chemical kinetics model, while adding an extra parameter to account for co-operativity of binding.
+To better match real observed data, the model can also be extended to include parameters controlling the maximum and minimum observed
 viability.
 
-_NB: Sometimes, dose-viability and dose-response curves are used interchangebly in the literature. Precisely, dose-response curves 
+_NB: Sometimes, dose-viability and dose-response curves are used interchangebly in the literature. Precisely, dose-response curves
 for a cell kiling screen would plot % cell death against dose, leading to an increasing sigmoid curve._
 
 In `PharmacoGx`, we use the 3 Parameter Hill Curve
 function as our model of drug response in cancer cell lines:
 
 $$y = E_\infty + \frac{1-E_\infty}{1 + (\frac{x}{EC50})^{HS}}$$
-This is a log-logistic model, meaning that it takes the form of a logistic curve when x is on the log scale. 
+This is a log-logistic model, meaning that it takes the form of a logistic curve when x is on the log scale.
 The three parameters are:
 $E_\infty$, which is the maximal inhibition predicted at infinite concentration of the drug (the right asymptote);
 $EC50$, which is the inflection point of the logit, where the inhibition reaches 50% of the maximum;
-$HS$, the Hill Slope, which is a measure of the cooperativity of binding. This parameter controls the steepness 
-of the logit, and is interpreted based on its relation to 1. Values larger than 1 imply positive cooperativity in 
+$HS$, the Hill Slope, which is a measure of the cooperativity of binding. This parameter controls the steepness
+of the logit, and is interpreted based on its relation to 1. Values larger than 1 imply positive cooperativity in
 inhibition/binding of the target for the small molecule ligands, which values less than 1 imply negative cooperativity/antagonism.
 
 
@@ -259,7 +274,7 @@ knitr::include_graphics("./hill_slope.png")
 ```
 
 
-PharmacoGx provides functions to both fit and visualize dose-viability curves. Plotting dose-viability data is easy using the 
+PharmacoGx provides functions to both fit and visualize dose-viability curves. Plotting dose-viability data is easy using the
 `drugDoseResponseCurve` function:
 
 
@@ -280,21 +295,21 @@ pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
 print(pars)
 ```
 
-Note that sometimes, it is may be more appropriate to use either a 2 parameter model (excluding the $E_\infty$ parameter), or a 
-4 parameter model, including a parameter for the left-assymptote, that is, the measurement when no drug is added. `PharmacoGx` is opiniated 
-in using the 3 parameter model, as the logical value for the viability as a percentage of untreated cells when no drug is added is 100%. 
-However, the `drc` CRAN package provides a larger variety of dose-response models, should it be appropriate in your application. 
+Note that sometimes, it is may be more appropriate to use either a 2 parameter model (excluding the $E_\infty$ parameter), or a
+4 parameter model, including a parameter for the left-assymptote, that is, the measurement when no drug is added. `PharmacoGx` is opiniated
+in using the 3 parameter model, as the logical value for the viability as a percentage of untreated cells when no drug is added is 100%.
+However, the `drc` CRAN package provides a larger variety of dose-response models, should it be appropriate in your application.
 
 
-We will soon demonstrate how to apply the `logLogisticRegression` to dose-viability data stored in a `TreatmentResponseExperiment`, 
-but first we will talk about how to summarize dose-response curves for downstream analysis. 
+We will soon demonstrate how to apply the `logLogisticRegression` to dose-viability data stored in a `TreatmentResponseExperiment`,
+but first we will talk about how to summarize dose-response curves for downstream analysis.
 
 
 ### Computing Summary Measures for DDRCs
 
-Often with _in vitro_ Pharmacogenomics data, we want to compare the drug sensitivity of a cell line 
-to some omic features. For this, we want to summarize the drug dose response curve into a single 
-number representing the sensitivity of the cell line. 
+Often with _in vitro_ Pharmacogenomics data, we want to compare the drug sensitivity of a cell line
+to some omic features. For this, we want to summarize the drug dose response curve into a single
+number representing the sensitivity of the cell line.
 
 ```{r hillSlopeSumFig, fig.cap="Some commonly used summary metrics for a dose-response curve", echo=FALSE}
 knitr::include_graphics("./hillSlopeSummary.png")
@@ -302,8 +317,8 @@ knitr::include_graphics("./hillSlopeSummary.png")
 
 
 The IC50 and Area Above the Curve are two
-convenient metrics for quantifying the observed drug sensitivity. If you noticed above, 
-the `drugDoseResponseCurve` function computes them by default. In PharmacoGx, they can be 
+convenient metrics for quantifying the observed drug sensitivity. If you noticed above,
+the `drugDoseResponseCurve` function computes them by default. In PharmacoGx, they can be
 computed manually as follows:
 
 ```{r sens_own}
@@ -314,9 +329,9 @@ print(PharmacoGx::computeAUC(concentration = concentrations, viability = viabili
 print(PharmacoGx::computeIC50(concentration = concentrations, viability = viabilities))
 ```
 
-If measurements are passed into these function, the Log Logistic model is fit to compute the IC50 and AAC. 
-Clearly, if multiple metrics are being computed, redoing the fit is inefficent. Therefore, these functions 
-can also take parameters fit by `logLogisticRegression`. 
+If measurements are passed into these function, the Log Logistic model is fit to compute the IC50 and AAC.
+Clearly, if multiple metrics are being computed, redoing the fit is inefficent. Therefore, these functions
+can also take parameters fit by `logLogisticRegression`.
 
 ```{r sens_own_fit_first, eval=FALSE}
 concentrations <- 1/2^seq(0,8) * 1
