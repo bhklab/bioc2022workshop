@@ -83,6 +83,12 @@ Eeles</h4>
       Princess Margaret Cancer
 Centre<br><a class="author_email" href="mailto:#"></a><a href="mailto:christopher.eeles@uhnresearch.ca" class="email">christopher.eeles@uhnresearch.ca</a>
       </address>
+                              <h4 data-toc-skip class="author">Petr
+Smirnov</h4>
+            <address class="author_afil">
+      Princess Margaret Cancer CentreUniversity of
+Toronto<br><a class="author_email" href="mailto:#"></a><a href="mailto:petr.smirnov@utoronto.ca" class="email">petr.smirnov@utoronto.ca</a>
+      </address>
                   
       
       
@@ -394,6 +400,198 @@ patient tissue types.</p>
 <div class="section level2">
 <h2 id="dose-response-models-and-drug-sensitivity-measures">Dose Response Models and Drug Sensitivity Measures<a class="anchor" aria-label="anchor" href="#dose-response-models-and-drug-sensitivity-measures"></a>
 </h2>
+<p>Understanding monotherapy dose-viability data is an important step in
+assessing drug combination response. Drug synergy is assessed by
+comparing the observed combination response compared to what is expected
+from the response of cells to each drug separately. While different
+models for “expected” combination effect will be discussed in the next
+section, we first review how monotherapy data is analyzed.</p>
+<p>Monotherapy dose-response experiments are usually analyzed by first
+fitting a dose-viability model to the observed measurements. The most
+common model used in the literature is a form of sigmoid function,
+called the Hill Curve. The Hill Curve has its basis in the
+Michaelis-Menten chemical kinetics model, while adding an extra
+parameter to account for co-operativity of binding. To better match real
+observed data, the model can also be extended to include parameters
+controlling the maximum and minimum observed viability.</p>
+<p><em>NB: Sometimes, dose-viability and dose-response curves are used
+interchangebly in the literature. Precisely, dose-response curves for a
+cell kiling screen would plot % cell death against dose, leading to an
+increasing sigmoid curve.</em></p>
+<p>In <code>PharmacoGx</code>, we use the 3 Parameter Hill Curve
+function as our model of drug response in cancer cell lines:</p>
+<p><span class="math display">\[y = E_\infty + \frac{1-E_\infty}{1 +
+(\frac{x}{EC50})^{HS}}\]</span> This is a log-logistic model, meaning
+that it takes the form of a logistic curve when x is on the log scale.
+The three parameters are: <span class="math inline">\(E_\infty\)</span>,
+which is the maximal inhibition predicted at infinite concentration of
+the drug (the right asymptote); <span class="math inline">\(EC50\)</span>, which is the inflection point of
+the logit, where the inhibition reaches 50% of the maximum; <span class="math inline">\(HS\)</span>, the Hill Slope, which is a measure of
+the cooperativity of binding. This parameter controls the steepness of
+the logit, and is interpreted based on its relation to 1. Values larger
+than 1 imply positive cooperativity in inhibition/binding of the target
+for the small molecule ligands, which values less than 1 imply negative
+cooperativity/antagonism.</p>
+<pre><code><span class="co">## Loading required package: CoreGx</span></code></pre>
+<pre><code><span class="co">## Loading required package: BiocGenerics</span></code></pre>
+<pre><code><span class="co">## </span>
+<span class="co">## Attaching package: 'BiocGenerics'</span></code></pre>
+<pre><code><span class="co">## The following objects are masked from 'package:stats':</span>
+<span class="co">## </span>
+<span class="co">##     IQR, mad, sd, var, xtabs</span></code></pre>
+<pre><code><span class="co">## The following objects are masked from 'package:base':</span>
+<span class="co">## </span>
+<span class="co">##     anyDuplicated, append, as.data.frame, basename, cbind, colnames,</span>
+<span class="co">##     dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,</span>
+<span class="co">##     grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,</span>
+<span class="co">##     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span>
+<span class="co">##     rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,</span>
+<span class="co">##     union, unique, unsplit, which.max, which.min</span></code></pre>
+<pre><code><span class="co">## Loading required package: SummarizedExperiment</span></code></pre>
+<pre><code><span class="co">## Loading required package: MatrixGenerics</span></code></pre>
+<pre><code><span class="co">## Loading required package: matrixStats</span></code></pre>
+<pre><code><span class="co">## </span>
+<span class="co">## Attaching package: 'MatrixGenerics'</span></code></pre>
+<pre><code><span class="co">## The following objects are masked from 'package:matrixStats':</span>
+<span class="co">## </span>
+<span class="co">##     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,</span>
+<span class="co">##     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,</span>
+<span class="co">##     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,</span>
+<span class="co">##     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,</span>
+<span class="co">##     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,</span>
+<span class="co">##     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,</span>
+<span class="co">##     colWeightedMeans, colWeightedMedians, colWeightedSds,</span>
+<span class="co">##     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,</span>
+<span class="co">##     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,</span>
+<span class="co">##     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,</span>
+<span class="co">##     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,</span>
+<span class="co">##     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,</span>
+<span class="co">##     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,</span>
+<span class="co">##     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,</span>
+<span class="co">##     rowWeightedSds, rowWeightedVars</span></code></pre>
+<pre><code><span class="co">## Loading required package: GenomicRanges</span></code></pre>
+<pre><code><span class="co">## Loading required package: stats4</span></code></pre>
+<pre><code><span class="co">## Loading required package: S4Vectors</span></code></pre>
+<pre><code><span class="co">## </span>
+<span class="co">## Attaching package: 'S4Vectors'</span></code></pre>
+<pre><code><span class="co">## The following objects are masked from 'package:base':</span>
+<span class="co">## </span>
+<span class="co">##     expand.grid, I, unname</span></code></pre>
+<pre><code><span class="co">## Loading required package: IRanges</span></code></pre>
+<pre><code><span class="co">## Loading required package: GenomeInfoDb</span></code></pre>
+<pre><code><span class="co">## Loading required package: Biobase</span></code></pre>
+<pre><code><span class="co">## Welcome to Bioconductor</span>
+<span class="co">## </span>
+<span class="co">##     Vignettes contain introductory material; view with</span>
+<span class="co">##     'browseVignettes()'. To cite Bioconductor, see</span>
+<span class="co">##     'citation("Biobase")', and for packages 'citation("pkgname")'.</span></code></pre>
+<pre><code><span class="co">## </span>
+<span class="co">## Attaching package: 'Biobase'</span></code></pre>
+<pre><code><span class="co">## The following object is masked from 'package:MatrixGenerics':</span>
+<span class="co">## </span>
+<span class="co">##     rowMedians</span></code></pre>
+<pre><code><span class="co">## The following objects are masked from 'package:matrixStats':</span>
+<span class="co">## </span>
+<span class="co">##     anyMissing, rowMedians</span></code></pre>
+<pre><code><span class="co">## </span>
+<span class="co">## Attaching package: 'PharmacoGx'</span></code></pre>
+<pre><code><span class="co">## The following objects are masked from 'package:CoreGx':</span>
+<span class="co">## </span>
+<span class="co">##     .parseToRoxygen, amcc, connectivityScore, cosinePerm, gwc, mcc</span></code></pre>
+<div class="figure">
+<img src="hill_slope.png" alt=""><p class="caption">Diagram of a logLogistic Hill Slope</p>
+</div>
+<p>PharmacoGx provides functions to both fit and visualize
+dose-viability curves. Plotting dose-viability data is easy using the
+<code>drugDoseResponseCurve</code> function:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span>
+<span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span>
+
+<span class="fu">drugDoseResponseCurve</span><span class="op">(</span>concentrations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Exp 1"</span> <span class="op">=</span> <span class="va">concentrations</span><span class="op">)</span>, viabilities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Exp 1"</span> <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span>, plot.type <span class="op">=</span> <span class="st">"Both"</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Warning in sanitizeInput(concentrations[[i]], viabilities[[i]], conc_as_log =</span>
+<span class="co">## conc_as_log, : Concentration Values were unsorted. Sorting concentration and</span>
+<span class="co">## ordering viability in same order</span></code></pre>
+<p><img src="PGxWorkshop_files/figure-html/ddrc_own-1.png" width="700"></p>
+<p>Similarly, fitting Log-Logistic models to data is simple using the
+<code>logLogisticRegression</code> function in
+<code>PharmacoGx</code>.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span>
+<span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span>
+
+<span class="va">pars</span> <span class="op">&lt;-</span> <span class="fu">logLogisticRegression</span><span class="op">(</span>conc <span class="op">=</span> <span class="va">concentrations</span>, viability <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Warning in CoreGx::.reformatData(x = conc, y = viability, x_to_log = !</span>
+<span class="co">## conc_as_log, : x-values passed in unsorted. Sorting x-values and corresponding</span>
+<span class="co">## y-values (if passed in).</span></code></pre>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">pars</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## $HS</span>
+<span class="co">## [1] 2.053572</span>
+<span class="co">## </span>
+<span class="co">## $E_inf</span>
+<span class="co">## [1] 3.284808</span>
+<span class="co">## </span>
+<span class="co">## $EC50</span>
+<span class="co">## [1] 0.06902647</span>
+<span class="co">## </span>
+<span class="co">## attr(,"Rsquare")</span>
+<span class="co">## [1] 0.9965584</span></code></pre>
+<p>Note that sometimes, it is may be more appropriate to use either a 2
+parameter model (excluding the <span class="math inline">\(E_\infty\)</span> parameter), or a 4 parameter
+model, including a parameter for the left-assymptote, that is, the
+measurement when no drug is added. <code>PharmacoGx</code> is opiniated
+in using the 3 parameter model, as the logical value for the viability
+as a percentage of untreated cells when no drug is added is 100%.
+However, the <code>drc</code> CRAN package provides a larger variety of
+dose-response models, should it be appropriate in your application.</p>
+<p>We will soon demonstrate how to apply the
+<code>logLogisticRegression</code> to dose-viability data stored in a
+<code>TreatmentResponseExperiment</code>, but first we will talk about
+how to summarize dose-response curves for downstream analysis.</p>
+<div class="section level4">
+<h4 id="computing-summary-measures-for-ddrcs">Computing Summary Measures for DDRCs<a class="anchor" aria-label="anchor" href="#computing-summary-measures-for-ddrcs"></a>
+</h4>
+<p>Often with <em>in vitro</em> Pharmacogenomics data, we want to
+compare the drug sensitivity of a cell line to some omic features. For
+this, we want to summarize the drug dose response curve into a single
+number representing the sensitivity of the cell line.</p>
+<div class="figure">
+<img src="hillSlopeSummary.png" alt=""><p class="caption">Some commonly used summary metrics for a
+dose-response curve</p>
+</div>
+<p>The IC50 and Area Above the Curve are two convenient metrics for
+quantifying the observed drug sensitivity. If you noticed above, the
+<code>drugDoseResponseCurve</code> function computes them by default. In
+PharmacoGx, they can be computed manually as follows:</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span>
+<span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeAUC.html" class="external-link">computeAUC</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, viability <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Warning in CoreGx::.reformatData(x = conc, y = viability, x_to_log = !</span>
+<span class="co">## conc_as_log, : x-values passed in unsorted. Sorting x-values and corresponding</span>
+<span class="co">## y-values (if passed in).</span></code></pre>
+<pre><code><span class="co">## [1] 46.63697</span></code></pre>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeICn.html" class="external-link">computeIC50</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, viability <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Warning in CoreGx::.reformatData(x = conc, y = viability, x_to_log = !</span>
+<span class="co">## conc_as_log, : x-values passed in unsorted. Sorting x-values and corresponding</span>
+<span class="co">## y-values (if passed in).</span></code></pre>
+<pre><code><span class="co">## [1] 0.0713488</span></code></pre>
+<p>If measurements are passed into these function, the Log Logistic
+model is fit to compute the IC50 and AAC. Clearly, if multiple metrics
+are being computed, redoing the fit is inefficent. Therefore, these
+functions can also take parameters fit by
+<code>logLogisticRegression</code>.</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span>
+<span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span>
+<span class="va">pars</span> <span class="op">&lt;-</span> <span class="fu">logLogisticRegression</span><span class="op">(</span>conc <span class="op">=</span> <span class="va">concentrations</span>, viability <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeAUC.html" class="external-link">computeAUC</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, Hill_fit <span class="op">=</span> <span class="va">pars</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeICn.html" class="external-link">computeIC50</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, Hill_fit <span class="op">=</span> <span class="va">pars</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="drug-combination-synergy-models">Drug Combination Synergy Models<a class="anchor" aria-label="anchor" href="#drug-combination-synergy-models"></a>
@@ -444,7 +642,7 @@ patient tissue types.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer>
