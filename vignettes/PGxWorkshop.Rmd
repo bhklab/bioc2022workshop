@@ -6,6 +6,11 @@ author:
     email: christopher.eeles@uhnresearch.ca
     affiliation:
         - &pm Princess Margaret Cancer Centre
+  - name: Petr Smirnov
+    email: petr.smirnov@utoronto.ca
+    affiliation: 
+        - &pm Princess Margaret Cancer Centre
+        - &uot University of Toronto
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance}
@@ -220,6 +225,108 @@ include multiple cell-lines or patient tissue types.
 ----
 
 # Dose Response Models and Drug Sensitivity Measures
+
+Understanding monotherapy dose-viability data is an important step in assessing drug combination response. Drug synergy is assessed by 
+comparing the observed combination response compared to what is expected from the response of cells to each drug separately. While 
+different models for "expected" combination effect will be discussed in the next section, we first review how monotherapy data is analyzed. 
+
+Monotherapy dose-response experiments are usually analyzed by first fitting a dose-viability model to the observed measurements. 
+The most common model used in the literature is a form of sigmoid function, called the Hill Curve. The Hill Curve has its 
+basis in the Michaelis-Menten chemical kinetics model, while adding an extra parameter to account for co-operativity of binding. 
+To better match real observed data, the model can also be extended to include parameters controlling the maximum and minimum observed 
+viability.
+
+_NB: Sometimes, dose-viability and dose-response curves are used interchangebly in the literature. Precisely, dose-response curves 
+for a cell kiling screen would plot % cell death against dose, leading to an increasing sigmoid curve._
+
+In `PharmacoGx`, we use the 3 Parameter Hill Curve
+function as our model of drug response in cancer cell lines:
+
+$$y = E_\infty + \frac{1-E_\infty}{1 + (\frac{x}{EC50})^{HS}}$$
+This is a log-logistic model, meaning that it takes the form of a logistic curve when x is on the log scale. 
+The three parameters are:
+$E_\infty$, which is the maximal inhibition predicted at infinite concentration of the drug (the right asymptote);
+$EC50$, which is the inflection point of the logit, where the inhibition reaches 50% of the maximum;
+$HS$, the Hill Slope, which is a measure of the cooperativity of binding. This parameter controls the steepness 
+of the logit, and is interpreted based on its relation to 1. Values larger than 1 imply positive cooperativity in 
+inhibition/binding of the target for the small molecule ligands, which values less than 1 imply negative cooperativity/antagonism.
+
+
+
+```{r hillSlopeFig, fig.cap="Diagram of a logLogistic Hill Slope", echo=FALSE}
+library(PharmacoGx)
+knitr::include_graphics("./hill_slope.png")
+```
+
+
+PharmacoGx provides functions to both fit and visualize dose-viability curves. Plotting dose-viability data is easy using the 
+`drugDoseResponseCurve` function:
+
+
+```{r ddrc_own}
+concentrations <- 1/2^seq(0,8) * 1
+viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
+
+drugDoseResponseCurve(concentrations = list("Exp 1" = concentrations), viabilities = list("Exp 1" = viabilities), plot.type = "Both")
+```
+
+Similarly, fitting Log-Logistic models to data is simple using the `logLogisticRegression` function in `PharmacoGx`.
+
+```{r loglogistic}
+concentrations <- 1/2^seq(0,8) * 1
+viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
+
+pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
+print(pars)
+```
+
+Note that sometimes, it is may be more appropriate to use either a 2 parameter model (excluding the $E_\infty$ parameter), or a 
+4 parameter model, including a parameter for the left-assymptote, that is, the measurement when no drug is added. `PharmacoGx` is opiniated 
+in using the 3 parameter model, as the logical value for the viability as a percentage of untreated cells when no drug is added is 100%. 
+However, the `drc` CRAN package provides a larger variety of dose-response models, should it be appropriate in your application. 
+
+
+We will soon demonstrate how to apply the `logLogisticRegression` to dose-viability data stored in a `TreatmentResponseExperiment`, 
+but first we will talk about how to summarize dose-response curves for downstream analysis. 
+
+
+### Computing Summary Measures for DDRCs
+
+Often with _in vitro_ Pharmacogenomics data, we want to compare the drug sensitivity of a cell line 
+to some omic features. For this, we want to summarize the drug dose response curve into a single 
+number representing the sensitivity of the cell line. 
+
+```{r hillSlopeSumFig, fig.cap="Some commonly used summary metrics for a dose-response curve", echo=FALSE}
+knitr::include_graphics("./hillSlopeSummary.png")
+```
+
+
+The IC50 and Area Above the Curve are two
+convenient metrics for quantifying the observed drug sensitivity. If you noticed above, 
+the `drugDoseResponseCurve` function computes them by default. In PharmacoGx, they can be 
+computed manually as follows:
+
+```{r sens_own}
+concentrations <- 1/2^seq(0,8) * 1
+viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
+
+print(PharmacoGx::computeAUC(concentration = concentrations, viability = viabilities))
+print(PharmacoGx::computeIC50(concentration = concentrations, viability = viabilities))
+```
+
+If measurements are passed into these function, the Log Logistic model is fit to compute the IC50 and AAC. 
+Clearly, if multiple metrics are being computed, redoing the fit is inefficent. Therefore, these functions 
+can also take parameters fit by `logLogisticRegression`. 
+
+```{r sens_own_fit_first, eval=FALSE}
+concentrations <- 1/2^seq(0,8) * 1
+viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
+pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
+
+print(PharmacoGx::computeAUC(concentration = concentrations, Hill_fit = pars))
+print(PharmacoGx::computeIC50(concentration = concentrations, Hill_fit = pars))
+```
+
 
 # Drug Combination Synergy Models
 
