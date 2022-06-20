@@ -142,6 +142,14 @@ For a 1.5-hr workshop:
 
 ----
 
+```{r load_packages, eval=TRUE, echo=FALSE, include=FALSE}
+suppressPackageStartupMessages({
+  library(pgxBioc2022Workshop)
+  library(PharmacoGx)
+  library(data.table)
+})
+```
+
 # Introduction to CoreGx and PharmacoGx
 
 This tutorial, titled Pharmacogenomic Analysis of Drug Combination Experiments
@@ -156,16 +164,9 @@ inherited in downstream packages, such as `r TGx` and
 generalized enough that it can be reused by other developers for their specific
 treatment response use case.
 
-## PharmacoGx
-
-PharmacoGx stores drug screening data together with molecular profiling of
-cell lines in an object called a `PharmacoSet`, or `PSet` for short. This object
-inherits for the `CoreSet` class defined in our package `CoreGx`, which abstracts
-the common functionality across our similar packages.
-
-<!--
 ## CoreGx
 
+<!--
 {r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./CoreSetClassDiagram.png")
 -->
@@ -190,6 +191,16 @@ least two Bioconductor releases. A deprecation warning will be added to old
 accessors informing users of the corresponding new function, as per Bioconductor
 best practices.
 
+## PharmacoGx
+
+PharmacoGx stores drug screening data together with molecular profiling of
+cell lines in an object called a `PharmacoSet`, or `PSet` for short. This object
+inherits for the `CoreSet` class defined in our package `CoreGx`, which abstracts
+the common functionality across our similar packages.
+
+
+
+
 ---
 
 # Overview of Data Structures
@@ -197,11 +208,11 @@ best practices.
 The GxSuite of packages make use of various Bioconductor classes for storing
 molecular profile data.
 
-## CoreSet
+## `CoreSet`
 
 __Need to update the class diagram__
 
-## PharmacoSet
+## `PharmacoSet`
 
 The basic structure of a PharmacoSet is as follows:
 
@@ -210,7 +221,7 @@ r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap = "**PharmacoSet class diagram
 knitr::include_graphics("./PharmacoGxClassDiagram.png")
 -->
 
-## TreatmentResponseExperiment
+## `TreatmentResponseExperiment`
 
 ```{r tre_class, echo=FALSE, fig.wide=TRUE, fig.cap = " **TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./TreatmentResponseExperimentClassDiagram.drawio.png")
@@ -220,27 +231,173 @@ knitr::include_graphics("./TreatmentResponseExperimentClassDiagram.drawio.png")
 knitr::include_graphics("./TreatmentResponseExperimentStructure.drawio.png")
 ```
 
+## `MultiAssayExperiment`
+
+The `MultiAssayExperiment` is a common Bioconductor class for storing the results
+of diverse mutli-omic data. Along with the `SummarizedExperiment`, this object
+is used to store molecular phenotype data in a `CoreSet` and `PharmacoSet`.
+
+```{r SummarizedExperiment_schema, echo=FALSE, fig.small=TRUE, fig.cap=" **SummarizedExperiment**"}
+knitr::include_graphics("./SummarizedExperiment_schematic.svg")
+```
+
+```{r MultiAssayExperiment_schema, echo=FALSE, fig.small=TRUE, fig.cap=" **MultiAssayExperiment**"}
+knitr::include_graphics("./MultiAssayExperiment_schematic.png")
+```
+
+
 ----
 
-# How TRE Support Drug Combinations Data Analysis
+# How the `TRE` Support Drug Combinations Data Analysis
 
 ## Drug Combination Experiments
 
 The field of precision oncology is increasingly interested in exploring possible
-synergies between cancer therapies. To simplify the process of translating
-drug combination experiments conducted in cancer model systems, we have extended
-the `CoreSet` and `PharmacoSet` classes with a new object, the
-`TreatmentResponseExperiment`, which has been specifically designed to handle
-combination experiments. While drug combinations are the first use case for
-this data structure, as cancer model systems continue to advance we expected
-to also see sample-wise combinations. For example, 3D organoid models could
-include multiple cell-lines or patient tissue types.
+synergies between cancer therapies. To accelarate the process of translating
+insights from _in vitro_ drug combination experiments into clinical
+practice, we have extended the `CoreSet` and `PharmacoSet` classes with a new
+object, the `TreatmentResponseExperiment`, which has been specifically
+designed to handle high dimensional biological stimilus response data.
+While drug combinations are the first use case for this data structure,
+as cancer model systems continue to advance we expected to also see sample-wise
+combinations. For example, 3D organoid models could include multiple cell-lines
+or patient tissue types.
 
 ## Using Data Mapper to build a Drug Combo PSet
 
 ### Data Mapper
 
+The `DataMapper` is an abstract class included in `CoreGx` where it can be used
+as a container for the recipe to
+
+```{r nci_rawdata_echo, eval=FALSE, echo=TRUE}
+data(NCI_ALMANAC_raw)
+(head(NCI_ALMANAC_raw))
+```
+
+```{r nci_rawdata_eval, eval=TRUE, echo=FALSE}
+data(NCI_ALMANAC_raw)
+knitr::kable(head(NCI_ALMANAC_raw))
+```
+
+```{r data_mapper_creation, eval=TRUE, echo=TRUE}
+(treDataMapper <- TREDataMapper(rawdata=NCI_ALMANAC_raw))
+```
+
+```{r data_mapper_incorrect_guess, eval=TRUE, echo=TRUE}
+groups1 <- list(
+  rowDataMap=c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose"),
+  colDataMap=c("sampleid"),
+  assayMap=c(
+    "treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+    "sampleid"
+  )
+)
+
+(guess1 <- guessMapping(treDataMapper, groups=groups1, subset=TRUE))
+```
+
+```{r debugging_incorrect_guess, eval=TRUE, echo=TRUE}
+str(rawdata(treDataMapper))
+```
+
+```{r data_mapper_correct_guess, eval=TRUE, echo=TRUE}
+groups2 <- list(
+  rowDataMap=c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "replicate"),
+  colDataMap=c("sampleid"),
+  assayMap=c(
+    "treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "replicate",
+    "sampleid"
+  )
+)
+
+(guess2 <- guessMapping(treDataMapper, groups=groups2, subset=TRUE))
+```
+
+```{r updating_the_data_mapper, eva=TRUE, echo=TRUE}
+metadataMap(treDataMapper) <- list(experiment_metadata=guess2$metadata$mapped_columns)
+rowDataMap(treDataMapper) <- guess2$rowDataMap
+colDataMap(treDataMapper) <- guess2$colDataMap
+```
+
+```{r splitting_up_the_assays1}
+(guess2$assayMap)
+```
+
+```{r splitting_up_the_assays2}
+assaymap <- list(
+    sensitivity=list(
+        id_columns=guess2$assayMap$id_columns,
+        mapped_columns=c("viability", "PERCENTGROWTH", "PERCENTGROWTHNOTZ",
+            "EXPECTEDGROWTH", "TESTVALUE", "CONTROLVALUE", "TZVALUE")
+    ),
+    profiles=list(
+        id_columns=guess2$assayMap$id_columns,
+        mapped_columns=c("SCORE")
+    ),
+    assay_metadata=list(
+        id_columns=guess2$assayMap$id_columns,
+        mapped_columns=c("COMBODRUGSEQ", "STUDY", "TESTDATE", "PLATE",
+            "SCREENER", "PREFIX2", "CONCINDEX1", "CONCINDEX2", "SAMPLE1",
+            "SAMPLE2")
+    )
+)
+(assayMap(treDataMapper) <- assaymap)
+```
+
+
+```{r metaconstruct_tre}
+(NCI_ALMANAC_tre <- metaConstruct(treDataMapper))
+```
+
 ### Combining with Omics Data into a PharmacoSet
+
+```{r load_molecular_data}
+data(NCI60_molecular_data)
+(NCI60_molecular_data)
+```
+
+```{r load_sample_metadata_files1, eval=FALSE}
+data(NCI_ALMANAC_sample_metadata)
+head(NCI_ALMANAC_sample_metadata)
+```
+
+```{r load_sample_metadata_files2, echo=FALSE}
+data(NCI_ALMANAC_sample_metadata)
+knitr::kable(head(NCI_ALMANAC_sample_metadata))
+```
+
+```{r load_treatment_metadata_files1, eval=FALSE}
+data(NCI_ALMANAC_treatment_metadata)
+head(NCI_ALMANAC_treatment_metadata)
+```
+
+```{r load_treatment_metadata_files2, echo=FALSE}
+data(NCI_ALMANAC_treatment_metadata)
+knitr::kable(head(NCI_ALMANAC_treatment_metadata))
+```
+
+
+```{r build_the_curation_list}
+curation <- list(
+  sample=NCI_ALMANAC_sample_metadata[, c("sampleid", "NCI_ALMANAC.sampleid")],
+  treatment=NCI_ALMANAC_treatment_metadata[, c("treatmentid", "NCI_ALMANAC.treatmentid")],
+  tissue=data.frame(
+    NCI_ALMANAC_sample_metadata[, c("tissueid", "NCI_ALMANAC.disease")],
+    rownames=NCI_ALMANAC_sample_metadata$sampleid)
+)
+```
+
+```{r create_our_drug_combo_pharmacoset}
+(NCI_ALAMANAC_2017 <- PharmacoSet2(
+  name="NCI_ALMANAC_2017",
+  molecularProfiles=NCI60_molecular_data,
+  treatmentResponse=NCI_ALMANAC_tre,
+  treatment=NCI_ALMANAC_treatment_metadata,
+  sample=NCI_ALMANAC_sample_metadata,
+  curation=curation
+))
+```
 
 ----
 
@@ -274,7 +431,6 @@ inhibition/binding of the target for the small molecule ligands, which values le
 
 
 ```{r hillSlopeFig, fig.cap="Diagram of a logLogistic Hill Slope", echo=FALSE}
-suppressPackageStartupMessages({ library(PharmacoGx) })
 knitr::include_graphics("./hill_slope.png")
 ```
 
@@ -477,6 +633,8 @@ approach has advantages in a high-throughput setting, where it would be difficul
 # Biomarker Discovery:
 
 ## Monotherapy response
+
+
 
 ## Combination Synergy
 
