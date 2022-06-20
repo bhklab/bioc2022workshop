@@ -47,7 +47,7 @@ Suggests:
     BiocStyle,
     pkgdown
 Remotes:
-    bhklab/CoreGx@development
+    bhklab/CoreGx@development,
     bhklab/PharmacoGx@development
 URL: https://bhklab.github.io/bioc2022workshop
 VignetteBuilder: knitr
