@@ -9,9 +9,10 @@ author:
   - name: Petr Smirnov
     email: petr.smirnov@utoronto.ca
     affiliation:
-        - &pm Princess Margaret Cancer Centre
+        - *pm
         - &uot University of Toronto
 output: BiocStyle::html_document
+bibliography: BioC2022Conference.bib
 vignette: >
   %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,8 +21,6 @@ vignette: >
 
 <!-- Remove {-} from header to show numbering -->
 # Workshop Overview {-}
-
-*This workshop is currently under development!*
 
 ## Instructor(s) name(s) and contact information {-}
 
@@ -77,8 +76,6 @@ Useful publications:
 
 ### Workshop Participation {-}
 
-**Interactive Portion in Development, will be updated when needed.**
-
 <!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors
 available to explain the why and how of applying these functions to the given datasets. Learners will write analysis
 scripts as well as use interactive commands to explore the generated data structures and results. Learners will then
@@ -86,23 +83,22 @@ brainstorm potential applications of the analysis results in their field as well
 presented by the instructors on research in our lab. -->
 
 
-Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors:
+Participants expected to have the following required packages installed on their 
+machines to be able to run the commands along with the instructors:
 
 
 ### _R_ / _Bioconductor_ packages used {-}
 
 Bioconductor:
 
-* https://www.bioconductor.org/packages/devel/bioc/html/CoreGx.html
-* https://www.bioconductor.org/packages/devel/bioc/html/PharmacoGx.html
+* `r CGx`
+* `r PGx`
 
 CRAN:
 
-* https://cran.r-project.org/web/packages/data.table/index.html
+* `r BiocStyle::CRANpkg("data.table")``
 
 ## Time outline {-}
-
-**Tentative, likely to change!**
 
 For a 1.5-hr workshop:
 
@@ -119,8 +115,6 @@ For a 1.5-hr workshop:
 
 
 ## Workshop goals and objectives {-}
-
-**To Be Updated**
 
 ### Learning goals {-}
 
@@ -231,7 +225,7 @@ knitr::include_graphics("./TreatmentResponseExperimentClassDiagram.drawio.png")
 knitr::include_graphics("./TreatmentResponseExperimentStructure.drawio.png")
 ```
 
-## `MultiAssayExperiment`
+## `MultiAssayExperiment` and `SummarizedExperiment`
 
 The `MultiAssayExperiment` is a common Bioconductor class for storing the results
 of diverse mutli-omic data. Along with the `SummarizedExperiment`, this object
@@ -256,19 +250,51 @@ The field of precision oncology is increasingly interested in exploring possible
 synergies between cancer therapies. To accelarate the process of translating
 insights from _in vitro_ drug combination experiments into clinical
 practice, we have extended the `CoreSet` and `PharmacoSet` classes with a new
-object, the `TreatmentResponseExperiment`, which has been specifically
+object, the `TreatmentResponseExperiment` (`TRE`), which has been specifically
 designed to handle high dimensional biological stimilus response data.
 While drug combinations are the first use case for this data structure,
 as cancer model systems continue to advance we expected to also see sample-wise
 combinations. For example, 3D organoid models could include multiple cell-lines
 or patient tissue types.
 
-## Using Data Mapper to build a Drug Combo PSet
+## Building A Drug Combination PharmacoSet
 
-### Data Mapper
+### `DataMapper` Class
 
 The `DataMapper` is an abstract class included in `CoreGx` where it can be used
-as a container for the recipe to
+to store metadata specifying a "recipe" to go from raw data files associated
+with a specific experiment or publication and a curated, standardize data
+format specified as an R `S4` class.
+
+In `r CGx` we have implemented the `TREDataMapper` class, which encodes how
+the rawdata from a drug combination experiment should be transformed 
+into its associated `TRE` object. A primary motivation for the creation of this 
+class was to document and standardize creation of `TRE` objects from the myriad 
+experimental designs available in drug combination experiments in the wild. It 
+is our hope that, for example, 3x3 drug combination experiments have enough in 
+common that we could theoretically create a `3by3TREDataMapper` which works 
+for (almost) all publications following this design.
+
+As things stand right now, the `TREDataMapper` primarily acts as helper class
+to explore the specifics of a drug combination experimental design. It allows
+us to generate hypotheses about which identifiers are required to identify
+observations in an assay. Below we will see how, along with the `guessMapping`
+method, we can use the `TREDataMapper` to ensure we have mapped all data
+from the NCI-ALMANAC drug combination experiment into a `TRE` object, ensuring
+that the all study experiments and relevant metadata are captured in our
+`TRE` and therefore in our `PharmacoSet`.
+
+By curating and releasing such `PharmacoSet` objects, we ensure that our users
+can access all information from the original publication via `r PGx` and therefore
+easily ensure the reproducbility of the results as well as compare them against
+any other `PharmacoSet` object we have curated. By doing so, we help to improve
+the reproducbility and consistency of _in-vitro_ pharmacogenomic experiments
+and accelerate the translation from the lab to the clinic.
+
+### Using the `TREDataMapper` to Construct a `TreatmentResponseExperiment`
+
+For this workshop we have included a subset of the NCI_ALAMANAC_2017 
+`PharmacoSet`, curated from [@holbeck_national_2017]
 
 ```{r nci_rawdata_echo, eval=FALSE, echo=TRUE}
 data(NCI_ALMANAC_raw)
@@ -717,6 +743,7 @@ experiment.
 
 # References
 
+<div id="refs"></div>
 
 # SessionInfo
 
