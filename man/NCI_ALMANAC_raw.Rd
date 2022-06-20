@@ -9,7 +9,7 @@ NCI-ALMANAC}
 \code{data.table} object
 }
 \usage{
-data(NCI_ALAMANAC_raw)
+data(NCI_ALMANAC_raw)
 }
 \description{
 This is a subset of the NCI-ALMANAC drug combination dataset from

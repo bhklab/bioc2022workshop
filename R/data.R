@@ -25,8 +25,8 @@ NULL
 #' cancer cell-lines also present in the NCI-ALMANAC dataset.
 #'
 #' @references
-#' Shoemaker, R. H. (2006). The NCI60 human tumour cell line anticancer drug screen. Nature Reviews Cancer, 6(10), 813–823. https://doi.org/10.1038/nrc1951
-#' Holbeck, S. L., Camalier, R., Crowell, J. A., Govindharajulu, J. P., Hollingshead, M., Anderson, L. W., Polley, E., Rubinstein, L., Srivastava, A., Wilsker, D., Collins, J. M., & Doroshow, J. H. (2017). The National Cancer Institute ALMANAC: A Comprehensive Screening Resource for the Detection of Anticancer Drug Pairs with Enhanced Therapeutic Activity. Cancer Research, 77(13), 3564–3576. https://doi.org/10.1158/0008-5472.CAN-17-0489
+#' 1. Shoemaker, R. H. (2006). The NCI60 human tumour cell line anticancer drug screen. Nature Reviews Cancer, 6(10), 813–823. https://doi.org/10.1038/nrc1951
+#' 2. Holbeck, S. L., Camalier, R., Crowell, J. A., Govindharajulu, J. P., Hollingshead, M., Anderson, L. W., Polley, E., Rubinstein, L., Srivastava, A., Wilsker, D., Collins, J. M., & Doroshow, J. H. (2017). The National Cancer Institute ALMANAC: A Comprehensive Screening Resource for the Detection of Anticancer Drug Pairs with Enhanced Therapeutic Activity. Cancer Research, 77(13), 3564–3576. https://doi.org/10.1158/0008-5472.CAN-17-0489
 #'
 #' @docType data
 #' @name NCI60_molecular_data
@@ -43,8 +43,8 @@ NULL
 #' annotations from Oncotree as well as Cellosaurus disease type annotations.
 #'
 #' @references
-#' Bairoch A. he Cellosaurus, a cell line knowledge resource. J. Biomol. Tech. 29:25-38(2018) DOI: 10.7171/jbt.18-2902-002; PMID: 29805321
-#' Holbeck, S. L., Camalier, R., Crowell, J. A., Govindharajulu, J. P., Hollingshead, M., Anderson, L. W., Polley, E., Rubinstein, L., Srivastava, A., Wilsker, D., Collins, J. M., & Doroshow, J. H. (2017). The National Cancer Institute ALMANAC: A Comprehensive Screening Resource for the Detection of Anticancer Drug Pairs with Enhanced Therapeutic Activity. Cancer Research, 77(13), 3564–3576. https://doi.org/10.1158/0008-5472.CAN-17-0489
+#' 1. Bairoch A. he Cellosaurus, a cell line knowledge resource. J. Biomol. Tech. 29:25-38(2018) DOI: 10.7171/jbt.18-2902-002; PMID: 29805321
+#' 2. Holbeck, S. L., Camalier, R., Crowell, J. A., Govindharajulu, J. P., Hollingshead, M., Anderson, L. W., Polley, E., Rubinstein, L., Srivastava, A., Wilsker, D., Collins, J. M., & Doroshow, J. H. (2017). The National Cancer Institute ALMANAC: A Comprehensive Screening Resource for the Detection of Anticancer Drug Pairs with Enhanced Therapeutic Activity. Cancer Research, 77(13), 3564–3576. https://doi.org/10.1158/0008-5472.CAN-17-0489
 #'
 #' @docType data
 #' @name NCI_ALMANAC_sample_metadata
