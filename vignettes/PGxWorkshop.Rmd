@@ -507,14 +507,58 @@ pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
 
 ### Processing Monotherapy Data With the TRE
 
-Usually, we will have more than one dose-viability experiment we wish to analyze at a time.
+Usually, we will have more than one dose-viability experiment we wish to analyze at a time. Thankfully, the TRE
+data class makes it very easy to process large numbers of drug sensitivity experiments at the same time. 
+
+For this example, we will subset out the monotherapy experiments in the NCI-Alamanac dataset which we were using
+as an example above. 
 
 
 ```{r fitting_and_aac_tre, eval=FALSE}
 
-## TODO: write me
+
+NCI.TRE <- treatmentResponse(NCI_ALAMANAC_2017)
+
+## TreatmentResponseExperiment method
+NCI.TRE |>
+    subset(is.na(treatment2dose)) -> NCI.mono
 
 ```
+
+For the interest of computation time, we will only look at experiments involving Vincristine. 
+```{r}
+## Should we be fitting these replicates separately or together?
+NCI.mono |> 
+  subset(treatment1id == "Vincristine") |>
+  assay("sensitivity", withDimnames=TRUE) |> 
+  aggregate2(
+    by=c("treatment1id", "sampleid", "replicate"),
+    {
+      pars <- logLogisticRegression(treatment1dose, viability = viability)
+      auc <- computeAUC(treatment1dose, Hill_fit = pars)
+      ic50 <- computeIC50(treatment1dose, Hill_fit = pars)
+      list(HS=pars[[1]], Einf=pars[[2]], EC50=pars[[3]], AAC=auc, IC50=ic50)
+    },
+    enlist=FALSE,
+    nthread=2
+  ) -> Vincristine.monotherapy
+
+```
+
+As you can see, by using the `aggregate2` method, we are able to 
+
+Once we have values computed in a `data.table`, we can store them back in the Treatment Response Experiment. Notice that the TRE 
+object handles seemlessly the fact that we have values computed for only a subset of experiments. 
+
+```{r}
+NCI.mono$Vincristine.profiles <- Vincristine.monotherapy
+NCI.mono$Vincristine.profiles[order(sampleid)]
+```
+
+Note, while when we print out the assay above, we see many repeated values, these values are only duplicated upon printing and 
+are not saved as duplicates in memory. 
+
+
 
 # Drug Combination Synergy Models
 
@@ -602,7 +646,7 @@ We can then plug this relationship in to get an emplicit formula for $v_{loewe}$
 
 $$ \frac{x_1}{EC50_1 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,1}})^{\frac{1}{HS_1}}} + \frac{x_2}{EC50_2 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,2}})^{\frac{1}{HS_2}}} = 1$$
 
-This formula can then be solved numerically in practice to find the value of $v_loewe$ for any two particular fitted curves.
+This formula can be solved numerically to find the value of $v_loewe$ for any two particular fitted curves.
 
 <!-- TODO: write up combination Index -->
 
@@ -654,342 +698,6 @@ experiment.
 
 ## Calculating Synergy Surfaces using a Treatment Response Experiment
 
-```{r}
-library(CoreGx)
-library(PharmacoGx)
-library(data.table)
-library(BiocParallel)
-library(doParallel)
-
-# Load example assay
-NCI.PSet <- readRDS(file.path("vignettes/NCI_ALMANAC_2017.rds"))
-
-NCI.TRE <- treatmentResponse(NCI.PSet)
-
-## TreatmentResponseExperiment method
-bench::system_time({
-NCI.TRE |>
-  subset(is.na(treatment2dose)) |>
-  aggregate(
-    assay = "sensitivity",
-    auc = PharmacoGx::computeAUC(treatment1dose, viability),
-    by = c("treatmentid1", "sampleid"),
-    nthread = 4
-  ) ->
-NCI.TRE$mono_auc
-})
-
-
-
-# debug(aggregate2)
-
-# data.table aggregation
-sens[is.na(drug2dose)] |>
-  aggregate2(
-    mv = mean(viability), mean(drug1dose),
-    by = c("drug1id", "drug2id", "cellid")
-  )
-
-## MultiCoreParam
-bp <- bpparam()
-bench::system_time({
-  sens |>
-    subset(is.na(drug2dose)) |>
-    aggregate2(
-      auc = PharmacoGx::computeAUC(drug1dose, viability),
-      by = c("drug1id", "cellid"),
-      BPPARAM = bp, nthread = 22
-    ) ->
-  auc_dt
-})
-
-## SnowParam
-bp1 <- SnowParam()
-bench::system_time({
-  sens |>
-    subset(is.na(drug2dose)) |>
-    aggregate2(
-      auc = PharmacoGx::computeAUC(drug1dose, viability),
-      by = c("drug1id", "cellid"),
-      BPPARAM = bp1, nthread = 22
-    ) ->
-  auc_dt
-})
-
-## DoParParam - should be faster than MultiCoreParam
-registerDoParallel(22)
-bp2 <- DoparParam()
-
-bench::system_time({
-  sens |>
-    subset(is.na(drug2dose)) |>
-    aggregate2(
-      auc = computeAUC(drug1dose, viability),
-      by = c("drug1id", "cellid"),
-      BPPARAM = bp2, nthread = 22
-    ) ->
-  auc_dt
-})
-
-## Apples to apples comparison (hopefully)
-bmark <- bench::mark(
-  mutl = {
-    sens |>
-      subset(is.na(drug2dose)) |>
-      aggregate2(
-        auc = computeAUC(drug1dose, viability),
-        by = c("drug1id", "cellid"),
-        BPPARAM = bp, nthread = 22
-      ) ->
-    auc_dt
-  },
-  dopar = {
-    sens |>
-      subset(is.na(drug2dose)) |>
-      aggregate2(
-        auc = computeAUC(drug1dose, viability),
-        by = c("drug1id", "cellid"),
-        BPPARAM = bp2, nthread = 22
-      ) ->
-    auc_dt
-  }
-)
-
-library(CoreGx)
-library(data.table)
-tre <- qs::qread(
-  file.path(".local_data", "nci_treatment_response_exp.qs"),
-  nthread = 10
-)
-# data(nci_TRE_small)
-# fix use of wrong column for sensitivity
-# tre$sensitivity <- tre$sensitivity[,
-#     `:=`(PERCENTGROWTH=viability, viability=(TESTVALUE/CONTROLVALUE)*100)
-# ]
-tre |>
-  subset(is.na(drug2id)) |>
-  aggregate(
-    assay = "sensitivity",
-    viability = mean(viability),
-    by = c("drug1id", "drug1dose", "cellid")
-  ) |>
-  aggregate2(
-    {
-      fit <- tryCatch(
-        {
-          PharmacoGx::logLogisticRegression(drug1dose, viability)
-        },
-        error = \(e) list(HS = NA_real_, E_inf = NA_real_, EC50 = NA_real_)
-      )
-      ic50 <- tryCatch(
-        {
-          PharmacoGx::computeIC50(drug1dose, Hill_fit = fit)
-        },
-        error = \(e) NA_real_
-      )
-      auc <- tryCatch(
-        {
-          PharmacoGx::computeAUC(drug1dose, Hill_fit = fit, area.type = "Fitted")
-        },
-        error = \(e) NA_real_
-      )
-      list(
-        HS = fit[["HS"]], E_inf = fit[["E_inf"]], EC50 = fit[["EC50"]],
-        Rsq = as.numeric(unlist(attributes(fit))),
-        auc = auc,
-        ic50 = ic50
-      )
-    },
-    by = c("drug1id", "cellid"),
-    enlist = FALSE,
-    nthread = 20
-  ) -> mono_profiles
-tre$mono_profiles <- mono_profiles
-
-# -- extract monotherapy drug observations
-## FIXME:: This drops the aggregations attribute... Do we need it?
-mono_profiles <- tre$mono_profiles
-## TODO:: Add helper methods to make finding these columns easier!
-mono_cols <- setdiff( # identify assay specific columns
-  colnames(mono_profiles),
-  c(colnames(rowData(tre)), colnames(colData(tre)))
-)
-mono_profiles <- unique(mono_profiles[
-  !is.na(HS) & Rsq > 0.75, # drop failed fits and not passing Rsq test
-  mget(setdiff(mono_cols, c("auc", "ic50"))),
-  by = c("drug1id", "cellid")
-])
-
-# -- build out combination modelling table with dose! Needed for Loewe
-combo_profiles <- tre$sensitivity[
-  !is.na(drug2id),
-  .(
-    mean_viability = mean(viability),
-    mean_drug1dose = mean(drug1dose),
-    mean_drug2dose = mean(drug2dose)
-  ),
-  by = .(drug1id, drug2id, cellid)
-]
-# TODO:: Do we want to keep NA values? Add all.x=TRUE if so.
-combo_profiles <- merge.data.table(
-  combo_profiles, mono_profiles,
-  by = c("drug1id", "cellid")
-)
-combo_profiles <- merge.data.table(
-  combo_profiles, mono_profiles,
-  by.x = c("drug2id", "cellid"), by.y = c("drug1id", "cellid"),
-  suffixes = c("_2", "_1")
-)
-setkeyv(combo_profiles, c("drug1id", "drug2id", "cellid"))
-setcolorder(combo_profiles, c("drug1id", "drug2id", "cellid"))
-
-# -- compute synergy metrics
-## Here score ~ combination index
-combo_profiles |>
-  aggregate2(
-    {
-      # predict single agent viability for this combo
-      v1 <- min(PharmacoGx:::.Hill(
-        log10(mean_drug1dose),
-        c(HS_1, E_inf_1, log10(EC50_1))
-      ) / 100, 1)
-      v2 <- min(PharmacoGx:::.Hill(
-        log10(mean_drug2dose),
-        c(HS_2, E_inf_2, log10(EC50_2))
-      ) / 100, 1)
-      # alias variables for readable math
-      v <- min(mean_viability / 100, 1)
-      r1 <- 1 - v1
-      r2 <- 1 - v2
-      r <- 1 - v
-      rmax1 <- 1 - (E_inf_1 / 100)
-      rmax2 <- 1 - (E_inf_2 / 100)
-      rmin <- 0
-      # do math
-      HSA <- max(r1, r2)
-      HSA_score <- HSA / r
-      BLISS <- r1 + r2 - (r1 * r2)
-      BLISS_score <- BLISS / r
-      LOEWE_1 <- (d1 / EC50_1) * (1 / ((emin1 - v) / (v - emax1))^(1 / HS_1))
-      LOEWE_2 <- (d2 / EC50_2) * (1 / ((emin2 - v) / (v - emax2))^(1 / HS_2))
-      LOEWE_score <- LOEWE_1 + LOEWE_2
-      # return list
-      list(
-        r1 = r1, d1 = mean_drug1dose, d2 = mean_drug2dose, r2 = r2, r = r, HSA = HSA, HSA_score = HSA_score, BLISS = BLISS,
-        BLISS_score = BLISS_score,
-        LOEWE_score = LOEWE_score
-      )
-    },
-    by = c("drug1id", "drug2id", "cellid"),
-    enlist = FALSE,
-    nthread = 1
-  ) -> prof2
-
-## PERCENTGROWTHNOTZ has missing values
-## compute viability from T_72 / C_72
-viability <- tre[["sensitivity"]][,
-  c(idCols(tre), "TESTVALUE", "CONTROLVALUE"),
-  with = FALSE
-]
-## We have negative TESTVALUE => nagtive viability, meaning
-## blank absorbance reading is for some reason higher than the sample
-## either because the measurements are close to machine error value
-## or the blank was contaminated
-viability[TESTVALUE < 0, ]
-## negative TESTVALUE in a very marginal range, replace them with 0
-viability[TESTVALUE < 0, TESTVALUE := 0]
-## logLogisticRegression will bark for viability exceeding negative control
-viability[, `:=`(
-  viability = ifelse(
-    TESTVALUE > CONTROLVALUE,
-    100, ## Cap E_min with 100
-    (TESTVALUE / CONTROLVALUE) * 100
-  ),
-  TESTVALUE = NULL,
-  CONTROLVALUE = NULL
-)]
-tre[[".viability"]] <- viability
-mono_response <- viability |> getMonoResponse()
-# mono_params <- qs::qread("/home/lifeifei/data/mono_params.qs")
-mono_params <- mono_response |>
-  aggregate2(PharmacoGx::logLogisticRegression(dose, avg_viability),
-    by = c("drugid", "cellid"), enlist = FALSE
-  ) ## should run without warnings or errors
-
-combo_response <- tre[["sensitivity"]][
-  !is.na(drug1id) & !is.na(drug2id),
-  c(idCols(tre), "TESTVALUE", "CONTROLVALUE"),
-  with = FALSE
-][
-  ,
-  `:=`(
-    viability = ifelse(
-      TESTVALUE > CONTROLVALUE,
-      100, ## Cap E_min with 100
-      (TESTVALUE / CONTROLVALUE) * 100
-    ),
-    TESTVALUE = NULL,
-    CONTROLVALUE = NULL
-  )
-][,
-  viability := mean(viability),
-  by = .(drug1id, drug2id, drug1dose, drug2dose, cellid)
-][, replicate_id := NULL]
-
-loewe_input <- combo_response[mono_params,
-  on = c(drug1id = "drugid", cellid = "cellid")
-]
-param_names <- setdiff(colnames(loewe_input), colnames((combo_response)))
-setnames(loewe_input,
-  old = param_names,
-  new = paste(param_names, "1", sep = "_")
-)
-loewe_input <- loewe_input[mono_params,
-  on = c(drug2id = "drugid", cellid = "cellid")
-]
-setnames(loewe_input,
-  old = param_names,
-  new = paste(param_names, "2", sep = "_")
-)
-loewe_input <- loewe_input[!is.na(viability)]
-effectToDose <- function(E, HS, EC50, E_inf) {
-  return(
-    EC50 * (100 - E) / (E - E_inf)
-  )
-}
-computeLoewe <- function(dose1, dose2, HS_1, HS_2, E_inf_1, E_inf_2, EC50_1, EC50_2, E) {
-  ## TODO:: this merely computes Loewe combination score
-  ## need to find a way to estimate E_loewe
-  dose_ratio_1 <- dose1 / effectToDose(E = E, HS = HS_1, E_inf = E_inf_1, EC50 = EC50_1)
-  dose_ratio_2 <- dose2 / effectToDose(E = E, HS = HS_2, E_inf = E_inf_2, EC50 = EC50_2)
-  CI <- dose_ratio_1 + dose_ratio_2
-  return(CI)
-}
-
-Loewe_CI <- loewe_input |>
-  aggregate2(
-    Loewe_CI = computeLoewe(
-      dose1 = drug1dose,
-      dose2 = drug2dose,
-      HS_1 = HS_1,
-      HS_2 = HS_2,
-      E_inf_1 = E_inf_1,
-      E_inf_2 = E_inf_2,
-      EC50_1 = EC50_1,
-      EC50_2 = EC50_2,
-      E = viability
-    ),
-    by = c(
-      "drug1id",
-      "drug2id",
-      "cellid",
-      "drug1dose",
-      "drug2dose",
-      "viability"
-    )
-  )
-
-```
 
 
 # Biomarker Discovery:
