@@ -442,6 +442,8 @@ $$ \frac{x_1}{EC50_1 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,1}})^{\frac{1}{HS
 
 This formula can then be solved numerically in practice to find the value of $v_loewe$ for any two particular fitted curves. 
 
+<!-- TODO: write up combination Index -->
+
 ## ZIP
 
 The Zero interaction Potency model was recently introduced with the goal of capturing the ideas behind both the Bliss and Loewe assumptions. As the name implies
@@ -466,6 +468,366 @@ In general, we would recommend using a model which makes stronger assumptions th
 doses is low (<6), the Bliss model is probably the reference of choice, even though it is know to be quite strict. When possible to calculate, the ZIP 
 approach has advantages in a high-throughput setting, where it would be difficult to pick between Bliss and Loewe a-priori for each individual combination. 
 
+
+## Quantifying Synergy or Antagonism Compared to a Null Model
+
+Once a null model is chosen, the expected combination viability or response is compared to the observed value, as mentioned above. For all methods, this can be done 
+using either a difference, or a ratio. In addition, the Loewe model directly facilitates calculating the Combination Index described above, and the ZIP model defines 
+the $\delta$ score for quantifying synergy. The main practical consideration when choosing how to compare the observations to the null is the scale on which results 
+will be interpreted or further analyzed. Taking the ratio of $v_c/v_{model}$, or using the Combination Index for Loewe leads to values that lie in ${0, \infty\]$ 
+(with 1 as the reference for no syngergy or antagonism), similar to fold changes. On the other hand, both differences and the ZIP $\delta$-score lie on a bounded scale $\[-1,1\]$, 
+with 0 as the reference. 
+
+If the goal is simply to identify whether there was synergy or antagonism observed at a certain dose, the last step would be to visualize the results, and examine the extent 
+of deviation from the null model. For this, the scale chosen is a matter of preference. However, if the downstream goal is biomarker discovery using a summary of synergy for 
+each model tested with a particular combination, if the Combination Index or a ratio is used, it may be more appropriate to analyze the results on a log-scale, as otherwise
+the range is unbalanced around the reference. 
+
+In practice, our preference is to use the absolute deviation from the Bliss predicted value for downstream analysis, or, when 
+
+
+NB: Usually, the monotherapy response will be a subset of the full combination dose-response matrix, and therefore, will have been measured on the same doses. If this is not the case,
+it may be necessary to fit a Hill Curve model even when using the Bliss or HSA approaches, to interpolate what the observed monotherapy viability should be at the doses used in the combination 
+experiment. 
+
+## Calculating Synergy Surfaces using a Treatment Response Experiment
+
+```{r}
+library(CoreGx)
+library(PharmacoGx)
+library(data.table)
+library(BiocParallel)
+library(doParallel)
+
+# Load example assay
+NCI.PSet <- readRDS(file.path("vignettes/NCI_ALMANAC_2017.rds"))
+
+NCI.TRE <- treatmentResponse(NCI.PSet)
+
+## TreatmentResponseExperiment method
+bench::system_time({
+NCI.TRE |>
+  subset(is.na(treatment2dose)) |>
+  aggregate(
+    assay = "sensitivity",
+    auc = PharmacoGx::computeAUC(treatment1dose, viability),
+    by = c("treatmentid1", "sampleid"),
+    nthread = 4
+  ) ->
+NCI.TRE$mono_auc
+})
+
+
+
+# debug(aggregate2)
+
+# data.table aggregation
+sens[is.na(drug2dose)] |>
+  aggregate2(
+    mv = mean(viability), mean(drug1dose),
+    by = c("drug1id", "drug2id", "cellid")
+  )
+
+## MultiCoreParam
+bp <- bpparam()
+bench::system_time({
+  sens |>
+    subset(is.na(drug2dose)) |>
+    aggregate2(
+      auc = PharmacoGx::computeAUC(drug1dose, viability),
+      by = c("drug1id", "cellid"),
+      BPPARAM = bp, nthread = 22
+    ) ->
+  auc_dt
+})
+
+## SnowParam
+bp1 <- SnowParam()
+bench::system_time({
+  sens |>
+    subset(is.na(drug2dose)) |>
+    aggregate2(
+      auc = PharmacoGx::computeAUC(drug1dose, viability),
+      by = c("drug1id", "cellid"),
+      BPPARAM = bp1, nthread = 22
+    ) ->
+  auc_dt
+})
+
+## DoParParam - should be faster than MultiCoreParam
+registerDoParallel(22)
+bp2 <- DoparParam()
+
+bench::system_time({
+  sens |>
+    subset(is.na(drug2dose)) |>
+    aggregate2(
+      auc = computeAUC(drug1dose, viability),
+      by = c("drug1id", "cellid"),
+      BPPARAM = bp2, nthread = 22
+    ) ->
+  auc_dt
+})
+
+## Apples to apples comparison (hopefully)
+bmark <- bench::mark(
+  mutl = {
+    sens |>
+      subset(is.na(drug2dose)) |>
+      aggregate2(
+        auc = computeAUC(drug1dose, viability),
+        by = c("drug1id", "cellid"),
+        BPPARAM = bp, nthread = 22
+      ) ->
+    auc_dt
+  },
+  dopar = {
+    sens |>
+      subset(is.na(drug2dose)) |>
+      aggregate2(
+        auc = computeAUC(drug1dose, viability),
+        by = c("drug1id", "cellid"),
+        BPPARAM = bp2, nthread = 22
+      ) ->
+    auc_dt
+  }
+)
+
+library(CoreGx)
+library(data.table)
+tre <- qs::qread(
+  file.path(".local_data", "nci_treatment_response_exp.qs"),
+  nthread = 10
+)
+# data(nci_TRE_small)
+# fix use of wrong column for sensitivity
+# tre$sensitivity <- tre$sensitivity[,
+#     `:=`(PERCENTGROWTH=viability, viability=(TESTVALUE/CONTROLVALUE)*100)
+# ]
+tre |>
+  subset(is.na(drug2id)) |>
+  aggregate(
+    assay = "sensitivity",
+    viability = mean(viability),
+    by = c("drug1id", "drug1dose", "cellid")
+  ) |>
+  aggregate2(
+    {
+      fit <- tryCatch(
+        {
+          PharmacoGx::logLogisticRegression(drug1dose, viability)
+        },
+        error = \(e) list(HS = NA_real_, E_inf = NA_real_, EC50 = NA_real_)
+      )
+      ic50 <- tryCatch(
+        {
+          PharmacoGx::computeIC50(drug1dose, Hill_fit = fit)
+        },
+        error = \(e) NA_real_
+      )
+      auc <- tryCatch(
+        {
+          PharmacoGx::computeAUC(drug1dose, Hill_fit = fit, area.type = "Fitted")
+        },
+        error = \(e) NA_real_
+      )
+      list(
+        HS = fit[["HS"]], E_inf = fit[["E_inf"]], EC50 = fit[["EC50"]],
+        Rsq = as.numeric(unlist(attributes(fit))),
+        auc = auc,
+        ic50 = ic50
+      )
+    },
+    by = c("drug1id", "cellid"),
+    enlist = FALSE,
+    nthread = 20
+  ) -> mono_profiles
+tre$mono_profiles <- mono_profiles
+
+# -- extract monotherapy drug observations
+## FIXME:: This drops the aggregations attribute... Do we need it?
+mono_profiles <- tre$mono_profiles
+## TODO:: Add helper methods to make finding these columns easier!
+mono_cols <- setdiff( # identify assay specific columns
+  colnames(mono_profiles),
+  c(colnames(rowData(tre)), colnames(colData(tre)))
+)
+mono_profiles <- unique(mono_profiles[
+  !is.na(HS) & Rsq > 0.75, # drop failed fits and not passing Rsq test
+  mget(setdiff(mono_cols, c("auc", "ic50"))),
+  by = c("drug1id", "cellid")
+])
+
+# -- build out combination modelling table with dose! Needed for Loewe
+combo_profiles <- tre$sensitivity[
+  !is.na(drug2id),
+  .(
+    mean_viability = mean(viability),
+    mean_drug1dose = mean(drug1dose),
+    mean_drug2dose = mean(drug2dose)
+  ),
+  by = .(drug1id, drug2id, cellid)
+]
+# TODO:: Do we want to keep NA values? Add all.x=TRUE if so.
+combo_profiles <- merge.data.table(
+  combo_profiles, mono_profiles,
+  by = c("drug1id", "cellid")
+)
+combo_profiles <- merge.data.table(
+  combo_profiles, mono_profiles,
+  by.x = c("drug2id", "cellid"), by.y = c("drug1id", "cellid"),
+  suffixes = c("_2", "_1")
+)
+setkeyv(combo_profiles, c("drug1id", "drug2id", "cellid"))
+setcolorder(combo_profiles, c("drug1id", "drug2id", "cellid"))
+
+# -- compute synergy metrics
+## Here score ~ combination index
+combo_profiles |>
+  aggregate2(
+    {
+      # predict single agent viability for this combo
+      v1 <- min(PharmacoGx:::.Hill(
+        log10(mean_drug1dose),
+        c(HS_1, E_inf_1, log10(EC50_1))
+      ) / 100, 1)
+      v2 <- min(PharmacoGx:::.Hill(
+        log10(mean_drug2dose),
+        c(HS_2, E_inf_2, log10(EC50_2))
+      ) / 100, 1)
+      # alias variables for readable math
+      v <- min(mean_viability / 100, 1)
+      r1 <- 1 - v1
+      r2 <- 1 - v2
+      r <- 1 - v
+      rmax1 <- 1 - (E_inf_1 / 100)
+      rmax2 <- 1 - (E_inf_2 / 100)
+      rmin <- 0
+      # do math
+      HSA <- max(r1, r2)
+      HSA_score <- HSA / r
+      BLISS <- r1 + r2 - (r1 * r2)
+      BLISS_score <- BLISS / r
+      LOEWE_1 <- (d1 / EC50_1) * (1 / ((emin1 - v) / (v - emax1))^(1 / HS_1))
+      LOEWE_2 <- (d2 / EC50_2) * (1 / ((emin2 - v) / (v - emax2))^(1 / HS_2))
+      LOEWE_score <- LOEWE_1 + LOEWE_2
+      # return list
+      list(
+        r1 = r1, d1 = mean_drug1dose, d2 = mean_drug2dose, r2 = r2, r = r, HSA = HSA, HSA_score = HSA_score, BLISS = BLISS,
+        BLISS_score = BLISS_score,
+        LOEWE_score = LOEWE_score
+      )
+    },
+    by = c("drug1id", "drug2id", "cellid"),
+    enlist = FALSE,
+    nthread = 1
+  ) -> prof2
+
+## PERCENTGROWTHNOTZ has missing values
+## compute viability from T_72 / C_72
+viability <- tre[["sensitivity"]][,
+  c(idCols(tre), "TESTVALUE", "CONTROLVALUE"),
+  with = FALSE
+]
+## We have negative TESTVALUE => nagtive viability, meaning
+## blank absorbance reading is for some reason higher than the sample
+## either because the measurements are close to machine error value
+## or the blank was contaminated
+viability[TESTVALUE < 0, ]
+## negative TESTVALUE in a very marginal range, replace them with 0
+viability[TESTVALUE < 0, TESTVALUE := 0]
+## logLogisticRegression will bark for viability exceeding negative control
+viability[, `:=`(
+  viability = ifelse(
+    TESTVALUE > CONTROLVALUE,
+    100, ## Cap E_min with 100
+    (TESTVALUE / CONTROLVALUE) * 100
+  ),
+  TESTVALUE = NULL,
+  CONTROLVALUE = NULL
+)]
+tre[[".viability"]] <- viability
+mono_response <- viability |> getMonoResponse()
+# mono_params <- qs::qread("/home/lifeifei/data/mono_params.qs")
+mono_params <- mono_response |>
+  aggregate2(PharmacoGx::logLogisticRegression(dose, avg_viability),
+    by = c("drugid", "cellid"), enlist = FALSE
+  ) ## should run without warnings or errors
+
+combo_response <- tre[["sensitivity"]][
+  !is.na(drug1id) & !is.na(drug2id),
+  c(idCols(tre), "TESTVALUE", "CONTROLVALUE"),
+  with = FALSE
+][
+  ,
+  `:=`(
+    viability = ifelse(
+      TESTVALUE > CONTROLVALUE,
+      100, ## Cap E_min with 100
+      (TESTVALUE / CONTROLVALUE) * 100
+    ),
+    TESTVALUE = NULL,
+    CONTROLVALUE = NULL
+  )
+][,
+  viability := mean(viability),
+  by = .(drug1id, drug2id, drug1dose, drug2dose, cellid)
+][, replicate_id := NULL]
+
+loewe_input <- combo_response[mono_params,
+  on = c(drug1id = "drugid", cellid = "cellid")
+]
+param_names <- setdiff(colnames(loewe_input), colnames((combo_response)))
+setnames(loewe_input,
+  old = param_names,
+  new = paste(param_names, "1", sep = "_")
+)
+loewe_input <- loewe_input[mono_params,
+  on = c(drug2id = "drugid", cellid = "cellid")
+]
+setnames(loewe_input,
+  old = param_names,
+  new = paste(param_names, "2", sep = "_")
+)
+loewe_input <- loewe_input[!is.na(viability)]
+effectToDose <- function(E, HS, EC50, E_inf) {
+  return(
+    EC50 * (100 - E) / (E - E_inf)
+  )
+}
+computeLoewe <- function(dose1, dose2, HS_1, HS_2, E_inf_1, E_inf_2, EC50_1, EC50_2, E) {
+  ## TODO:: this merely computes Loewe combination score
+  ## need to find a way to estimate E_loewe
+  dose_ratio_1 <- dose1 / effectToDose(E = E, HS = HS_1, E_inf = E_inf_1, EC50 = EC50_1)
+  dose_ratio_2 <- dose2 / effectToDose(E = E, HS = HS_2, E_inf = E_inf_2, EC50 = EC50_2)
+  CI <- dose_ratio_1 + dose_ratio_2
+  return(CI)
+}
+
+Loewe_CI <- loewe_input |>
+  aggregate2(
+    Loewe_CI = computeLoewe(
+      dose1 = drug1dose,
+      dose2 = drug2dose,
+      HS_1 = HS_1,
+      HS_2 = HS_2,
+      E_inf_1 = E_inf_1,
+      E_inf_2 = E_inf_2,
+      EC50_1 = EC50_1,
+      EC50_2 = EC50_2,
+      E = viability
+    ),
+    by = c(
+      "drug1id",
+      "drug2id",
+      "cellid",
+      "drug1dose",
+      "drug2dose",
+      "viability"
+    )
+  )
+
+```
 
 
 # Biomarker Discovery:
