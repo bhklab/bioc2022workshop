@@ -1,6 +1,6 @@
 Package: pgxBioc2022Workshop
 Title: PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology
-Version: 1.0.4
+Version: 1.0.5
 Authors@R: c(
     person(
         given="Christopher",
@@ -46,6 +46,9 @@ Suggests:
     rmarkdown,
     BiocStyle,
     pkgdown
+Remotes:
+    bhklab/CoreGx@development
+    bhklab/PharmacoGx@development
 URL: https://bhklab.github.io/bioc2022workshop
 VignetteBuilder: knitr
 DockerImage: ghcr.io/bhklab/pgxBioc2022Workshop:latest
