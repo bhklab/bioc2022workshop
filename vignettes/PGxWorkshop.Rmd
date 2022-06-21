@@ -724,6 +724,183 @@ experiment.
 
 ## Calculating Synergy Surfaces using a Treatment Response Experiment
 
+In this section, we will work through analyzing the combination data from the NCI-Almanac dataset to calculate synergy surfaces at each dose for each combination of response. Here, the 
+TreatmentResponseExperiment aggregate API will allow us to expressively apply the modeling to every experiment in the data. 
+
+
+First, we will fit Hill Curve models to the monotherapy experiments in the data. This is required for calculating Loewe and ZIP based synergy scores, as well as whenever it is necessary to interpolate
+between measured monotherapy doses to predict for the measured viability doses. 
+
+```{r}
+treatmentResponse(NCI_ALAMANAC_2017) |> subset(treatment2id=="") |> aggregate(assay="sensitivity", N = .N, by=c("treatment1id", "treatment1dose", "sampleid")) |> with(expr=hist(N))
+
+```
+
+First, we notice that there are replicate experiments for the monotherapy curves - the majority of these were replicates across plates, most probably so that monotherapy results could be plate matched to combination results. 
+We can make two choices for how to handle these replicates, either average across plates, or to match analysis by plate whenever possible. Ideally, we would prefer the latter, but in interest of computation time, we will demonstrate 
+the former approach. 
+
+Below, we will be first summarizing the replicate measurements using the mean viability before fitting dose-response curves, using the `aggregate` method. We then fit the curves using `logLogisticRegression`, and save the monotherapy fits back to the 
+PharmacoSet. 
+
+```{r}
+nci <- NCI_ALAMANAC_2017
+
+# -- Fit the Hill curve model to monotherapy drugs and compute associated metrics
+bench::system_time({
+  treatmentResponse(nci) |>
+    subset(treatment2id == "") |>
+    aggregate(
+      assay = "sensitivity",
+      viability = mean(viability),
+      by = c("treatment1id", "treatment1dose", "sampleid")
+    ) |>
+    aggregate2(
+      {
+        fit <- PharmacoGx::logLogisticRegression(treatment1dose, viability)
+        ic50 <- PharmacoGx::computeIC50(treatment1dose, Hill_fit = fit)
+        auc <- PharmacoGx::computeAUC(treatment1dose, Hill_fit = fit, area.type = "Fitted")
+        list(
+          HS = fit[["HS"]], E_inf = fit[["E_inf"]], EC50 = fit[["EC50"]],
+          Rsq = as.numeric(unlist(attributes(fit))),
+          auc = auc,
+          ic50 = ic50
+        )
+      },
+      by = c("treatment1id", "sampleid"),
+      enlist = FALSE,
+      nthread = 2
+    ) -> monotherapy_profiles
+})
+# Store the results back in our PharmacoSet
+treatmentResponse(nci)$monotherapy_profiles <- monotherapy_profiles
+```
+
+We will now extract the combination data, and append the monotherapy Hill fits to the matrix, so that we can later use the fitted data from above to calculate expected combination viability. 
+
+```{r}
+# -- Attach the Hill parameters from the monotherapy profiles to the combination data
+# Extract the monotherapy fits
+treatmentResponse(nci)$monotherapy_profiles |>
+  subset(, c("treatment1id", "sampleid", "HS", "E_inf", "EC50")) |>
+  unique() ->
+monotherapy_fits
+
+treatmentResponse(nci)$sensitivity |>
+  subset(treatment2id != "") ->
+combo_profiles
+
+# Merge with the fits from the monotherapy experiments
+combo_profiles <- merge(
+  combo_profiles,
+  monotherapy_fits,
+  by = c("treatment1id", "sampleid")
+) # for treatment1id
+combo_profiles <- merge(
+  combo_profiles,
+  monotherapy_fits,
+  by.x = c("treatment2id", "sampleid"),
+  by.y = c("treatment1id", "sampleid"),
+  suffixes = c("_1", "_2")
+)
+setkeyv(combo_profiles, c("treatment1id", "treatment2id", "sampleid"))
+setcolorder(combo_profiles, c("treatment1id", "treatment2id", "sampleid"))
+
+# -- predict viability for each drug in our combination
+# fix the scale of E_inf to be a proportion instead of a percent
+combo_profiles[
+  ,
+  c("E_inf_1", "E_inf_2") := .(E_inf_1 / 100, E_inf_2 / 100)
+]
+```
+
+We then make predictions for each of the measured combination doses using fit corresponding parameters and the Hill Curve models. 
+
+```{r}
+# predict viability at the combo doses from the Hill curves fit to monotherapy data
+combo_profiles[,
+  c("viability_1", "viability_2") := .(
+    PharmacoGx:::.Hill(
+      log10(treatment1dose),
+      c(HS_1, E_inf_1, log10(EC50_1))
+    ),
+    PharmacoGx:::.Hill(
+      log10(treatment1dose),
+      c(HS_1, E_inf_2, log10(EC50_2))
+    )
+  ),
+  by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "sampleid")
+]
+```
+
+
+
+```{r}
+# -- compute our drug synergy metrics
+combo_profiles |>
+  aggregate2(
+    HSA = min(viability_1, viability_2),
+    Bliss = prod(viability_1, viability_2),
+    Loewe_CI = (
+      (treatment1dose /
+        EC50_1 * ((1 - viability_1) / (viability_1 - E_inf_1))^(1 / HS_1)
+      ) +
+        (treatment2dose /
+          EC50_2 * ((1 - viability_2) / (viability_2 - E_inf_2))^(1 / HS_2)
+        )
+    ),
+    ZIP_v = {
+      dose_ratio1 <- (treatment1dose / EC50_1)
+      dose_ratio2 <- (treatment2dose / EC50_2)
+      ZIP1 <- 1 / (1 + dose_ratio1^HS_1)
+      ZIP2 <- 1 / (1 + dose_ratio2^HS_2)
+      ZIP1 * ZIP2
+    },
+    ZIP_r = {
+      dose_ratio1 <- (treatment1dose / EC50_1)
+      dose_ratio2 <- (treatment2dose / EC50_2)
+      ZIP1 <- dose_ratio1^HS_1 / (1 + dose_ratio1^HS_1)
+      ZIP2 <- dose_ratio2^HS_2 / (1 + dose_ratio2^HS_2)
+      ZIP1 + ZIP2 - ZIP1 * ZIP2
+    },
+    viability_1 = viability_1,
+    viability_2 = viability_2,
+    viability = viability / 100,
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "sampleid")
+  ) -> combo_profiles1
+
+# -- compute combination index and score
+combo_profiles1 |>
+  aggregate2(
+    HSA_CI = viability / HSA,
+    HSA_score = HSA - viability,
+    Bliss_CI = viability / Bliss,
+    Bliss_score = Bliss - viability,
+    ZIP_CI = viability / ZIP_v,
+    ZIP_score = ZIP_v - viability,
+    Loewe_CI = Loewe_CI,
+    viability = viability,
+    viability_1 = viability_1,
+    viability_2 = viability_2,
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "sampleid")
+  ) -> combo_profiles2
+
+```
+
+
+
+
+
+## Summarizing Synergy Matrices into Single Values
+
+```{r}
+library(ggplot2)
+ggplot(combo_profiles2[treatment1id == "Pralatrexate" & treatment2id == "Gemcitabine" & sampleid == "A-549"], aes(treatment1dose, treatment2dose, fill = Bliss_score)) +
+  geom_tile() +
+  scale_x_log10() +
+  scale_y_log10()
+
+```
 
 
 # Biomarker Discovery:
