@@ -83,7 +83,7 @@ brainstorm potential applications of the analysis results in their field as well
 presented by the instructors on research in our lab. -->
 
 
-Participants expected to have the following required packages installed on their 
+Participants expected to have the following required packages installed on their
 machines to be able to run the commands along with the instructors:
 
 
@@ -267,12 +267,12 @@ with a specific experiment or publication and a curated, standardize data
 format specified as an R `S4` class.
 
 In `r CGx` we have implemented the `TREDataMapper` class, which encodes how
-the rawdata from a drug combination experiment should be transformed 
-into its associated `TRE` object. A primary motivation for the creation of this 
-class was to document and standardize creation of `TRE` objects from the myriad 
-experimental designs available in drug combination experiments in the wild. It 
-is our hope that, for example, 3x3 drug combination experiments have enough in 
-common that we could theoretically create a `3by3TREDataMapper` which works 
+the rawdata from a drug combination experiment should be transformed
+into its associated `TRE` object. A primary motivation for the creation of this
+class was to document and standardize creation of `TRE` objects from the myriad
+experimental designs available in drug combination experiments in the wild. It
+is our hope that, for example, 3x3 drug combination experiments have enough in
+common that we could theoretically create a `3by3TREDataMapper` which works
 for (almost) all publications following this design.
 
 As things stand right now, the `TREDataMapper` primarily acts as helper class
@@ -293,7 +293,7 @@ and accelerate the translation from the lab to the clinic.
 
 ### Using the `TREDataMapper` to Construct a `TreatmentResponseExperiment`
 
-For this workshop we have included a subset of the NCI_ALAMANAC_2017 
+For this workshop we have included a subset of the NCI_ALAMANAC_2017
 `PharmacoSet`, curated from [@holbeck_national_2017]
 
 ```{r nci_rawdata_echo, eval=FALSE, echo=TRUE}
