@@ -83,7 +83,7 @@ brainstorm potential applications of the analysis results in their field as well
 presented by the instructors on research in our lab. -->
 
 
-Participants expected to have the following required packages installed on their
+Participants expected to have the following required packages installed on their 
 machines to be able to run the commands along with the instructors:
 
 
@@ -141,6 +141,7 @@ suppressPackageStartupMessages({
   library(pgxBioc2022Workshop)
   library(PharmacoGx)
   library(data.table)
+  library(ggplot2)
 })
 ```
 
@@ -267,12 +268,12 @@ with a specific experiment or publication and a curated, standardize data
 format specified as an R `S4` class.
 
 In `r CGx` we have implemented the `TREDataMapper` class, which encodes how
-the rawdata from a drug combination experiment should be transformed
-into its associated `TRE` object. A primary motivation for the creation of this
-class was to document and standardize creation of `TRE` objects from the myriad
-experimental designs available in drug combination experiments in the wild. It
-is our hope that, for example, 3x3 drug combination experiments have enough in
-common that we could theoretically create a `3by3TREDataMapper` which works
+the rawdata from a drug combination experiment should be transformed 
+into its associated `TRE` object. A primary motivation for the creation of this 
+class was to document and standardize creation of `TRE` objects from the myriad 
+experimental designs available in drug combination experiments in the wild. It 
+is our hope that, for example, 3x3 drug combination experiments have enough in 
+common that we could theoretically create a `3by3TREDataMapper` which works 
 for (almost) all publications following this design.
 
 As things stand right now, the `TREDataMapper` primarily acts as helper class
@@ -293,7 +294,7 @@ and accelerate the translation from the lab to the clinic.
 
 ### Using the `TREDataMapper` to Construct a `TreatmentResponseExperiment`
 
-For this workshop we have included a subset of the NCI_ALAMANAC_2017
+For this workshop we have included a subset of the NCI_ALAMANAC_2017 
 `PharmacoSet`, curated from [@holbeck_national_2017]
 
 ```{r nci_rawdata_echo, eval=FALSE, echo=TRUE}
@@ -534,10 +535,10 @@ pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
 ### Processing Monotherapy Data With the TRE
 
 Usually, we will have more than one dose-viability experiment we wish to analyze at a time. Thankfully, the TRE
-data class makes it very easy to process large numbers of drug sensitivity experiments at the same time.
+data class makes it very easy to process large numbers of drug sensitivity experiments at the same time. 
 
 For this example, we will subset out the monotherapy experiments in the NCI-Alamanac dataset which we were using
-as an example above.
+as an example above. 
 
 
 ```{r fitting_and_aac_tre, eval=FALSE}
@@ -551,12 +552,12 @@ NCI.TRE |>
 
 ```
 
-For the interest of computation time, we will only look at experiments involving Vincristine.
-```{r, eval=FALSE}
+For the interest of computation time, we will only look at experiments involving Vincristine. 
+```{r}
 ## Should we be fitting these replicates separately or together?
-NCI.mono |>
+NCI.mono |> 
   subset(treatment1id == "Vincristine") |>
-  assay("sensitivity", withDimnames=TRUE) |>
+  assay("sensitivity", withDimnames=TRUE) |> 
   aggregate2(
     by=c("treatment1id", "sampleid", "replicate"),
     {
@@ -571,18 +572,18 @@ NCI.mono |>
 
 ```
 
-As you can see, by using the `aggregate2` method, we are able to
+As you can see, by using the `aggregate2` method, we are able to 
 
-Once we have values computed in a `data.table`, we can store them back in the Treatment Response Experiment. Notice that the TRE
-object handles seemlessly the fact that we have values computed for only a subset of experiments.
+Once we have values computed in a `data.table`, we can store them back in the Treatment Response Experiment. Notice that the TRE 
+object handles seemlessly the fact that we have values computed for only a subset of experiments. 
 
-```{r, eval=FALSE}
+```{r}
 NCI.mono$Vincristine.profiles <- Vincristine.monotherapy
 NCI.mono$Vincristine.profiles[order(sampleid)]
 ```
 
-Note, while when we print out the assay above, we see many repeated values, these values are only duplicated upon printing and
-are not saved as duplicates in memory.
+Note, while when we print out the assay above, we see many repeated values, these values are only duplicated upon printing and 
+are not saved as duplicates in memory. 
 
 
 
@@ -703,47 +704,47 @@ approach has advantages in a high-throughput setting, where it would be difficul
 
 ## Quantifying Synergy or Antagonism Compared to a Null Model
 
-Once a null model is chosen, the expected combination viability or response is compared to the observed value, as mentioned above. For all methods, this can be done
-using either a difference, or a ratio. In addition, the Loewe model directly facilitates calculating the Combination Index described above, and the ZIP model defines
-the $\delta$ score for quantifying synergy. The main practical consideration when choosing how to compare the observations to the null is the scale on which results
-will be interpreted or further analyzed. Taking the ratio of $v_c/v_{model}$, or using the Combination Index for Loewe leads to values that lie in ${0, \infty\]$
-(with 1 as the reference for no syngergy or antagonism), similar to fold changes. On the other hand, both differences and the ZIP $\delta$-score lie on a bounded scale $\[-1,1\]$,
-with 0 as the reference.
+Once a null model is chosen, the expected combination viability or response is compared to the observed value, as mentioned above. For all methods, this can be done 
+using either a difference, or a ratio. In addition, the Loewe model directly facilitates calculating the Combination Index described above, and the ZIP model defines 
+the $\delta$ score for quantifying synergy. The main practical consideration when choosing how to compare the observations to the null is the scale on which results 
+will be interpreted or further analyzed. Taking the ratio of $v_c/v_{model}$, or using the Combination Index for Loewe leads to values that lie in ${0, \infty\]$ 
+(with 1 as the reference for no syngergy or antagonism), similar to fold changes. On the other hand, both differences and the ZIP $\delta$-score lie on a bounded scale $\[-1,1\]$, 
+with 0 as the reference. 
 
-If the goal is simply to identify whether there was synergy or antagonism observed at a certain dose, the last step would be to visualize the results, and examine the extent
-of deviation from the null model. For this, the scale chosen is a matter of preference. However, if the downstream goal is biomarker discovery using a summary of synergy for
+If the goal is simply to identify whether there was synergy or antagonism observed at a certain dose, the last step would be to visualize the results, and examine the extent 
+of deviation from the null model. For this, the scale chosen is a matter of preference. However, if the downstream goal is biomarker discovery using a summary of synergy for 
 each model tested with a particular combination, if the Combination Index or a ratio is used, it may be more appropriate to analyze the results on a log-scale, as otherwise
-the range is unbalanced around the reference.
+the range is unbalanced around the reference. 
 
-In practice, our preference is to use the absolute deviation from the Bliss predicted value for downstream analysis, or, when
+In practice, our preference is to use the absolute deviation from the Bliss predicted value for downstream analysis.
 
 
 NB: Usually, the monotherapy response will be a subset of the full combination dose-response matrix, and therefore, will have been measured on the same doses. If this is not the case,
-it may be necessary to fit a Hill Curve model even when using the Bliss or HSA approaches, to interpolate what the observed monotherapy viability should be at the doses used in the combination
-experiment.
+it may be necessary to fit a Hill Curve model even when using the Bliss or HSA approaches, to interpolate what the observed monotherapy viability should be at the doses used in the combination 
+experiment. 
 
 ## Calculating Synergy Surfaces using a Treatment Response Experiment
 
-In this section, we will work through analyzing the combination data from the NCI-Almanac dataset to calculate synergy surfaces at each dose for each combination of response. Here, the
-TreatmentResponseExperiment aggregate API will allow us to expressively apply the modeling to every experiment in the data.
+In this section, we will work through analyzing the combination data from the NCI-Almanac dataset to calculate synergy surfaces at each dose for each combination of response. Here, the 
+TreatmentResponseExperiment aggregate API will allow us to expressively apply the modeling to every experiment in the data. 
 
 
 First, we will fit Hill Curve models to the monotherapy experiments in the data. This is required for calculating Loewe and ZIP based synergy scores, as well as whenever it is necessary to interpolate
-between measured monotherapy doses to predict for the measured viability doses.
+between measured monotherapy doses to predict for the measured viability doses. 
 
-```{r, eval=FALSE}
+```{r}
 treatmentResponse(NCI_ALAMANAC_2017) |> subset(treatment2id=="") |> aggregate(assay="sensitivity", N = .N, by=c("treatment1id", "treatment1dose", "sampleid")) |> with(expr=hist(N))
 
 ```
 
-First, we notice that there are replicate experiments for the monotherapy curves - the majority of these were replicates across plates, most probably so that monotherapy results could be plate matched to combination results.
-We can make two choices for how to handle these replicates, either average across plates, or to match analysis by plate whenever possible. Ideally, we would prefer the latter, but in interest of computation time, we will demonstrate
-the former approach.
+First, we notice that there are replicate experiments for the monotherapy curves - the majority of these were replicates across plates, most probably so that monotherapy results could be plate matched to combination results. 
+We can make two choices for how to handle these replicates, either average across plates, or to match analysis by plate whenever possible. Ideally, we would prefer the latter, but in interest of computation time, we will demonstrate 
+the former approach. 
 
-Below, we will be first summarizing the replicate measurements using the mean viability before fitting dose-response curves, using the `aggregate` method. We then fit the curves using `logLogisticRegression`, and save the monotherapy fits back to the
-PharmacoSet.
+Below, we will be first summarizing the replicate measurements using the mean viability before fitting dose-response curves, using the `aggregate` method. We then fit the curves using `logLogisticRegression`, and save the monotherapy fits back to the 
+PharmacoSet. 
 
-```{r, eval=FALSE}
+```{r}
 nci <- NCI_ALAMANAC_2017
 
 # -- Fit the Hill curve model to monotherapy drugs and compute associated metrics
@@ -776,9 +777,9 @@ bench::system_time({
 treatmentResponse(nci)$monotherapy_profiles <- monotherapy_profiles
 ```
 
-We will now extract the combination data, and append the monotherapy Hill fits to the matrix, so that we can later use the fitted data from above to calculate expected combination viability.
+We will now extract the combination data, and append the monotherapy Hill fits to the matrix, so that we can later use the fitted data from above to calculate expected combination viability. 
 
-```{r, eval=FALSE}
+```{r}
 # -- Attach the Hill parameters from the monotherapy profiles to the combination data
 # Extract the monotherapy fits
 treatmentResponse(nci)$monotherapy_profiles |>
@@ -814,9 +815,9 @@ combo_profiles[
 ]
 ```
 
-We then make predictions for each of the measured combination doses using fit corresponding parameters and the Hill Curve models.
+We then make predictions for each of the measured combination doses using fit corresponding parameters and the Hill Curve models. 
 
-```{r, eval=FALSE}
+```{r}
 # predict viability at the combo doses from the Hill curves fit to monotherapy data
 combo_profiles[,
   c("viability_1", "viability_2") := .(
@@ -825,8 +826,8 @@ combo_profiles[,
       c(HS_1, E_inf_1, log10(EC50_1))
     ),
     PharmacoGx:::.Hill(
-      log10(treatment1dose),
-      c(HS_1, E_inf_2, log10(EC50_2))
+      log10(treatment2dose),
+      c(HS_2, E_inf_2, log10(EC50_2))
     )
   ),
   by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "sampleid")
@@ -835,7 +836,7 @@ combo_profiles[,
 
 
 
-```{r, eval=FALSE}
+```{r}
 # -- compute our drug synergy metrics
 combo_profiles |>
   aggregate2(
@@ -889,19 +890,43 @@ combo_profiles1 |>
 
 
 
+Once we have a measure of synergy calculated for each dose combination in a particular experiment, we often would like to visualize the whole surface of drug-dose combinations to understand
+how synergy depends on dosage. 
 
+Below, we plot the Bliss score for an antagonistic combination of drugs, Mitotane and Paclitaxel, on the A-549 cell line. If we recall the formula for the Bliss score above, we took $v_{model} - v_c$, meaning that 
+in this case, negative numbers indicate antagonism, as there is more viability observed than expected. 
 
-## Summarizing Synergy Matrices into Single Values
-
-```{r, eval=FALSE}
+```{r}
 library(ggplot2)
-ggplot(combo_profiles2[treatment1id == "Pralatrexate" & treatment2id == "Gemcitabine" & sampleid == "A-549"], aes(treatment1dose, treatment2dose, fill = Bliss_score)) +
+ggplot(combo_profiles2[treatment1id == "Mitotane" & treatment2id == "Paclitaxel" & sampleid == "A-549"], aes(treatment1dose, treatment2dose, fill = Bliss_score)) +
   geom_tile() +
   scale_x_log10() +
-  scale_y_log10()
+  scale_y_log10() + xlab("Mitotane") + ylab("Paclitaxel")
 
 ```
 
+
+### Summarizing Synergy Matrices into Single Values
+
+Often, we will want to summarize a whole synergy surface into a single synergy score for a drug combination per cell-line, for example, if we want to discover biomarkers of synergy. There are several methods that 
+this can be done, the most common of which is taking the average value of your score matrix for the combination. If your doses are equally spaced (on the log scale), this will give a measure of Volume Under the Surface. 
+
+For some experiments, you may want to be a bit more careful, and not select the average of the whole surface. For example, in the experiment above, we see very strong antagonism when both doses of the drugs are high. 
+However, this may not be a very interesting regime, as often one of the goals of drug combination therapy is to limit the dose of any single drug used to reduce associated toxicities. Therefore, an option could be to 
+summarize only over a dose-range of interest. 
+
+If you find yourself in a situation where synergy is observed only in a narrow dose range, the most extreme deviation from the reference (0 or 1, depending on use of additive or fold-change metrics) may instead be more
+appropriate. 
+
+Below, we will summarize the combination profiles we have calculated into a Mean Bliss Score per experiment. 
+
+
+```{r}
+
+mean_bliss_score <- combo_profiles2[, .(Mean_Bliss = mean(Bliss_score)), .(treatment1id, treatment2id, sampleid)]
+
+
+```
 
 # Biomarker Discovery:
 
@@ -910,6 +935,28 @@ ggplot(combo_profiles2[treatment1id == "Pralatrexate" & treatment2id == "Gemcita
 
 
 ## Combination Synergy
+
+```{r}
+## Create a matrix of drug combo x cell lines. 
+synergy_summaries <- reshape2::dcast(mean_bliss_score, treatment1id + treatment2id ~ sampleid)
+
+rownames(synergy_summaries) <- paste(synergy_summaries$treatment1id, synergy_summaries$treatment2id, sep="_+_")
+
+synergy_summaries <- data.matrix(synergy_summaries[, -c(1:2)])
+
+```
+
+```{r}
+
+gene.exp.sigs <- drugSensitivitySig(NCI_ALAMANAC_2017, 
+                    mDataType = "rnaseq.comp",
+                    sProfiles = synergy_summaries,
+                    drugs = "Mitotane_+_Paclitaxel", 
+                    modeling.method="pearson", 
+                    nthread=2)
+plot(gene.exp.sigs)
+```
+
 
 ----
 
