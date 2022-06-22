@@ -541,7 +541,7 @@ For this example, we will subset out the monotherapy experiments in the NCI-Alam
 as an example above. 
 
 
-```{r fitting_and_aac_tre, eval=FALSE}
+```{r fitting_and_aac_tre}
 
 
 NCI.TRE <- treatmentResponse(NCI_ALAMANAC_2017)
