@@ -788,16 +788,39 @@ $$ \frac{x_1}{EC50_1 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,1}})^{\frac{1}{HS
 
 This formula can be solved numerically to find the value of $v_loewe$ for any two particular fitted curves.
 
-<!-- TODO: write up combination Index -->
+While the Loewe Additivity model can be used to calculate the expected response at any pair of doses, more commonly, the Loewe Additivity is assessed in terms of the 
+Combination Index. The combination index measures the deviation from the Loewe assumption as a ratio at each point, by computing the Loewe model with the observed 
+combination viability instead of the reference viability. As it doesn't require calculating $v_{loewe}$, it is also easier to compute. The formula for the 
+Combination Index given a Loewe assumption is:
+
+$$ CI_{loewe} = \frac{x_1}{EC50^1*(\frac{y_c}{E_{\infty}^1-y_c})^{1/HS^1}} + \frac{x_2}{EC50^2*(\frac{y_c}{E_{\infty}^2-y_c})^{1/HS^2}} $$
+
 
 ## ZIP
 
 The Zero interaction Potency model was recently introduced with the goal of capturing the ideas behind both the Bliss and Loewe assumptions. As the name implies
 the model assumes that the two drugs do not "potentiate" each other, meaning, that the only difference between the dose response curves of Drug 1 with and without
-Drug 2 present is that the presence of Drug 2 changes the baseline response, without affecting the potency of Drug 1. The authors were then able to show that
-the ZIP model can be derived from multiplying the two fitted Dose-Response curves together.
-<!-- TODO: Finish me  -->
+Drug 2 present is that the presence of Drug 2 changes the baseline response, without affecting the potency of Drug 1. While the ZIP model can be extended to 3 and 4 
+parameter Hill Curve models, it is simplest to understand and explain using the 2 parameter Hill Curve, which is equivalent to the case where $E_{\infty}=0$. 
 
+The authors were then able to show that the ZIP model can be derived from multiplying the two fitted Dose-Response curves together.
+
+$$ZIP((v_1,x_1), (v_2,x_2)) = (E_{\infty}^1 + \frac{1-E_{infty}^1}{1+(\frac{x_1}{EC50^1})^{HS^1}})*(E_{\infty}^2 + \frac{1-E_{infty}^2}{1+(\frac{x_2}{EC50^2})^{HS^2}})$$
+
+While the formula for computing the ZIP reference value at each point works out to being the Bliss formula applied to the fitted curves, the ZIP assumptions 
+suggest a new method to assess syngergy or antagosism at each point. Building on the assumption that combination without synergy should not change the potency of 
+each particular drug, the ZIP $delta$ score defines a measure comparing the difference between the fitted curve for each drug with and without the presence of the second 
+drug, taking the average of differences for the two drugs. 
+
+Mathmatically, ZIP defines two values:
+$$ v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) = \frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2})}^{HS^{1 \leftarrow 2}}}$$
+$$ v_c^{2 \leftarrow 1}((v_1,x_1), (v_2,x_2)) = \frac{v_1}{1+(\frac{x_1}{EC50^{2 \leftarrow 1})}^{HS^{2 \leftarrow 1}}}$$
+
+In this notation, {1 \leftarrow 2} means that we fit the Hill Curve for drug 1 after the addition of drug 2 at the dose $x_2$. Intuitively, we adjust for the observed effect
+of adding $x_2$ of drug 2 ($v_2$), and then treat drug 1 as if it is a monotherapy experiment. The $\delta$ score is then defined as the difference of the viability predicted 
+by this curve and the ZIP predicted viability, averaged over treating each of the drugs as the "main drug":
+
+$$\delta((v_1,x_1), (v_2,x_2)) = \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2} + \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2}$$
 
 ## Picking a Null Drug Combination Model
 
@@ -820,8 +843,8 @@ approach has advantages in a high-throughput setting, where it would be difficul
 Once a null model is chosen, the expected combination viability or response is compared to the observed value, as mentioned above. For all methods, this can be done
 using either a difference, or a ratio. In addition, the Loewe model directly facilitates calculating the Combination Index described above, and the ZIP model defines
 the $\delta$ score for quantifying synergy. The main practical consideration when choosing how to compare the observations to the null is the scale on which results
-will be interpreted or further analyzed. Taking the ratio of $v_c/v_{model}$, or using the Combination Index for Loewe leads to values that lie in ${0, \infty\]$
-(with 1 as the reference for no syngergy or antagonism), similar to fold changes. On the other hand, both differences and the ZIP $\delta$-score lie on a bounded scale $\[-1,1\]$,
+will be interpreted or further analyzed. Taking the ratio of $v_c/v_{model}$, or using the Combination Index for Loewe leads to values that lie in $(0, \infty]$
+(with 1 as the reference for no syngergy or antagonism), similar to fold changes. On the other hand, both differences and the ZIP $\delta$-score lie on a bounded scale $[-1,1]$,
 with 0 as the reference.
 
 If the goal is simply to identify whether there was synergy or antagonism observed at a certain dose, the last step would be to visualize the results, and examine the extent
@@ -861,7 +884,7 @@ We can make two choices for how to handle these replicates, either average acros
 the former approach.
 
 Below, we will be first summarizing the replicate measurements using the mean viability before fitting dose-response curves, using the `aggregate` method. We then fit the curves using `logLogisticRegression`, and save the monotherapy fits back to the
-PharmacoSet.
+PharmacoSet. 
 
 ```{r extracting_nci_monotherapy_data}
 nci <- NCI_ALMANAC_2017
@@ -879,6 +902,9 @@ treatmentResponse(nci) |>
 
 (treatmentResponse(nci)$mono_raw <- mono_raw)
 ```
+
+We can then apply the aggregate function function to fit the curves to the mean viability. Here, we aggregate while setting the `by` argument to compute 
+an aggregation over each unique combination of `treatment1id`, `sampleid` and `bio_rep`. 
 
 ```{r fitting_hill_curves_to_monotherapy}
 mono_raw |>
@@ -904,8 +930,9 @@ mono_raw |>
 (treatmentResponse(nci)$mono_profiles <- mono_profiles)
 ```
 
-We will now extract the combination data, and append the monotherapy Hill fits to the matrix, so that we can later use the fitted data from above to calculate expected combination viability.
-
+We will now extract the combination data, and append the monotherapy Hill fits using the `merge` function, so that we can later use the fitted data from above to calculate expected combination viability.
+Notice that we need to do two merges, one for appending the Hill fits for the first treatment, and one for appending the Hill fits for the second treatment. Fortunately, the `suffix` parameter
+will allow us to differentiate between the two once they are merged to the same table. 
 ```{r build_combo_profiles}
 # -- Attach the Hill parameters from the monotherapy profiles to the combination data
 # Extract the monotherapy fits
@@ -933,12 +960,16 @@ combo_profiles |>
     suffixes = c("_1", "_2")
   ) ->
   combo_profiles
-
+## We key and sort the data table here for speed and convenience - this step is not 100% necessary
 setkeyv(combo_profiles, c("treatment1id", "treatment2id", "sampleid",
   "bio_rep"))
 setcolorder(combo_profiles, c("treatment1id", "treatment2id", "sampleid",
   "bio_rep"))
+```
 
+By default, `logLogisticRegression` returns parameters with E_inf on a percentage scale. Here we convert that to fraction to simplify the formulas for calculating expected combination viabilities. 
+
+```{r, fix_e_inf}
 # -- predict viability for each drug in our combination
 # fix the scale of E_inf to be a proportion instead of a percent
 combo_profiles[,
@@ -967,10 +998,13 @@ combo_profiles[,
 ```
 
 
+We can now finally compute the reference combination viabilites. Again, we can use aggregate to make the calculation happen for each sample,
+pair of treatments, pair of doses, and replicate. Note that we skip computing the Loewe reference viability for speed, and instead directly 
+estimate the Loewe Combination Index. 
 
-```{r}
+```{r, compute_combo_references}
 # -- compute our drug synergy metrics
-combo_profiles |>
+(combo_profiles |>
   aggregate(
     HSA = min(viability_1, viability_2),
     Bliss = prod(viability_1, viability_2),
@@ -991,11 +1025,47 @@ combo_profiles |>
     },
     viability_1 = viability_1,
     viability_2 = viability_2,
-    viability = viability / 100,
+    viability = viability / 100, # put on the same scale as the predicted viabilities
     by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
       "sampleid", "bio_rep")
-  ) -> combo_profiles1
+  ) -> combo_profiles1)
 
+```
+
+Note that while we wrote out all the functions above, we could also use built in PharmacoGx functions for computing these scores, as below:
+
+```{r, compute_combo_references_pgx, eval=FALSE}
+combo_profiles |>
+  aggregate(
+    HSA = computeHSA(viability_1, viability_2),
+    Bliss = computeBliss(viability_1, viability_2),
+    Loewe_CI = (
+      (treatment1dose /
+        EC50_1 * ((1 - viability_1) / (viability_1 - E_inf_1))^(1 / HS_1)
+      ) +
+        (treatment2dose /
+          EC50_2 * ((1 - viability_2) / (viability_2 - E_inf_2))^(1 / HS_2)
+        )
+    ),
+    ZIP = computeZIP(treatment1dose, treatment2dose, HS_1, HS_2, EC50_1, EC50_2),
+    viability_1 = viability_1,
+    viability_2 = viability_2,
+    viability = viability / 100, # put on the same scale as the predicted viabilities
+    by = c(
+      "treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+      "sampleid", "bio_rep"
+    )
+  ) -> combo_profiles2
+
+
+```
+
+
+Once we have the reference/expected viabilities under each Null Model assumption, we can compute the related Combination Index or Score. 
+
+_Note that we also skip the ZIP delta score computation in the interest of time._
+
+```{r}
 # -- compute combination index and score
 combo_profiles1 |>
   aggregate2(
@@ -1032,6 +1102,8 @@ ggplot(combo_profiles2[treatment1id == "Mitotane" & treatment2id == "Paclitaxel"
 
 ```
 
+Note that here, it seems that antagonism is exacerbated at higher doses, suggesting a dose-dependant mechanism for antagonism. 
+
 
 ### Summarizing Synergy Matrices into Single Values
 
@@ -1042,10 +1114,10 @@ For some experiments, you may want to be a bit more careful, and not select the 
 However, this may not be a very interesting regime, as often one of the goals of drug combination therapy is to limit the dose of any single drug used to reduce associated toxicities. Therefore, an option could be to
 summarize only over a dose-range of interest.
 
-If you find yourself in a situation where synergy is observed only in a narrow dose range, the most extreme deviation from the reference (0 or 1, depending on use of additive or fold-change metrics) may instead be more
-appropriate.
+If you find yourself in a situation where synergy is observed only in a narrow dose range, the most extreme deviation from the reference (deviation from 0 or 1, depending on use of additive or fold-change metrics) may 
+instead be more appropriate.
 
-Below, we will summarize the combination profiles we have calculated into a Mean Bliss Score per experiment.
+For our demo, we will summarize the combination profiles we have calculated into a Mean Bliss Score per experiment.
 
 
 ```{r}
@@ -1062,10 +1134,26 @@ mean_bliss_score <- combo_profiles2[,
 
 ## Monotherapy response
 
+PharmacoGx makes an initial analysis for univariate biomarker discovery very simple, by providing the `drugSensitivitySig` function which will compute the association between molecular features and 
+drug response summaries (such as AAC) across the cell lines in a PharmacoSet. 
+
+There are two approaches implemented in PharmacoGx for measuring the association between molecular features and drug response. The first, older approach is to use a linear model to estimate the effect
+of the molecular feature measurements on the drug response summary, and an analysis of variance F-test to test the significance of the molecular feature in predicting drug response over a Null model. If
+multiple tissue types are present in the dataset, the Null model includes the tissue as an explanatory features, otherwise, it is just the intercept. This approach is most flexible, allowing for 
+both continous and binary measurements of drug response, as well as continous, categorical and binary molecular features. However, the estimate of the effect returned is a standardized regression coefficient,
+which may be difficult to interpret and compare between biomarkers. 
+
+The second approach is to use a Pearson Correlation, or a Partial Pearson Correlation corrected for tissue type to test for associations. Currently, this is our preferred approach for two reasons: 
+1. The returned effect size estimate will be on the scale of a Pearson Correlation, which is familiar to most scientists and comparable between molecular features (as long as the sample sizes do not vary too drastically).
+2. Currently, PharmacoGx has implemented efficient permutation testing of Pearson Correlations for significance assessment, in addition to the regular asymptotic formulas for inferring significance.  
 
 
 ## Combination Synergy
 
+The same `drugSensitivitySig` function can be used to find biomarkers for synergy, by passing in a matrix of synergy values for each drug combination and cell line. 
+
+Above, we had already summarized our synergy surfaces into a single mean value for each experiment. Now, we need to reshape the "long" format table into a table of 
+drug combinations x cell lines. 
 ```{r}
 ## Create a matrix of drug combo x cell lines.
 synergy_summaries <- reshape2::dcast(
@@ -1073,17 +1161,21 @@ synergy_summaries <- reshape2::dcast(
     treatment1id + treatment2id ~ sampleid
 )
 
+## Name our rows something sensible related to the drug combinations. 
 rownames(synergy_summaries) <- paste(
     synergy_summaries$treatment1id,
     synergy_summaries$treatment2id,
     sep="_+_"
   )
 
-synergy_summaries <- data.matrix(synergy_summaries[, -c(1:2)])
+## Removing the two columns of treatment ids, and converting to a numerical matrix. 
+synergy_summaries <- data.matrix(synergy_summaries[, -c(1:2)]) 
 
 ```
 
-```{r}
+Finally, we can run our biomarker discovery. 
+
+```{r, eval=FALSE}
 gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
     mDataType = "rnaseq.comp",
     sProfiles = synergy_summaries,
