@@ -7,11 +7,16 @@ Authors@R: c(
         family="Eeles",
         email="christopher.eeles@uhnresearch.ca",
         role = c("aut"),
-        comment = c(ORCID = "0000-0002-9962-7385")),
+        comment = c(ORCID="0000-0002-9962-7385")),
     person(
         given="Petr",
         family="Smirnov",
         email="petr.smirnov@utoronto.ca",
+        role=c("aut")),
+    person(
+        given="Feifei",
+        familty="Li",
+        email="ff.li@mail.utoronto.ca",
         role=c("aut")),
     person(
         given="Benjamin",
