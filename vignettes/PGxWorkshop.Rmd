@@ -168,12 +168,7 @@ treatment response use case.
 
 ## CoreGx
 
-### CoreSet Class
 
-<!--
-{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
-knitr::include_graphics("./CoreSetClassDiagram.png")
--->
 
 ### Package Nomenclature
 
@@ -203,8 +198,6 @@ inherits for the `CoreSet` class defined in our package `CoreGx`, which abstract
 the common functionality across our similar packages.
 
 
-
-
 ---
 
 # Overview of Data Structures
@@ -214,16 +207,18 @@ molecular profile data.
 
 ## `CoreSet`
 
-__Need to update the class diagram__
+```{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+knitr::include_graphics("./CoreSet-class.drawio.png")
+```
 
 ## `PharmacoSet`
 
 The basic structure of a PharmacoSet is as follows:
 
-<!--
-r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap = "**PharmacoSet class diagram**. Objects comprising a `PharmacoSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
-knitr::include_graphics("./PharmacoGxClassDiagram.png")
--->
+
+```{r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap = "**PharmacoSet class diagram**. Objects comprising a `PharmacoSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+knitr::include_graphics("./CoreSet-class.drawio.png")
+```
 
 ## `TreatmentResponseExperiment`
 
