@@ -14,7 +14,7 @@ author:
   - name: Feifei Li
     email: ff.li@mail.utoronto.ca
     affiliation:
-      - *ut
+      - *uot
 output: BiocStyle::html_document
 bibliography: BioC2022Conference.bib
 vignette: >
@@ -906,7 +906,7 @@ mono_raw |>
 
 We will now extract the combination data, and append the monotherapy Hill fits to the matrix, so that we can later use the fitted data from above to calculate expected combination viability.
 
-```{r}
+```{r build_combo_profiles}
 # -- Attach the Hill parameters from the monotherapy profiles to the combination data
 # Extract the monotherapy fits
 treatmentResponse(nci) |>
