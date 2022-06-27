@@ -12,7 +12,7 @@ author:
         - *pm
         - &uot University of Toronto
   - name: Feifei Li
-    email: ffli@mail.utoronto.ca
+    email: ff.li@mail.utoronto.ca
     affiliation:
       - *ut
 output: BiocStyle::html_document
@@ -241,7 +241,8 @@ The `MultiAssayExperiment` is a common Bioconductor class for storing the result
 of diverse mutli-omic data. Along with the `SummarizedExperiment`, this object
 is used to store molecular phenotype data in a `CoreSet` and `PharmacoSet`.
 
-```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fit.show="hold", out.width="50%", fig.cap=" `r SE` and `r MAE`"}
+```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fit.show="hold",
+  out.width="50%", fig.cap=" `r SE` and `r MAE`"}
 knitr::include_graphics("./SummarizedExperiment_schematic.png")
 knitr::include_graphics("./MultiAssayExperiment_schematic.png")
 ```
@@ -908,11 +909,13 @@ We will now extract the combination data, and append the monotherapy Hill fits t
 ```{r}
 # -- Attach the Hill parameters from the monotherapy profiles to the combination data
 # Extract the monotherapy fits
-treatmentResponse(nci)$mono_profiles |>
+treatmentResponse(nci) |>
+  assay("mono_profiles", summarize=TRUE) |>
   subset(, c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")) ->
   mono_fits
 
-treatmentResponse(nci)$response |>
+treatmentResponse(nci) |>
+  assay("response") |>
   subset(treatment2id != "") ->
   combo_profiles
 
