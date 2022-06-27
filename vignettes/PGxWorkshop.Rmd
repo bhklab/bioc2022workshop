@@ -703,7 +703,6 @@ Note that sometimes, it is may be more appropriate to use either a 2 parameter m
 in using the 3 parameter model, as the logical value for the viability as a percentage of untreated cells when no drug is added is 100%.
 However, the `drc` CRAN package provides a larger variety of dose-response models, should it be appropriate in your application.
 
-
 We will soon demonstrate how to apply the `logLogisticRegression` to dose-viability data stored in a `TreatmentResponseExperiment`,
 but first we will talk about how to summarize dose-response curves for downstream analysis.
 
@@ -736,7 +735,7 @@ If measurements are passed into these function, the Log Logistic model is fit to
 Clearly, if multiple metrics are being computed, redoing the fit is inefficent. Therefore, these functions
 can also take parameters fit by `logLogisticRegression`.
 
-```{r sens_own_fit_first, eval=TRUE}
+```{r sens_own_fit_first, eval=TRUE, warning=FALSE}
 concentrations <- (1 / 2)^seq(0, 8) * 1
 viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
 pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
@@ -762,7 +761,6 @@ NCI_tre <- treatmentResponse(NCI_ALMANAC_2017)
 NCI_tre |>
     subset(treatment2id == "") ->
     NCI_mono
-
 ```
 
 For the interest of computation time, we will only look at experiments involving Vincristine.
