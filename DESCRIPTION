@@ -15,7 +15,7 @@ Authors@R: c(
         role=c("aut")),
     person(
         given="Feifei",
-        familty="Li",
+        family="Li",
         email="ff.li@mail.utoronto.ca",
         role=c("aut")),
     person(
