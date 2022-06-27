@@ -1061,9 +1061,9 @@ combo_response |>
     by.y = c("treatment1id", "sampleid", "bio_rep"),
     suffixes = c("_1", "_2")
   ) ->
-  combo_profiles
+  combo_response
 ## We key and sort the data table here for speed and convenience - this step is not 100% necessary
-setkeyv(combo_profiles, c("treatment1id", "treatment2id", "sampleid",
+setkeyv(combo_response, c("treatment1id", "treatment2id", "sampleid",
   "bio_rep"))
 setcolorder(combo_response, c("treatment1id", "treatment2id", "sampleid",
   "bio_rep"))
@@ -1106,7 +1106,7 @@ estimate the Loewe Combination Index.
 
 ```{r, compute_combo_references}
 # -- compute our drug synergy metrics
-(combo_profiles |>
+(combo_response |>
   aggregate(
     HSA = min(viability_1, viability_2),
     Bliss = prod(viability_1, viability_2),
@@ -1134,14 +1134,14 @@ estimate the Loewe Combination Index.
     viability = viability / 100, # put on the same scale as the predicted viabilities
     by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
       "sampleid", "bio_rep")
-  ) -> combo_profiles1)
+  ) -> combo_scores)
 
 ```
 
 Note that while we wrote out all the functions above, we could also use built in PharmacoGx functions for computing these scores, as below:
 
 ```{r, compute_combo_references_pgx, eval=FALSE}
-combo_profiles |>
+combo_response |>
   aggregate(
     HSA = computeHSA(viability_1, viability_2),
     Bliss = computeBliss(viability_1, viability_2),
@@ -1161,7 +1161,7 @@ combo_profiles |>
       "treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
       "sampleid", "bio_rep"
     )
-  ) -> combo_profiles2
+  ) -> combo_scores
 
 
 ```
@@ -1281,12 +1281,13 @@ synergy_summaries <- data.matrix(synergy_summaries[, -c(1:2)])
 
 Finally, we can run our biomarker discovery. 
 
-```{r, eval=FALSE}
+```{r}
 gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
     mDataType = "rnaseq.comp",
     sProfiles = synergy_summaries,
-    drugs = "Mitotane_+_Paclitaxel",
+    # drugs = "Mitotane_+_Paclitaxel",
     modeling.method="pearson",
+    features=sample(rownames(molecularProfiles(NCI_ALMANAC_2017, "rnaseq.comp")), 100),
     nthread=2
 )
 plot(gene_exp_sigs)
