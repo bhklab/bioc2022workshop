@@ -11,6 +11,10 @@ author:
     affiliation:
         - *pm
         - &uot University of Toronto
+  - name: Feifei Li
+    email: ffli@mail.utoronto.ca
+    affiliation:
+      - *ut
 output: BiocStyle::html_document
 bibliography: BioC2022Conference.bib
 vignette: >
