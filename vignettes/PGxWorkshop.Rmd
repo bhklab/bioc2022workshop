@@ -35,6 +35,7 @@ vignette: >
 ## Workshop Description {-}
 
 <!-- Alias package links -->
+
 ```{r eval=TRUE, echo=FALSE}
 PGx <- BiocStyle::Biocpkg("PharmacoGx")
 CGx <- BiocStyle::Biocpkg("CoreGx")
@@ -62,7 +63,7 @@ and `r PGx` to create a `PharmacoSet`&mdash;an
 integrative container for the storage, analysis and visualization of
 pharmacogenomic experiments. Particular focus will be placed
 on newly developed support for storing, analyzing and visualizing drug
-combination sensitivity experiments and correlating results therefrom for
+combination sensitivity experiments and correlating results therefrom
 with multi-omic molecular profiles to discover biomarkers of drug senstivity
 or resistance.
 
@@ -71,7 +72,7 @@ or resistance.
   * Knowledge of or interest in pharmacogenomics
   * Familiarity with core Bioconductor classes such as the
   and `r SE` and `r MAE`
-  * Curiosity about or experience with `r DT` an assest!
+  * Curiosity about or experience with `r DT` an asset!
 
 
 Useful publications:
@@ -104,6 +105,7 @@ Bioconductor:
 CRAN:
 
 * `r DT`
+* `r BiocStlye::CRANpkg("ggplot2")`
 
 ## Time outline {-}
 
@@ -113,8 +115,8 @@ For a 1.5-hr workshop:
 |------------------------------------------------------------|------|
 | Introduction to CoreGx and PharmacoGx                      |  5m  |
 | Overview of Data Structures                                |  15m |
-| How TRE Support Drug Combinations Data Analysis            |  10m |
-| Using Data Mapper to build a Drug Combo PharmacoSet.       |  10m |
+| How the `TRE` Supports Drug Combinations Data Analysis     |  10m |
+| Using a `DataMapper` to build a Drug Combo PharmacoSet     |  10m |
 | Dose Response Models and Drug Sensitivity measures         |  10m |
 | Drug Combination Synergy Models                            |  10m |
 | Biomarker Discovery                                        |  15m |
@@ -130,16 +132,21 @@ For a 1.5-hr workshop:
 * Learn how to extract information from these datasets
 * Learn how to visualize experimental results from these datasets
 * Learn how to model dose-response for both monotherapy and combination small compound datasets
-* Learn measures to quantify response and synergy in cell line sensitivity screens
+* Learn measures to quantify response and synergy in cell-line sensitivity screens
 
 ### Learning objectives {-}
 
-* List available standardized pharmacogenomic and radiogenomic datasets and download them
+* Describe use cases for `r CGx` and `r PGx` in pharmacogenomics and beyond
+* Understand the structure of the `CoreSet` and `PharmacoSet` classes to facilitate their use in subsequent analyses
+* Learn how the `TreatmentResponseExperiment` provides a highly flexible container for storing high-throughput drug combination screening data
+* Use a `TREDataMapper` to create a `TreatmentResponseExperiment` and incorporate it into a `PharmacoSet`
+* Learn to apply arbitrary R functions over a `TreatmentResponseExperiment` using the `aggregate` method
 * Access the molecular features, dose-response and metadata contained within the data structures defined in the packages
 * Fit Hill Slope models to dose-response experiments using small compound treatments in cell lines
 * Calculate the AAC, AUC, IC50 metrics for response quantification in cell lines
 * Predict in vitro univariate biomarkers for drug response and drug synergy using the PharmacoGx
-
+* Compute and store various metrics of drug synergy and antagnoism using a `r PGx` and the `PharmacoSet`
+* Learn how to use `PharmacoGx` to discover univariate biomarkers of drug response, synergy or antagnoism
 
 ----
 
@@ -168,15 +175,13 @@ treatment response use case.
 
 ## CoreGx
 
-
-
 ### Package Nomenclature
 
-To facilitate modularization of the GxSuite of R packages, we are shifting
+To facilitate modularization of the GxSuite of R packages, we have shifted
 the nomenclature within a `CoreSet`&ndash;and therefore in inheriting packages
 &ndash;to be more general.
 
-To this end, we are making the following changes:
+To this end, have made the following changes:
 
   * Previous reference to cell (cell-line) will become sample, allowing the
 `CoreSet` to be used for other model systems
@@ -184,19 +189,18 @@ To this end, we are making the following changes:
 `CoreSet` to be treatment type agnostic
   * Sensitivity will become response (sensitivty slot becomes treatmentResponse)
 
-As a result of these changes, the names of some common accessors will be updated.
-The old accessors will still remain, ensuring backwards compatibility for at
-least two Bioconductor releases. A deprecation warning will be added to old
+As a result of these changes, the names of some common accessors have been updated.
+The old accessors still remain functional to ensure backwards compatibility for 
+at least two Bioconductor releases. A deprecation warning will be added to old
 accessors informing users of the corresponding new function, as per Bioconductor
 best practices.
 
 ## PharmacoGx
 
 PharmacoGx stores drug screening data together with molecular profiling of
-cell lines in an object called a `PharmacoSet`, or `PSet` for short. This object
+cell-lines in an object called a `PharmacoSet`, or `PSet` for short. This object
 inherits for the `CoreSet` class defined in our package `CoreGx`, which abstracts
 the common functionality across our similar packages.
-
 
 ---
 
@@ -205,20 +209,12 @@ the common functionality across our similar packages.
 The GxSuite of packages make use of various Bioconductor classes for storing
 molecular profile data.
 
-## `CoreSet`
+## `CoreSet` and `PharmacoSet`
 
 ```{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./CoreSet-class.drawio.png")
 ```
 
-## `PharmacoSet`
-
-The basic structure of a PharmacoSet is as follows:
-
-
-```{r pharmacoset, echo=FALSE, fig.wide=TRUE, fig.cap = "**PharmacoSet class diagram**. Objects comprising a `PharmacoSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
-knitr::include_graphics("./CoreSet-class.drawio.png")
-```
 
 ## `TreatmentResponseExperiment`
 
@@ -236,8 +232,7 @@ The `MultiAssayExperiment` is a common Bioconductor class for storing the result
 of diverse mutli-omic data. Along with the `SummarizedExperiment`, this object
 is used to store molecular phenotype data in a `CoreSet` and `PharmacoSet`.
 
-```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fit.show="hold",
-  out.width="50%", fig.cap=" `r SE` and `r MAE`"}
+```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fit.show="hold", out.width="50%", fig.cap=" `r SE` and `r MAE`"}
 knitr::include_graphics("./SummarizedExperiment_schematic.png")
 knitr::include_graphics("./MultiAssayExperiment_schematic.png")
 ```
@@ -375,7 +370,7 @@ Examining the columns in the data, we see we have already defined the columns
 `bio_rep` and `tech_rep` to the raw data in preprocessing. For your own data
 in the wild, you will likely need to consult the original publication and
 explore the data to differential these two types of replicates and assign
-identifiers to which differentiate every unique observation within an
+identifiers which differentiate every unique observation within an
 experiment.
 
 ```{r data_mapper_correct_guess, eval=TRUE, echo=TRUE}
@@ -414,8 +409,11 @@ subdivide our assay columns into sensible groups.
 
 For the NCI-ALMANAC we have decided to separate our treatment-response
 measurements into the "response" assay. Any additional metadata which doesn't
-map cleaning to rows or columns gets assigned to "assay_metadata". We
-setup a nested list where each item defines an assay in the `TRE`, with the
+map cleaning to rows or columns gets assigned to "assay_metadata". The publsihed
+synergy score will go in the "profiles" assay, which stores metrics computed
+from the "response" assay.
+
+We setup a nested list where each item defines an assay in the `TRE`, with the
 "id_columns" containing identifiers needed to uniquely map each row in an
 assay to its associated treatments and samples. The "mapped_columns" item
 specifies the definition of the assay table.
@@ -451,12 +449,90 @@ together the rawdata and the metadata into a constructo call for the
 (NCI_ALMANAC_tre <- metaConstruct(treDataMapper))
 ```
 
+### Computing Over a `TreatmentResponseExperiment`
+
+So far we have seen how a `TRE` allows for flexible definitions of treatments
+and samples which enable storage of dose-response across a range of experimental
+designs. However, data storage is not the point of the `TRE`. Once our data
+is curated and stored safely inside our object we are ready to start answering
+interesting questions about our data.
+
+To facilitate computation over a `TRE`, we have included the `aggregate` method
+which allows arbitrary R functions to be applied over groups of identifiers
+within an assay. For example, we may want to take averages for all mono therapy 
+values over technical replicates. We can do so using the `aggregate` method
+as follows:
+
+```{r aggregate_tre}
+(NCI_ALMANAC_tre |>
+  subset(treatment2id == "") |>
+  aggregate(
+    assay="response",
+    mean(viability),
+    by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
+  ) ->
+  mono_response_no_reps)
+```
+
+As you can see above, we select only our monotherapy response observations using
+the `subset` method. Aggregate provides an argument for the `assay` we want 
+compute over, in this case the "response" assay. We also specify how we want our
+groups defined using the `by` argument. Finally, we can specify one or more
+functions to aggregate columns with. In this case, we are simply taking the
+mean within groups defined by `by`. We have excluded "tech_rep", which means
+that we are essentially summarizing over this column.
+
+The resulting table will contain the identifer columns specified to `by`, 
+as well as any of the columns which were summarized over. By default, for
+unnamed aggregations `aggregate` tries to guess the column name. We can see in
+the results it figured out that we are taking the mean of the viability column
+and returned the results as "mean_viability". 
+
+You can also customize your resulting column names by naming the aggregation 
+arguments:
+
+For example:
+```{r aggregate_tre_namedl}
+(NCI_ALMANAC_tre |>
+  aggregate(
+    subset=treatment2id == "",
+    assay="response",
+    my_viability=mean(viability),
+    my_dose=mean(treatment1dose),
+    by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
+  ) ->
+  mono_response_custom_names)
+```
+
+Here we can see that the viability column is named "my_viability" and that 
+our dose column named "my_dose". We also see the `subset` parameter, which
+was added to `aggregate` for convenience to filter to relevant assay rows
+in a single function call.
+
+For more complex functions, such as optimizing parameters to a non-linear
+function (as is done for fitting the Hill curve model to dose-response data),
+we are able to include the `nthread` argument to parallelize if we have 
+more than one core available. In generaly, parallelized computations with
+aggregate will use much more RAM than their serialized counterparts. Since
+there is overhead associated with dispatching parallel threads for a computation,
+this feature should be used sparingly for only complex computations.
+
+We will see examples of parallelized aggregation in subsequent sections.
+
+The final feature of `aggregate` is allowing information be shared between
+aggregates to prevent multiple parallelized calls to the function. For these
+cases, we set the `enlist` parameter to `FALSE` and pass a block of code
+wrapped in `{}`. The final statment in the curly brackets should return a
+named list, where each list item will become a column in the returned table.
+
+The utility of this option will also become apparent in subsequent sections.
+
 ### Combining with Omics Data into a `PharmacoSet`
 
-The NCI-ALMANAC study did not conduct its own step of molecular profiling
+The NCI-ALMANAC study did not conduct its own set of molecular profiling
 experiments, since the NCI60 experiment already profiled all cell-lines
-available in the NCI-ALMANAC. Since we have already curated a `PharmacoSet`
-for `NCI60`, adding our molecular data to the NCI-ALMANAC `PharmacoSet`
+available in the NCI-ALMANAC. We have already curated a `PharmacoSet`
+for `NCI60`, so adding our molecular data to the NCI-ALMANAC `PharmacoSet`
 requires no manual curation.
 
 ```{r load_molecular_data}
@@ -494,8 +570,10 @@ data(NCI_ALMANAC_sample_metadata)
 knitr::kable(head(NCI_ALMANAC_sample_metadata))
 ```
 
-Here the sample metadata is present which will be assigned to the `@sample`
-slot of our `PharmacoSet`.
+The above table contains the sample metadata which will comprise the `@sample`
+slot of our `PharmacoSet`. It contains a set of standardized identifiers
+including `cellid` and `tissueid`, as well as cell-line identifiers from
+the NCI-ALMANAC publication and some additional metadata we have added.
 
 ```{r load_treatment_metadata_files1, eval=FALSE}
 data(NCI_ALMANAC_treatment_metadata)
@@ -507,11 +585,16 @@ data(NCI_ALMANAC_treatment_metadata)
 knitr::kable(head(NCI_ALMANAC_treatment_metadata))
 ```
 
-The treatment metadata contains useful information such as PubChem cid and
-
+Similar to the sample table, this one contains treatment metadata which will 
+be assigned to the `@treatment` slot of our `PharmacoSet`. It also contains
+a set of standardized identifiers including `treatmentid`, structural
+chemical identifiers, links to external databases as well as the drug identifiers
+from the NCI-ALMANAC publication.
 
 For the curation list, we extract our mappings from our standardized identifiers
-to
+to dataset specific identifiers and store those separately to ensure these
+associations are not lost should the treatment or sample metadata table
+be modified.
 
 ```{r build_the_curation_list}
 curation <- list(
@@ -524,6 +607,9 @@ curation <- list(
 )
 ```
 
+With all of our pieces in place, we can finally construct a drug combination
+`PharmacoSet` which can be used 
+
 ```{r create_our_drug_combo_pharmacoset}
 (NCI_ALMANAC_2017 <- PharmacoSet2(
     name="NCI_ALMANAC_2017",
@@ -534,6 +620,8 @@ curation <- list(
     curation=curation
 ))
 ```
+
+
 
 ----
 
