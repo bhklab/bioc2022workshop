@@ -105,7 +105,7 @@ Bioconductor:
 CRAN:
 
 * `r DT`
-* `r BiocStlye::CRANpkg("ggplot2")`
+* `r BiocStyle::CRANpkg("ggplot2")`
 
 ## Time outline {-}
 
@@ -211,7 +211,7 @@ molecular profile data.
 
 ## `CoreSet` and `PharmacoSet`
 
-```{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+```{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet / PharmacoSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./CoreSet-class.drawio.png")
 ```
 
@@ -492,7 +492,7 @@ You can also customize your resulting column names by naming the aggregation
 arguments:
 
 For example:
-```{r aggregate_tre_namedl}
+```{r aggregate_tre_named}
 (NCI_ALMANAC_tre |>
   aggregate(
     subset=treatment2id == "",
@@ -598,30 +598,43 @@ be modified.
 
 ```{r build_the_curation_list}
 curation <- list(
-    sample=NCI_ALMANAC_sample_metadata[, c("sampleid", "NCI_ALMANAC.sampleid")],
-    treatment=NCI_ALMANAC_treatment_metadata[, c("treatmentid", "NCI_ALMANAC.treatmentid")],
-    tissue=data.frame(
-        NCI_ALMANAC_sample_metadata[, c("tissueid", "NCI_ALMANAC.disease")],
-        rownames=NCI_ALMANAC_sample_metadata$sampleid
-    )
+  sample=NCI_ALMANAC_sample_metadata[, c("sampleid", "NCI_ALMANAC.sampleid")],
+  treatment=NCI_ALMANAC_treatment_metadata[, c("treatmentid", "NCI_ALMANAC.treatmentid")],
+  tissue=data.frame(
+    NCI_ALMANAC_sample_metadata[, c("tissueid", "NCI_ALMANAC.disease")],
+    rownames=NCI_ALMANAC_sample_metadata$sampleid
+  )
 )
 ```
 
 With all of our pieces in place, we can finally construct a drug combination
-`PharmacoSet` which can be used 
+`PharmacoSet` which can be used in subsequent analysis. Along with the recent
+changes in the structure and nomenclature of a `PharmacoSet` comes the
+introduction of the `PharmacoSet2` contructor. This version enforces new
+requirements for the object such as a `MutliAssayExperiment` for the molecular
+profiles slot and a `TreatmentResponseExperiment` for treatment response slot.
+The original constructor is still included in the package for backwards 
+compatibility but will be retired after we finish updating all our existing
+datasets on ORCESTRA.ca.
+
+If you have an old style `PharmacoSet` but want to use the new package features,
+simply call `updateObject` to return the dataset with an updated class
+structure.
 
 ```{r create_our_drug_combo_pharmacoset}
 (NCI_ALMANAC_2017 <- PharmacoSet2(
-    name="NCI_ALMANAC_2017",
-    molecularProfiles=NCI60_molecular_data,
-    treatmentResponse=NCI_ALMANAC_tre,
-    treatment=NCI_ALMANAC_treatment_metadata,
-    sample=NCI_ALMANAC_sample_metadata,
-    curation=curation
+  name="NCI_ALMANAC_2017",
+  molecularProfiles=NCI60_molecular_data,
+  treatmentResponse=NCI_ALMANAC_tre,
+  treatment=NCI_ALMANAC_treatment_metadata,
+  sample=NCI_ALMANAC_sample_metadata,
+  curation=curation
 ))
 ```
 
-
+Finally we see our finished drug combination `PharmacoSet` and are ready
+to use it to answer interesting research questions and discover the relationship
+between molecular phenotypes and treatment response!
 
 ----
 
@@ -667,7 +680,11 @@ PharmacoGx provides functions to both fit and visualize dose-viability curves. P
 concentrations <- (1 / 2)^seq(0, 8) * 1
 viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
 
-drugDoseResponseCurve(concentrations = list("Exp 1" = concentrations), viabilities = list("Exp 1" = viabilities), plot.type = "Both")
+drugDoseResponseCurve(
+  concentrations = list("Exp 1" = concentrations),
+  viabilities = list("Exp 1" = viabilities), 
+  plot.type = "Both"
+)
 ```
 
 Similarly, fitting Log-Logistic models to data is simple using the `logLogisticRegression` function in `PharmacoGx`.
@@ -711,8 +728,8 @@ computed manually as follows:
 concentrations <- 1/2^seq(0,8) * 1
 viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
 
-(PharmacoGx::computeAUC(concentration = concentrations, viability = viabilities))
-(PharmacoGx::computeIC50(concentration = concentrations, viability = viabilities))
+print(PharmacoGx::computeAUC(concentration = concentrations, viability = viabilities))
+print(PharmacoGx::computeIC50(concentration = concentrations, viability = viabilities))
 ```
 
 If measurements are passed into these function, the Log Logistic model is fit to compute the IC50 and AAC.
@@ -724,8 +741,8 @@ concentrations <- (1 / 2)^seq(0, 8) * 1
 viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
 pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
 
-(PharmacoGx::computeAUC(concentration = concentrations, Hill_fit = pars))
-(PharmacoGx::computeIC50(concentration = concentrations, Hill_fit = pars))
+print(PharmacoGx::computeAUC(concentration = concentrations, Hill_fit = pars))
+print(PharmacoGx::computeIC50(concentration = concentrations, Hill_fit = pars))
 ```
 
 
@@ -738,22 +755,21 @@ For this example, we will subset out the monotherapy experiments in the NCI-Alam
 as an example above.
 
 
-```{r fitting_and_aac_tre}
+```{r extracting_monotherapy_from_tre}
 NCI_tre <- treatmentResponse(NCI_ALMANAC_2017)
 
 ## TreatmentResponseExperiment method
 NCI_tre |>
-    subset(is.na(treatment2dose)) ->
+    subset(treatment2id == "") ->
     NCI_mono
 
 ```
 
 For the interest of computation time, we will only look at experiments involving Vincristine.
-```{r}
-## Should we be fitting these replicates separately or together?
-NCI_mono |>
+```{r fitting_hill_curve_to_tre}
+(NCI_mono |>
   subset(treatment1id == "Vincristine") |>
-  assay("response", withDimnames=TRUE) |>
+  assay("response") |>
   aggregate(
     by=c("treatment1id", "sampleid", "bio_rep"),
     {
@@ -764,23 +780,22 @@ NCI_mono |>
     },
     enlist=FALSE
   ) ->
-  vincristine_monotherapy
-
+  vincristine_monotherapy)
 ```
 
-As you can see, by using the `aggregate` method, we are able to
+As you can see, by using the `aggregate` method, we are able to to fit our
+the 3-parameter Hill curve to our data, then use the fit parameters to 
+simultaneously calculate AUC and IC50. This is the power of using the
+`aggregate` method with `enlist=FALSE`.
 
-Once we have values computed in a `data.table`, we can store them back in the Treatment Response Experiment. Notice that the TRE
-object handles seemlessly the fact that we have values computed for only a subset of experiments.
+Once we have values computed in a `data.table`, we can store them back in the 
+`TreatmentResponseExperiment`. Notice that the TRE object handles seemlessly 
+the fact that we have values computed for only a subset of experiments.
 
-```{r}
+```{r }
 NCI_mono$vincristine_profiles <- vincristine_monotherapy
-NCI_mono$vincristine_profiles[order(sampleid)]
+head(NCI_mono$vincristine_profiles[order(sampleid)])
 ```
-
-Note, while when we print out the assay above, we see many repeated values, these values are only duplicated upon printing and
-are not saved as duplicates in memory.
-
 
 
 # Drug Combination Synergy Models
@@ -943,14 +958,15 @@ First, we notice that there are replicate experiments for the monotherapy curves
 We can make two choices for how to handle these replicates, either average across plates, or to match analysis by plate whenever possible. Ideally, we would prefer the latter, but in interest of computation time, we will demonstrate
 the former approach.
 
-Below, we will be first summarizing the replicate measurements using the mean viability before fitting dose-response curves, using the `aggregate` method. We then fit the curves using `logLogisticRegression`, and save the monotherapy fits back to the
-PharmacoSet.
+Below, we will be first summarizing the replicate measurements using the mean 
+viability before fitting dose-response curves, using the `aggregate` method. 
+We then fit the curves using `logLogisticRegression`, and save the monotherapy 
+fits back to the PharmacoSet.
 
 ```{r extracting_nci_monotherapy_data}
 nci <- NCI_ALMANAC_2017
 
 # -- Fit the Hill curve model to monotherapy drugs and compute associated metrics
-
 treatmentResponse(nci) |>
   subset(treatment2id == "") |>
   aggregate(
@@ -958,13 +974,13 @@ treatmentResponse(nci) |>
     viability=mean(viability),
     by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
   ) ->
-  mono_raw
+  mono_response
 
-(treatmentResponse(nci)$mono_raw <- mono_raw)
+(treatmentResponse(nci)$mono_response <- mono_response)
 ```
 
 ```{r fitting_hill_curves_to_monotherapy}
-mono_raw |>
+mono_response |>
   aggregate(
     {
       fit <- PharmacoGx::logLogisticRegression(treatment1dose, viability)
@@ -979,7 +995,7 @@ mono_raw |>
     },
     by = c("treatment1id", "sampleid", "bio_rep"),
     enlist = FALSE,
-    nthread = 4
+    nthread = 2
   ) ->
   mono_profiles
 
@@ -987,24 +1003,29 @@ mono_raw |>
 (treatmentResponse(nci)$mono_profiles <- mono_profiles)
 ```
 
-We will now extract the combination data, and append the monotherapy Hill fits to the matrix, so that we can later use the fitted data from above to calculate expected combination viability.
+We will now extract the combination data, and append the monotherapy Hill fits 
+to the matrix, so that we can later use the fitted data from above to calculate 
+expected combination viability.
 
-```{r build_combo_profiles}
+```{r build_combo_profiles, warning=FALSE}
 # -- Attach the Hill parameters from the monotherapy profiles to the combination data
 # Extract the monotherapy fits
 treatmentResponse(nci) |>
   assay("mono_profiles", summarize=TRUE) |>
-  subset(, c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")) ->
+  subset(
+    Rsq > 0.5, 
+    c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")
+  ) ->
   mono_fits
 
 treatmentResponse(nci) |>
   assay("response") |>
   subset(treatment2id != "") ->
-  combo_profiles
+  combo_response
 
 
 # Merge with the fits from the monotherapy experiments
-combo_profiles |>
+combo_response |>
   merge(
     mono_fits,
     by = c("treatment1id", "sampleid", "bio_rep")
@@ -1015,25 +1036,26 @@ combo_profiles |>
     by.y = c("treatment1id", "sampleid", "bio_rep"),
     suffixes = c("_1", "_2")
   ) ->
-  combo_profiles
+  combo_response
 
-setkeyv(combo_profiles, c("treatment1id", "treatment2id", "sampleid",
+# rearrange our data
+setkeyv(combo_response, c("treatment1id", "treatment2id", "sampleid",
   "bio_rep"))
-setcolorder(combo_profiles, c("treatment1id", "treatment2id", "sampleid",
+setcolorder(combo_response, c("treatment1id", "treatment2id", "sampleid",
   "bio_rep"))
 
 # -- predict viability for each drug in our combination
 # fix the scale of E_inf to be a proportion instead of a percent
-combo_profiles[,
+combo_response[,
   c("E_inf_1", "E_inf_2") := .(E_inf_1 / 100, E_inf_2 / 100)
 ]
 ```
 
 We then make predictions for each of the measured combination doses using fit corresponding parameters and the Hill Curve models.
 
-```{r}
+```{r predicting_mono_response_for_combo_doses, warning=FALSE}
 # predict viability at the combo doses from the Hill curves fit to monotherapy data
-combo_profiles[,
+combo_response[,
   c("viability_1", "viability_2") := .(
     PharmacoGx:::.Hill(
       log10(treatment1dose),
@@ -1052,8 +1074,10 @@ combo_profiles[,
 
 
 ```{r}
+treatmentResponse(nci)$combo_response <- combo_response
+
 # -- compute our drug synergy metrics
-combo_profiles |>
+combo_response |>
   aggregate(
     HSA = min(viability_1, viability_2),
     Bliss = prod(viability_1, viability_2),
@@ -1072,16 +1096,20 @@ combo_profiles |>
       ZIP2 <- 1 / (1 + dose_ratio2^HS_2)
       ZIP1 * ZIP2
     },
+    Loewe=PharmacoGx::computeLoewe(
+      treatment1dose, HS_1, E_inf_1, EC50_1,
+      treatment2dose, HS_2, E_inf_2, EC50_2
+    ),
     viability_1 = viability_1,
     viability_2 = viability_2,
     viability = viability / 100,
     by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
       "sampleid", "bio_rep")
-  ) -> combo_profiles1
+  ) -> combo_scores
 
 # -- compute combination index and score
-combo_profiles1 |>
-  aggregate2(
+combo_scores |>
+  aggregate(
     HSA_CI = viability / HSA,
     HSA_score = HSA - viability,
     Bliss_CI = viability / Bliss,
@@ -1089,13 +1117,13 @@ combo_profiles1 |>
     ZIP_CI = viability / ZIP,
     ZIP_score = ZIP - viability,
     Loewe_CI = Loewe_CI,
+    Loewe_score = Loewe - viability,
     viability = viability,
     viability_1 = viability_1,
     viability_2 = viability_2,
     by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
       "sampleid", "bio_rep")
-  ) -> combo_profiles2
-
+  ) -> combo_profiles
 ```
 
 
@@ -1108,7 +1136,7 @@ in this case, negative numbers indicate antagonism, as there is more viability o
 
 ```{r}
 library(ggplot2)
-ggplot(combo_profiles2[treatment1id == "Mitotane" & treatment2id == "Paclitaxel" & sampleid == "A-549"], aes(treatment1dose, treatment2dose, fill = Bliss_score)) +
+ggplot(combo_profiles[treatment1id == "Mitotane" & treatment2id == "Paclitaxel" & sampleid == "A-549"], aes(treatment1dose, treatment2dose, fill = Bliss_score)) +
   geom_tile() +
   scale_x_log10() +
   scale_y_log10() + xlab("Mitotane") + ylab("Paclitaxel")
@@ -1133,7 +1161,7 @@ Below, we will summarize the combination profiles we have calculated into a Mean
 
 ```{r}
 
-mean_bliss_score <- combo_profiles2[,
+mean_bliss_score <- combo_profiles[,
   .(Mean_Bliss = mean(Bliss_score)),
   .(treatment1id, treatment2id, sampleid)
 ]
