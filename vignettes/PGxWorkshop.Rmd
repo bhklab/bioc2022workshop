@@ -296,7 +296,7 @@ and accelerate the translation from the lab to the clinic.
 
 ### Using the `TREDataMapper` to Construct a `TreatmentResponseExperiment`
 
-For this workshop we have included a subset of the NCI_ALAMANAC_2017
+For this workshop we have included a subset of the NCI_ALMANAC_2017
 `PharmacoSet`, curated from [@holbeck_national_2017]. When approaching new
 treament response experiment data, the first step is to merge it into a single,
 long format table. We have done this already and included it as the
@@ -468,7 +468,7 @@ We can see the molecular data is available as `MultiAssayExperiment` containing
 four `RangedSummarizedExperiment` objects. The molecular data types are:
   1. "rna" represents RNA expression microarray data.
   2. "mirna" represents microRNA expression data.
-  3. "rnaseq.comp" contains RNA sequencing dat.
+  3. "rnaseq.comp" contains RNA sequencing data.
   4. "rnaseq.iso" is RNA sequencing data specifically targeting transcript isoforms.
 
 Once we have our `MultiAssayExperiment` and `TreatmentResponseExperiment`
@@ -525,7 +525,7 @@ curation <- list(
 ```
 
 ```{r create_our_drug_combo_pharmacoset}
-(NCI_ALAMANAC_2017 <- PharmacoSet2(
+(NCI_ALMANAC_2017 <- PharmacoSet2(
     name="NCI_ALMANAC_2017",
     molecularProfiles=NCI60_molecular_data,
     treatmentResponse=NCI_ALMANAC_tre,
@@ -631,7 +631,7 @@ If measurements are passed into these function, the Log Logistic model is fit to
 Clearly, if multiple metrics are being computed, redoing the fit is inefficent. Therefore, these functions
 can also take parameters fit by `logLogisticRegression`.
 
-```{r sens_own_fit_first, eval=FALSE}
+```{r sens_own_fit_first, eval=TRUE}
 concentrations <- (1 / 2)^seq(0, 8) * 1
 viabilities <- c(0.1, 5, 15, 23.8, 55.2, 85.9, 96.9, 98.4, 99.2)
 pars <- logLogisticRegression(conc = concentrations, viability = viabilities)
@@ -651,42 +651,43 @@ as an example above.
 
 
 ```{r fitting_and_aac_tre}
-NCI_tre <- treatmentResponse(NCI_ALAMANAC_2017)
+NCI_tre <- treatmentResponse(NCI_ALMANAC_2017)
 
 ## TreatmentResponseExperiment method
-NCI.TRE |>
-    subset(is.na(treatment2dose)) -> NCI.mono
+NCI_tre |>
+    subset(is.na(treatment2dose)) ->
+    NCI_mono
 
 ```
 
 For the interest of computation time, we will only look at experiments involving Vincristine.
 ```{r}
 ## Should we be fitting these replicates separately or together?
-NCI.mono |>
+NCI_mono |>
   subset(treatment1id == "Vincristine") |>
-  assay("sensitivity", withDimnames=TRUE) |>
-  aggregate2(
-    by=c("treatment1id", "sampleid", "replicate"),
+  assay("response", withDimnames=TRUE) |>
+  aggregate(
+    by=c("treatment1id", "sampleid", "bio_rep"),
     {
       pars <- logLogisticRegression(treatment1dose, viability = viability)
       auc <- computeAUC(treatment1dose, Hill_fit = pars)
       ic50 <- computeIC50(treatment1dose, Hill_fit = pars)
       list(HS=pars[[1]], Einf=pars[[2]], EC50=pars[[3]], AAC=auc, IC50=ic50)
     },
-    enlist=FALSE,
-    nthread=2
-  ) -> Vincristine.monotherapy
+    enlist=FALSE
+  ) ->
+  vincristine_monotherapy
 
 ```
 
-As you can see, by using the `aggregate2` method, we are able to
+As you can see, by using the `aggregate` method, we are able to
 
 Once we have values computed in a `data.table`, we can store them back in the Treatment Response Experiment. Notice that the TRE
 object handles seemlessly the fact that we have values computed for only a subset of experiments.
 
 ```{r}
-NCI.mono$Vincristine.profiles <- Vincristine.monotherapy
-NCI.mono$Vincristine.profiles[order(sampleid)]
+NCI_mono$vincristine_profiles <- vincristine_monotherapy
+NCI_mono$vincristine_profiles[order(sampleid)]
 ```
 
 Note, while when we print out the assay above, we see many repeated values, these values are only duplicated upon printing and
@@ -840,13 +841,13 @@ First, we will fit Hill Curve models to the monotherapy experiments in the data.
 between measured monotherapy doses to predict for the measured viability doses.
 
 ```{r}
-treatmentResponse(NCI_ALAMANAC_2017) |>
+treatmentResponse(NCI_ALMANAC_2017) |>
   subset(treatment2id == "") |>
   aggregate(
-      assay="sensitivity",
+      assay="response",
       N=.N,
-      by=c("treatment1id", "treatment1dose", "sampleid"
-  )) |>
+      by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
+  ) |>
   with(expr=hist(N))
 ```
 
@@ -857,22 +858,24 @@ the former approach.
 Below, we will be first summarizing the replicate measurements using the mean viability before fitting dose-response curves, using the `aggregate` method. We then fit the curves using `logLogisticRegression`, and save the monotherapy fits back to the
 PharmacoSet.
 
-```{r}
-nci <- NCI_ALAMANAC_2017
+```{r extracting_nci_monotherapy_data}
+nci <- NCI_ALMANAC_2017
 
 # -- Fit the Hill curve model to monotherapy drugs and compute associated metrics
 
 treatmentResponse(nci) |>
   subset(treatment2id == "") |>
   aggregate(
-    assay="sensitivity",
+    assay="response",
     viability=mean(viability),
     by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
   ) ->
   mono_raw
 
-treatmentResponse(nci)$mono_raw <- mono_raw
+(treatmentResponse(nci)$mono_raw <- mono_raw)
+```
 
+```{r fitting_hill_curves_to_monotherapy}
 mono_raw |>
   aggregate(
     {
@@ -886,14 +889,14 @@ mono_raw |>
         ic50 = ic50
       )
     },
-    by = c("treatment1id", "sampleid"),
+    by = c("treatment1id", "sampleid", "bio_rep"),
     enlist = FALSE,
     nthread = 4
   ) ->
   mono_profiles
 
 # Store the results as TRE assays in out PharmacoSet
-treatmentResponse(nci)$mono_profiles <- mono_profiles
+(treatmentResponse(nci)$mono_profiles <- mono_profiles)
 ```
 
 We will now extract the combination data, and append the monotherapy Hill fits to the matrix, so that we can later use the fitted data from above to calculate expected combination viability.
@@ -902,29 +905,32 @@ We will now extract the combination data, and append the monotherapy Hill fits t
 # -- Attach the Hill parameters from the monotherapy profiles to the combination data
 # Extract the monotherapy fits
 treatmentResponse(nci)$mono_profiles |>
-  subset(, c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")) |>
-  unique() ->
+  subset(, c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")) ->
   mono_fits
 
-combo_profiles <- treatmentResponse(nci)$sensitivity |>
-  subset(treatment2id != "")
+treatmentResponse(nci)$response |>
+  subset(treatment2id != "") ->
+  combo_profiles
 
 
 # Merge with the fits from the monotherapy experiments
-combo_profiles <- merge(
-  combo_profiles,
-  monotherapy_fits,
-  by = c("treatment1id", "sampleid")
-) # for treatment1id
-combo_profiles <- merge(
-  combo_profiles,
-  monotherapy_fits,
-  by.x = c("treatment2id", "sampleid"),
-  by.y = c("treatment1id", "sampleid"),
-  suffixes = c("_1", "_2")
-)
-setkeyv(combo_profiles, c("treatment1id", "treatment2id", "sampleid"))
-setcolorder(combo_profiles, c("treatment1id", "treatment2id", "sampleid"))
+combo_profiles |>
+  merge(
+    mono_fits,
+    by = c("treatment1id", "sampleid", "bio_rep")
+  ) |>
+  merge(
+    mono_fits,
+    by.x = c("treatment2id", "sampleid", "bio_rep"),
+    by.y = c("treatment1id", "sampleid", "bio_rep"),
+    suffixes = c("_1", "_2")
+  ) ->
+  combo_profiles
+
+setkeyv(combo_profiles, c("treatment1id", "treatment2id", "sampleid",
+  "bio_rep"))
+setcolorder(combo_profiles, c("treatment1id", "treatment2id", "sampleid",
+  "bio_rep"))
 
 # -- predict viability for each drug in our combination
 # fix the scale of E_inf to be a proportion instead of a percent
@@ -948,7 +954,8 @@ combo_profiles[,
       c(HS_2, E_inf_2, log10(EC50_2))
     )
   ),
-  by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "sampleid")
+  by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+    "sampleid", "bio_rep")
 ]
 ```
 
@@ -978,7 +985,8 @@ combo_profiles |>
     viability_1 = viability_1,
     viability_2 = viability_2,
     viability = viability / 100,
-    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "sampleid")
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+      "sampleid", "bio_rep")
   ) -> combo_profiles1
 
 # -- compute combination index and score
@@ -988,13 +996,14 @@ combo_profiles1 |>
     HSA_score = HSA - viability,
     Bliss_CI = viability / Bliss,
     Bliss_score = Bliss - viability,
-    ZIP_CI = viability / ZIP_v,
-    ZIP_score = ZIP_v - viability,
+    ZIP_CI = viability / ZIP,
+    ZIP_score = ZIP - viability,
     Loewe_CI = Loewe_CI,
     viability = viability,
     viability_1 = viability_1,
     viability_2 = viability_2,
-    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose", "sampleid")
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+      "sampleid", "bio_rep")
   ) -> combo_profiles2
 
 ```
@@ -1034,7 +1043,10 @@ Below, we will summarize the combination profiles we have calculated into a Mean
 
 ```{r}
 
-mean_bliss_score <- combo_profiles2[, .(Mean_Bliss = mean(Bliss_score)), .(treatment1id, treatment2id, sampleid)]
+mean_bliss_score <- combo_profiles2[,
+  .(Mean_Bliss = mean(Bliss_score)),
+  .(treatment1id, treatment2id, sampleid)
+]
 
 
 ```
@@ -1054,14 +1066,18 @@ synergy_summaries <- reshape2::dcast(
     treatment1id + treatment2id ~ sampleid
 )
 
-rownames(synergy_summaries) <- paste(synergy_summaries$treatment1id, synergy_summaries$treatment2id, sep="_+_")
+rownames(synergy_summaries) <- paste(
+    synergy_summaries$treatment1id,
+    synergy_summaries$treatment2id,
+    sep="_+_"
+  )
 
 synergy_summaries <- data.matrix(synergy_summaries[, -c(1:2)])
 
 ```
 
 ```{r}
-gene_exp_sigs <- drugSensitivitySig(NCI_ALAMANAC_2017,
+gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
     mDataType = "rnaseq.comp",
     sProfiles = synergy_summaries,
     drugs = "Mitotane_+_Paclitaxel",
