@@ -804,8 +804,8 @@ NCI_tre |>
 ```
 
 For the interest of computation time, we will only look at experiments involving Vincristine.
-```{r fitting_hill_curve_to_tre}
-(NCI_mono |>
+```{r fitting_hill_curve_to_tre, warning=FALSE}
+NCI_mono |>
   subset(treatment1id == "Vincristine") |>
   aggregate(
     assay = "response",
@@ -822,7 +822,7 @@ For the interest of computation time, we will only look at experiments involving
     },
     enlist=FALSE
   ) ->
-  vincristine_monotherapy)
+  vincristine_monotherapy
 ```
 
 As you can see, by using the `aggregate` method, we are able to to fit our
@@ -834,7 +834,7 @@ Once we have values computed in a `data.table`, we can store them back in the
 `TreatmentResponseExperiment`. Notice that the TRE object handles seemlessly
 the fact that we have values computed for only a subset of experiments.
 
-```{r }
+```{r vincristine_assignment}
 NCI_mono$vincristine_profiles <- vincristine_monotherapy
 head(NCI_mono$vincristine_profiles[order(sampleid)])
 ```
@@ -1008,7 +1008,7 @@ TreatmentResponseExperiment aggregate API will allow us to expressively apply th
 First, we will fit Hill Curve models to the monotherapy experiments in the data. This is required for calculating Loewe and ZIP based synergy scores, as well as whenever it is necessary to interpolate
 between measured monotherapy doses to predict for the measured viability doses.
 
-```{r}
+```{r plotting_monotherapy_replicates}
 treatmentResponse(NCI_ALMANAC_2017) |>
   subset(treatment2id == "") |>
   aggregate(
@@ -1044,8 +1044,10 @@ treatmentResponse(nci) |>
 (treatmentResponse(nci)$mono_response <- mono_response)
 ```
 
-We can then apply the aggregate function function to fit the curves to the mean viability. Here, we aggregate while setting the `by` argument to compute
-an aggregation over each unique combination of `treatment1id`, `sampleid` and `bio_rep`.
+We can then apply the aggregate function function to fit the curves to the
+mean viability. Here, we aggregate while setting the `by` argument to compute
+an aggregation over each unique combination of `treatment1id`, `sampleid` and
+`bio_rep`.
 
 ```{r fitting_hill_curves_to_monotherapy}
 mono_response |>
@@ -1074,13 +1076,14 @@ mono_response |>
 We will now extract the combination data, and append the monotherapy Hill fits using the `merge` function, so that we can later use the fitted data from above to calculate expected combination viability.
 Notice that we need to do two merges, one for appending the Hill fits for the first treatment, and one for appending the Hill fits for the second treatment. Fortunately, the `suffix` parameter
 will allow us to differentiate between the two once they are merged to the same table.
+
 ```{r build_combo_profiles}
 # -- Attach the Hill parameters from the monotherapy profiles to the combination data
 # Extract the monotherapy fits
 treatmentResponse(nci) |>
   assay("mono_profiles", summarize=TRUE) |>
   subset(
-    Rsq > 0.5,
+    Rsq > 0.5,  # filter to only good quality fits
     c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")
   ) ->
   mono_fits
@@ -1112,7 +1115,9 @@ setcolorder(combo_response, c("treatment1id", "treatment2id", "sampleid",
   "bio_rep"))
 ```
 
-By default, `logLogisticRegression` returns parameters with E_inf on a percentage scale. Here we convert that to fraction to simplify the formulas for calculating expected combination viabilities.
+By default, `logLogisticRegression` returns parameters with E_inf on a
+percentage scale. Here we convert that to fraction to simplify the formulas
+for calculating expected combination viabilities.
 
 ```{r fix_e_inf}
 # -- predict viability for each drug in our combination
@@ -1122,7 +1127,8 @@ combo_response[,
 ]
 ```
 
-We then make predictions for each of the measured combination doses using fit corresponding parameters and the Hill Curve models.
+We then make predictions for each of the measured combination doses using fit
+corresponding parameters and the Hill Curve models.
 
 ```{r predicting_mono_response_for_combo_doses, warning=FALSE}
 # predict viability at the combo doses from the Hill curves fit to monotherapy data
@@ -1142,8 +1148,8 @@ combo_response[,
 ]
 ```
 
-
-We can now finally compute the reference combination viabilites. Again, we can use aggregate to make the calculation happen for each sample,
+We can now finally compute the reference combination viabilites. Again, we can
+use `aggregate` to make the calculation happen for each sample,
 pair of treatments, pair of doses, and replicate.
 
 ```{r compute_combo_references, warnings=FALSE}
@@ -1210,8 +1216,8 @@ combo_response |>
   ) -> combo_scores
 ```
 
-
-Once we have the reference/expected viabilities under each Null Model assumption, we can compute the related Combination Index or Score.
+Once we have the reference/expected viabilities under each Null Model assumption,
+we can compute the related Combination Index or Score.
 
 _Note that we also skip the ZIP delta score computation in the interest of time._
 
@@ -1235,15 +1241,18 @@ combo_scores |>
   ) -> combo_profiles
 ```
 
+Once we have a measure of synergy calculated for each dose combination in a
+particular experiment, we often would like to visualize the whole surface of
+drug-dose combinations to understand how synergy depends on dosage.
 
-Once we have a measure of synergy calculated for each dose combination in a particular experiment, we often would like to visualize the whole surface of drug-dose combinations to understand
-how synergy depends on dosage.
-
-Below, we plot the Bliss score for an antagonistic combination of drugs, Mitotane and Paclitaxel, on the A-549 cell line. If we recall the formula for the Bliss score above, we took $v_{model} - v_c$, meaning that
-in this case, negative numbers indicate antagonism, as there is more viability observed than expected.
+Below, we plot the Bliss score for an antagonistic combination of drugs,
+Mitotane and Paclitaxel, on the A-549 cell line. If we recall the formula for
+the Bliss score above, we took $v_{model} - v_c$, meaning that in this case,
+negative numbers indicate antagonism, as there is more viability observed than
+expected.
 
 ```{r bliss_score_plot}
-library(ggplot2)
+library(ggplot2, warning=FALSE)
 
 ggplot(combo_profiles[
     treatment1id == "Mitotane" & treatment2id == "Paclitaxel" & sampleid == "A-549"],
@@ -1274,7 +1283,7 @@ instead be more appropriate.
 For our demo, we will summarize the combination profiles we have calculated into a Mean Bliss Score per experiment.
 
 
-```{r mean_bliss_calculation}
+```{r mean_bliss_calculation, warning=FALSE}
 mean_bliss_score <- combo_profiles[,
   .(Mean_Bliss = mean(Bliss_score)),
   .(treatment1id, treatment2id, sampleid)
@@ -1305,7 +1314,7 @@ The same `drugSensitivitySig` function can be used to find biomarkers for synerg
 
 Above, we had already summarized our synergy surfaces into a single mean value for each experiment. Now, we need to reshape the "long" format table into a table of
 drug combinations x cell lines.
-```{r gene_sig_discovery}
+```{r gene_sig_discovery, warning=FALSE}
 ## Create a matrix of drug combo x cell lines.
 synergy_summaries <- reshape2::dcast(
     mean_bliss_score,
@@ -1329,7 +1338,7 @@ Finally, we can run our biomarker discovery.
 set.seed(42)
 ```
 
-```{r}
+```{r biomarker_prediction, warning=FALSE}
 
 gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
   mDataType = "rnaseq.comp",
@@ -1342,11 +1351,12 @@ gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
 plot(gene_exp_sigs)
 ```
 
-
 ----
 
 # Introduction to Resources for Biomarker Validation
 
+This section is still under construction. Please check back after our
+presentation in July!
 
 ----
 
