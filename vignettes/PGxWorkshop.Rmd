@@ -226,28 +226,56 @@ the results of diverse mutli-omic data. Along with the `SummarizedExperiment`
 (`SE`), this object is used to store molecular phenotype data in a `CoreSet`
 and `PharmacoSet`.
 
-At the heart of both objects is a feature by sample
-
+At the heart of both objects is a feature by sample matrix, with the major
+difference being that the `SE` require symetric matrices (i.e., observations
+on the same set of features and samples) where as the `MAE` allows storage of
+disjoint sets of feature and samples via the use of the `sampleMap`, which
+stores a graph of the mapping from samples to each assay in the object.
 
 ```{r SummarizedExperiment_schema, echo=FALSE, fit.show="hold", out.width="50%", fig.cap="**SummarizedExperiment** and **MultiAssayExperiment** classes."}
 knitr::include_graphics("./SummarizedExperiment_schematic.png")
 knitr::include_graphics("./MultiAssayExperiment_schematic.png")
 ```
 
+For both these objects, rows map to molecular features (or often genomic coordinates)
+to generalize across identifiers for diverse molecular data types, and samples mapped
+to columns. Metadata for both is available via the `rowData` and `colData` accessors,
+respectively.
 
 ## `TreatmentResponseExperiment`
 
 The `TRE` object shares much of its design with the `MultiAssayExperiment` and
-`SummarizedExperiment`. We store row level annotations in
+`SummarizedExperiment`. We store dimension metadata in `rowData` and `colData`,
+similar to an `SE` but also allow dijoint rows and samples to be stored in
+`assays`, like an `MAE`. The major difference is that instead of using a
+matrix or array for storing assay observations, we instead store them as a long
+format `data.table` where integer keys define the relevant "shape" of the
+underlying data.
+
+For those familar with releational modelling from RDBMS systems,
+our design has taken inspiration from the star schema often used in OLAP
+applications to improve the efficiency of analytic database queries.
 
 ```{r tre_class, echo=FALSE, fig.wide=TRUE, fig.cap = " **TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./TreatmentResponseExperimentClassDiagram.drawio.png")
 ```
 
+The `TRE` differentiates between full assays and summary assays by the presence
+of various identifier columns which can be viewed with the `idCols` method.
+Each `TRE` has a set of `rowIDs` and `colIDs` which define these respective
+dimensions. By storing an `assayMap`, analagous to the `sampleMap` from the
+`MAE` object, we are able to summarize over one or more row or column
+identifiers and store only the relevant rows within the assays slot, allowing
+for a measure of compression relative to a matrix, where missing values must
+be stored as missing values.
+
+The association between the various identifiers in the package are shown
+below, with the `assayMap` being the central repository for the graph like
+relationships between the `rowData`, `colData` and each respective `assay`.
+
 ```{r tre_structure, echo=FALSE, fig.wide=TRUE, fig.cap="Describe this plot"}
 knitr::include_graphics("./TreatmentResponseExperimentStructure.drawio.png")
 ```
-
 
 ----
 
@@ -1294,15 +1322,16 @@ synergy_summaries <- data.matrix(synergy_summaries[, -c(1:2)])
 Finally, we can run our biomarker discovery.
 
 ```{r gene_sig_plot}
+bench::system_time({
 gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
     mDataType = "rnaseq.comp",
     sProfiles = synergy_summaries,
-    #drugs = "Mitotane_+_Paclitaxel",
     modeling.method="pearson",
     features=sample(rownames(molecularProfiles(NCI_ALMANAC_2017, "rnaseq.comp")), 100),
-    nthread=2
+    nthread=1
 )
 plot(gene_exp_sigs)
+})
 ```
 
 
