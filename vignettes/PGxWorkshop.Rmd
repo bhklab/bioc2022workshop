@@ -246,7 +246,7 @@ respectively.
 
 The `TRE` object shares much of its design with the `MultiAssayExperiment` and
 `SummarizedExperiment`. We store dimension metadata in `rowData` and `colData`,
-similar to an `SE` but also allow dijoint rows and samples to be stored in
+similar to an `SE` but also allow disjoint rows and samples to be stored in
 `assays`, like an `MAE`. The major difference is that instead of using a
 matrix or array for storing assay observations, we instead store them as a long
 format `data.table` where integer keys define the relevant "shape" of the
@@ -267,11 +267,11 @@ dimensions. By storing an `assayMap`, analagous to the `sampleMap` from the
 `MAE` object, we are able to summarize over one or more row or column
 identifiers and store only the relevant rows within the assays slot, allowing
 for a measure of compression relative to a matrix, where missing values must
-be stored as missing values.
+be stored as `NA` in the matrix.
 
-The association between the various identifiers in the package are shown
+The association between the various identifiers in the object are shown
 below, with the `assayMap` being the central repository for the graph like
-relationships between the `rowData`, `colData` and each respective `assay`.
+relationships between the `rowIDs`, `colIDs` and each respective `assay`.
 
 ```{r tre_structure, echo=FALSE, fig.wide=TRUE, fig.cap="Describe this plot"}
 knitr::include_graphics("./TreatmentResponseExperimentStructure.drawio.png")
@@ -284,11 +284,11 @@ knitr::include_graphics("./TreatmentResponseExperimentStructure.drawio.png")
 ## Drug Combination Experiments
 
 The field of precision oncology is increasingly interested in exploring possible
-synergies between cancer therapies. To accelarate the process of translating
+synergies between cancer therapies. To accelerate the process of translating
 insights from _in vitro_ drug combination experiments into clinical
 practice, we have extended the `CoreSet` and `PharmacoSet` classes with a new
 object, the `TreatmentResponseExperiment` (`TRE`), which has been specifically
-designed to handle high dimensional biological stimilus response data.
+designed to handle high dimensional biological stimilus-response data.
 While drug combinations are the first use case for this data structure,
 as cancer model systems continue to advance we expected to also see sample-wise
 combinations. For example, 3D organoid models could include multiple cell-lines
@@ -318,15 +318,16 @@ us to generate hypotheses about which identifiers are required to identify
 observations in an assay. Below we will see how, along with the `guessMapping`
 method, we can use the `TREDataMapper` to ensure we have mapped all data
 from the NCI-ALMANAC drug combination experiment into a `TRE` object, ensuring
-that the all study experiments and relevant metadata are captured in our
+that all study observations and relevant metadata are captured in our
 `TRE` and therefore in our `PharmacoSet`.
 
 By curating and releasing such `PharmacoSet` objects, we ensure that our users
 can access all information from the original publication via `r PGx` and therefore
-easily ensure the reproducbility of the results as well as compare them against
-any other `PharmacoSet` object we have curated. By doing so, we help to improve
-the reproducbility and consistency of _in-vitro_ pharmacogenomic experiments
-and accelerate the translation from the lab to the clinic.
+easily ensure the reproducbility of the results as well as simplify comparison
+of them against against other `PharmacoSet` object we have curated. In doing so,
+we help to improve the reproducbility and consistency of _in-vitro_
+pharmacogenomic experiments and accelerate translation of insights from
+the lab into the clinic.
 
 ### Using the `TREDataMapper` to Construct a `TreatmentResponseExperiment`
 
@@ -805,12 +806,12 @@ NCI_tre |>
 For the interest of computation time, we will only look at experiments involving Vincristine.
 ```{r fitting_hill_curve_to_tre}
 (NCI_mono |>
-  subset(treatment1id == "Vincristine") |> 
+  subset(treatment1id == "Vincristine") |>
   aggregate(
     assay = "response",
     viability = mean(viability),
     by = c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
-  ) |> 
+  ) |>
   aggregate(
     by=c("treatment1id", "sampleid", "bio_rep"),
     {
@@ -1143,7 +1144,7 @@ combo_response[,
 
 
 We can now finally compute the reference combination viabilites. Again, we can use aggregate to make the calculation happen for each sample,
-pair of treatments, pair of doses, and replicate. 
+pair of treatments, pair of doses, and replicate.
 
 ```{r compute_combo_references, warnings=FALSE}
 # -- compute our drug synergy metrics
@@ -1333,14 +1334,12 @@ set.seed(42)
 gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
   mDataType = "rnaseq.comp",
   sProfiles = synergy_summaries,
-  # drugs = "Mitotane_+_Paclitaxel",
   modeling.method = "pearson",
   features = sample(rownames(molecularProfiles(NCI_ALMANAC_2017, "rnaseq.comp")), 100),
   nthread = 1
 )
 
 plot(gene_exp_sigs)
-
 ```
 
 
