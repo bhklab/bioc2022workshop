@@ -80,7 +80,6 @@ Useful publications:
 * Tonekaboni, M., Ali, S., Soltan Ghoraie, L., Manem, V. S. K. & Haibe-Kains, B. Predictive approaches for drug combination discovery in cancer. Brief Bioinform 19, 263–276 (2018).
 
 
-
 ### Workshop Participation {-}
 
 <!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors
