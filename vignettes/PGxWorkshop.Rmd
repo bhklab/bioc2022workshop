@@ -1151,7 +1151,7 @@ We can now finally compute the reference combination viabilites. Again, we can
 use `aggregate` to make the calculation happen for each sample,
 pair of treatments, pair of doses, and replicate.
 
-```{r compute_combo_references, warnings=FALSE}
+```{r compute_combo_references, warning=FALSE}
 # -- compute our drug synergy metrics
 (combo_response |>
   aggregate(
@@ -1250,11 +1250,12 @@ the Bliss score above, we took $v_{model} - v_c$, meaning that in this case,
 negative numbers indicate antagonism, as there is more viability observed than
 expected.
 
-```{r bliss_score_plot}
-library(ggplot2, warning=FALSE)
+```{r bliss_score_plot,  warning=FALSE}
+library(ggplot2)
 
 ggplot(combo_profiles[
-    treatment1id == "Mitotane" & treatment2id == "Paclitaxel" & sampleid == "A-549"],
+    treatment1id == "Mitotane" & treatment2id == "Paclitaxel" & sampleid == "A-549"
+    ],
     aes(treatment1dose, treatment2dose, fill = Bliss_score)
   ) +
   geom_tile() +
@@ -1280,7 +1281,6 @@ If you find yourself in a situation where synergy is observed only in a narrow d
 instead be more appropriate.
 
 For our demo, we will summarize the combination profiles we have calculated into a Mean Bliss Score per experiment.
-
 
 ```{r mean_bliss_calculation, warning=FALSE}
 mean_bliss_score <- combo_profiles[,
@@ -1365,6 +1365,6 @@ presentation in July!
 
 # SessionInfo
 
-```{r session_info, include=FALSE}
+```{r session_info, include=TRUE, echo=FALSE}
 sessionInfo()
 ```
