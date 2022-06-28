@@ -243,7 +243,7 @@ disjoint sets of feature and samples via the use of the `sampleMap`, which
 stores a graph of the mapping from samples to each assay in the object.
 
 ```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fig.cap="**SummarizedExperiment** and **MultiAssayExperiment** classes."}
-knitr::include_graphics("./MultiAssayExperiment_SummarizedExperiment_schematic.png")
+knitr::include_graphics("./MultiAssayExperiment_SummarizedExperiment_schematics.png")
 ```
 
 For both these objects, rows map to molecular features
