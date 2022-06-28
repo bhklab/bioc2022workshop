@@ -768,8 +768,12 @@ NCI_tre |>
 For the interest of computation time, we will only look at experiments involving Vincristine.
 ```{r fitting_hill_curve_to_tre}
 (NCI_mono |>
-  subset(treatment1id == "Vincristine") |>
-  assay("response") |>
+  subset(treatment1id == "Vincristine") |> 
+  aggregate(
+    assay = "response",
+    viability = mean(viability),
+    by = c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
+  ) |> 
   aggregate(
     by=c("treatment1id", "sampleid", "bio_rep"),
     {
@@ -1101,8 +1105,7 @@ combo_response[,
 
 
 We can now finally compute the reference combination viabilites. Again, we can use aggregate to make the calculation happen for each sample,
-pair of treatments, pair of doses, and replicate. Note that we skip computing the Loewe reference viability for speed, and instead directly 
-estimate the Loewe Combination Index. 
+pair of treatments, pair of doses, and replicate. 
 
 ```{r, compute_combo_references}
 # -- compute our drug synergy metrics
@@ -1154,6 +1157,10 @@ combo_response |>
         )
     ),
     ZIP = computeZIP(treatment1dose, treatment2dose, HS_1, HS_2, EC50_1, EC50_2),
+    Loewe=PharmacoGx::computeLoewe(
+      treatment1dose, HS_1, E_inf_1, EC50_1,
+      treatment2dose, HS_2, E_inf_2, EC50_2
+    ),
     viability_1 = viability_1,
     viability_2 = viability_2,
     viability = viability / 100, # put on the same scale as the predicted viabilities
@@ -1281,15 +1288,22 @@ synergy_summaries <- data.matrix(synergy_summaries[, -c(1:2)])
 
 Finally, we can run our biomarker discovery. 
 
+```{r, echo=FALSE}
+set.seed(42)
+```
+
 ```{r}
+bench::bench_time({
 gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
-    mDataType = "rnaseq.comp",
-    sProfiles = synergy_summaries,
-    # drugs = "Mitotane_+_Paclitaxel",
-    modeling.method="pearson",
-    features=sample(rownames(molecularProfiles(NCI_ALMANAC_2017, "rnaseq.comp")), 100),
-    nthread=2
+  mDataType = "rnaseq.comp",
+  sProfiles = synergy_summaries,
+  # drugs = "Mitotane_+_Paclitaxel",
+  modeling.method = "pearson",
+  features = sample(rownames(molecularProfiles(NCI_ALMANAC_2017, "rnaseq.comp")), 100),
+  nthread = 1
 )
+})
+
 plot(gene_exp_sigs)
 ```
 
