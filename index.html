@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">pgxBioc2022Workshop</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.8</span>
       </span>
     </div>
 
@@ -86,10 +86,10 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="analyzing-drug-combination-experiments-for-high-throughput-pharmacogenomic-biomarkers-discovery">Analyzing drug combination experiments for high-throughput pharmacogenomic biomarkers discovery<a class="anchor" aria-label="anchor" href="#analyzing-drug-combination-experiments-for-high-throughput-pharmacogenomic-biomarkers-discovery"></a>
+<div class="page-header"><h1 id="pharmacogenomic-analysis-of-drug-combination-experiments-to-identify-biomarkers-of-response-or-resistance">Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance<a class="anchor" aria-label="anchor" href="#pharmacogenomic-analysis-of-drug-combination-experiments-to-identify-biomarkers-of-response-or-resistance"></a>
 </h1></div>
-<div class="section level2">
-<h2 id="instructors-names-and-contact-information">Instructor(s) name(s) and contact information<a class="anchor" aria-label="anchor" href="#instructors-names-and-contact-information"></a>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="instructors-names-and-contact-information">Instructor(s) name(s) and contact information<a class="anchor" aria-label="anchor" href="#instructors-names-and-contact-information"></a>
 </h2>
 <ul>
 <li>Christopher Eeles <a href="mailto:christopher.eeles@uhnresearch.ca" class="email">christopher.eeles@uhnresearch.ca</a>
@@ -100,20 +100,22 @@
 </li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="workshop-description">Workshop Description<a class="anchor" aria-label="anchor" href="#workshop-description"></a>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="workshop-description">Workshop Description<a class="anchor" aria-label="anchor" href="#workshop-description"></a>
 </h2>
-<p>This workshop will introduce users to the CoreGx and PharmacoGx R packages, which are useful tools for pharmacogenomic modelling to discover biomarkers of treatment response in cancer model systems. PharmacoGx specifically focuses on drug sensitivity experiments in cancer cell lines, which will be the major focus of this workshop. Additional infrastructure from our lab includes ToxicoGx for toxicogenomics in healthy human cell-lines, RadioGx for radiogenomics in cancer cell-lines and Xeva for pharmacogenomics in patient derived xenograph (PDX) murine models.</p>
-<p>Participants will learn the fundamentals of using CoreGx and PharmacoGx to create a PharmacoSet—an integrative container for the storage, analysis and visualization of pharmacogenomic experiments. Particular focus will be placed on newly developed support for storing, analyzing and visualizing drug combination sensitivity experiments and correlating results therefrom for with multi-omic molecular profiles to discover biomarkers of drug senstivity or resistance.</p>
-<div class="section level3">
-<h3 id="pre-requisites">Pre-requisites<a class="anchor" aria-label="anchor" href="#pre-requisites"></a>
+<!-- Alias package links -->
+<p><code>{r eval=TRUE, echo=FALSE} PGx &lt;- BiocStyle::Biocpkg("PharmacoGx") CGx &lt;- BiocStyle::Biocpkg("CoreGx") TGx &lt;- BiocStyle::Biocpkg("ToxicoGx") RGx &lt;- BiocStyle::Biocpkg("RadioGx") Xv &lt;- BiocStyle::Biocpkg("Xeva") DT &lt;- BiocStyle::CRANpkg("data.table") SE &lt;- BiocStyle::Biocpkg("SummarizedExperiment") MAE &lt;- BiocStyle::Biocpkg("MultiAssayExperiment")</code></p>
+<p>This workshop will introduce users to the <code>r CGx</code> and <code>r PGx</code> R packages, which are useful tools for pharmacogenomic modelling to discover biomarkers of treatment response in cancer model systems. <code>r PGx</code> specifically focuses on drug sensitivity experiments in cancer cell lines, which will be the major focus of this workshop. Additional infrastructure from our lab includes <code>r TGx</code> for toxicogenomics in healthy human cell-lines, <code>r RGx</code> for radiogenomics in cancer cell-lines and <code>r Xv</code> for pharmacogenomics in patient derived xenograph (PDX) murine models.</p>
+<p>Participants will learn the fundamentals of using <code>r CGx</code> and <code>r PGx</code> to create a <code>PharmacoSet</code>—an integrative container for the storage, analysis and visualization of pharmacogenomic experiments. Particular focus will be placed on newly developed support for storing, analyzing and visualizing drug combination sensitivity experiments and correlating results therefrom with multi-omic molecular profiles to discover biomarkers of drug sensitivity, resistance, synergy, or antagonism.</p>
+<div class="section level3 unnumbered">
+<h3 class="unnumbered" id="pre-requisites">Pre-requisites<a class="anchor" aria-label="anchor" href="#pre-requisites"></a>
 </h3>
 <ul>
 <li>Basic knowledge of R syntax</li>
 <li>Knowledge of or interest in pharmacogenomics</li>
-<li>Familiarity with core Bioconductor classes such as the <code>SummarizedExperiment</code> and <code>MultiAssayExperiment</code>
+<li>Familiarity with core Bioconductor classes such as the and <code>r SE</code> and <code>r MAE</code>
 </li>
-<li>Curiosity about or experience with <code>data.table</code> an assest!</li>
+<li>Curiosity about or experience with <code>r DT</code> an asset!</li>
 </ul>
 <p>Useful publications:</p>
 <ul>
@@ -122,31 +124,35 @@
 <li>Tonekaboni, M., Ali, S., Soltan Ghoraie, L., Manem, V. S. K. &amp; Haibe-Kains, B. Predictive approaches for drug combination discovery in cancer. Brief Bioinform 19, 263–276 (2018).</li>
 </ul>
 </div>
-<div class="section level3">
-<h3 id="workshop-participation">Workshop Participation<a class="anchor" aria-label="anchor" href="#workshop-participation"></a>
+<div class="section level3 unnumbered">
+<h3 class="unnumbered" id="workshop-participation">Workshop Participation<a class="anchor" aria-label="anchor" href="#workshop-participation"></a>
 </h3>
-<p><strong>Interactive Portion in Development, will be updated when needed.</strong></p>
-<p>Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors. PharmacoGx, synergyfinder from Bioconductor, data.table from CRAN. <!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors available to explain the why and how of applying these functions to the given datasets. Learners will write analysis scripts as well as use interactive commands to explore the generated data structures and results. Learners will then brainstorm potential applications of the analysis results in their field as well as comment on use case examples presented by the instructors on research in our lab. --></p>
+<!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors
+available to explain the why and how of applying these functions to the given datasets. Learners will write analysis
+scripts as well as use interactive commands to explore the generated data structures and results. Learners will then
+brainstorm potential applications of the analysis results in their field as well as comment on use case examples
+presented by the instructors on research in our lab. -->
+<p>Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors:</p>
 </div>
-<div class="section level3">
-<h3 id="r--bioconductor-packages-used">
+<div class="section level3 unnumbered">
+<h3 class="unnumbered" id="r--bioconductor-packages-used">
 <em>R</em> / <em>Bioconductor</em> packages used<a class="anchor" aria-label="anchor" href="#r--bioconductor-packages-used"></a>
 </h3>
 <p>Bioconductor:</p>
 <ul>
-<li><a href="https://www.bioconductor.org/packages/devel/bioc/html/CoreGx.html" class="external-link uri">https://www.bioconductor.org/packages/devel/bioc/html/CoreGx.html</a></li>
-<li><a href="https://www.bioconductor.org/packages/devel/bioc/html/PharmacoGx.html" class="external-link uri">https://www.bioconductor.org/packages/devel/bioc/html/PharmacoGx.html</a></li>
+<li><code>r CGx</code></li>
+<li><code>r PGx</code></li>
 </ul>
 <p>CRAN:</p>
 <ul>
-<li><a href="https://cran.r-project.org/web/packages/data.table/index.html" class="external-link uri">https://cran.r-project.org/web/packages/data.table/index.html</a></li>
+<li><code>r DT</code></li>
+<li><code>r BiocStyle::CRANpkg("ggplot2")</code></li>
 </ul>
 </div>
 </div>
-<div class="section level2">
-<h2 id="time-outline">Time outline<a class="anchor" aria-label="anchor" href="#time-outline"></a>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="time-outline">Time outline<a class="anchor" aria-label="anchor" href="#time-outline"></a>
 </h2>
-<p><strong>Tentative, likely to change!</strong></p>
 <p>For a 1.5-hr workshop:</p>
 <table class="table">
 <thead><tr class="header">
@@ -163,11 +169,11 @@
 <td>15m</td>
 </tr>
 <tr class="odd">
-<td>How TRE Support Drug Combinations Data Analysis</td>
+<td>How the <code>TRE</code> Supports Drug Combinations Data Analysis</td>
 <td>10m</td>
 </tr>
 <tr class="even">
-<td>Using Data Mapper to build a Drug Combo PharmacoSet.</td>
+<td>Using a <code>DataMapper</code> to build a Drug Combo PharmacoSet</td>
 <td>10m</td>
 </tr>
 <tr class="odd">
@@ -179,7 +185,7 @@
 <td>10m</td>
 </tr>
 <tr class="odd">
-<td>Biomarker Discovery:</td>
+<td>Biomarker Discovery</td>
 <td>15m</td>
 </tr>
 <tr class="even">
@@ -189,43 +195,50 @@
 </tbody>
 </table>
 </div>
-<div class="section level2">
-<h2 id="workshop-goals-and-objectives">Workshop goals and objectives<a class="anchor" aria-label="anchor" href="#workshop-goals-and-objectives"></a>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="workshop-goals-and-objectives">Workshop goals and objectives<a class="anchor" aria-label="anchor" href="#workshop-goals-and-objectives"></a>
 </h2>
-<p><strong>To Be Updated</strong></p>
-<div class="section level3">
-<h3 id="learning-goals">Learning goals<a class="anchor" aria-label="anchor" href="#learning-goals"></a>
+<div class="section level3 unnumbered">
+<h3 class="unnumbered" id="learning-goals">Learning goals<a class="anchor" aria-label="anchor" href="#learning-goals"></a>
 </h3>
 <ul>
-<li>Describe pharmacogenomic mono and combination datasets and usefulness in cancer research</li>
+<li>Describe pharmacogenomic mono and combination datasets and their usefulness in cancer research</li>
 <li>Understand how experimental designs and research questions map onto data structures</li>
 <li>Learn how to extract information from these datasets</li>
 <li>Learn how to visualize experimental results from these datasets</li>
 <li>Learn how to model dose-response for both monotherapy and combination small compound datasets</li>
-<li>Learn measures to quantify response and synergy in cell line sensitivity screens</li>
+<li>Learn measures to quantify response and synergy in cell-line sensitivity screens</li>
 </ul>
 </div>
-<div class="section level3">
-<h3 id="learning-objectives">Learning objectives<a class="anchor" aria-label="anchor" href="#learning-objectives"></a>
+<div class="section level3 unnumbered">
+<h3 class="unnumbered" id="learning-objectives">Learning objectives<a class="anchor" aria-label="anchor" href="#learning-objectives"></a>
 </h3>
 <ul>
-<li>List available standardized pharmacogenomic and radiogenomic datasets and download them</li>
-<li>Access the molecular features, dose-response and metadata contained within the data structures defined in the packages</li>
-<li>Fit Hill Slope models to dose-response experiments using small compound treatments in cell lines</li>
-<li>Calculate the AAC, AUC, IC50 metrics for response quantification in cell lines</li>
-<li>Predict in vitro univariate biomarkers for drug response and drug synergy using the PharmacoGx</li>
+<li>Describe use cases for <code>r CGx</code> and <code>r PGx</code> in pharmacogenomics and beyond</li>
+<li>Understand the structure of the <code>CoreSet</code> and <code>PharmacoSet</code> classes to facilitate their use in subsequent analyses</li>
+<li>Learn how the <code>TreatmentResponseExperiment</code> provides a highly flexible container for storing high-throughput drug combination screening data</li>
+<li>Use a <code>TREDataMapper</code> to create a <code>TreatmentResponseExperiment</code> and incorporate it into a <code>PharmacoSet</code>
+</li>
+<li>Learn to apply arbitrary R functions over a <code>TreatmentResponseExperiment</code> using the <code>aggregate</code> method</li>
+<li>Access the molecular features, dose-response and metadata contained within the data structures defined in our packages</li>
+<li>Fit Hill Slope models to dose-response experiments using small compound treatments in cell-lines</li>
+<li>Calculate the AAC, AUC, and IC50 metrics for response quantification in cell lines</li>
+<li>Compute and store various metrics of drug synergy and antagonism using <code>r PGx</code> and the <code>PharmacoSet</code>
+</li>
+<li>Learn how to use <code>PharmacoGx</code> to discover univariate biomarkers of drug response, resistance, synergy, or antagnoism</li>
 </ul>
 <hr>
 </div>
 </div>
-<div class="section level2">
-<h2 id="outline">Outline<a class="anchor" aria-label="anchor" href="#outline"></a>
+<div class="section level2 unnumbered">
+<h2 class="unnumbered" id="outline">Outline<a class="anchor" aria-label="anchor" href="#outline"></a>
 </h2>
 <ol style="list-style-type: decimal">
 <li>Introduction to CoreGx and PharmacoGx</li>
 <li>Overview of Data Structures
 <ol style="list-style-type: decimal">
-<li>CoreSet</li>
+<li>CoreSet and PharmacoSet</li>
+<li>MutliAssayExperiment and SummarizedExperiment</li>
 <li>TreatmentResponseExperiment</li>
 </ol>
 </li>
