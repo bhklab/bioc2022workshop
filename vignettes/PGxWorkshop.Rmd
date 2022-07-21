@@ -882,7 +882,6 @@ NCI_mono$vincristine_profiles <- vincristine_monotherapy
 head(NCI_mono$vincristine_profiles[order(sampleid)])
 ```
 
-
 # Drug Combination Synergy Models
 
 When assessing drug combinations, the question of interest is usually not to quantify drug response to the therapy,
@@ -909,7 +908,167 @@ or the other perspective. However, it is easy to convert between these variables
 
 When we look for drug synergy, we are looking for cases where $v_c < v_{model}$, or $r_c > r_{model}$. The degree of synergy
 is usually measured either on the additive or multplicative scale, that is, looking at either $v_c - v_{model}$ or $v_c / v_{model}$.
-However, some models, such as the ZIP described below, also perscribe a certain perspective to assess synergy.
+However, some models, such as the ZIP, also perscribe a certain perspective or scoring method to assess synergy.
+
+This vignette covers 4 different models for predicting what the effect of drug combination treatment should be:
+
+1. Highest Single Agent
+2. Bliss Independence
+3. Loewe Additivity
+4. Zero Interaction Potency (ZIP)
+
+As we introduce each method, we will go through the theoretical motivation behind it, the calculation, and then show how to compute 
+the expected viability/response for each model using the TreatmentResponseExperiment API. 
+
+### Preprocessing Monotherapy Data for Synergy Estimation
+Prior to computing expected viabilities from combination experiments, the monotherapy data may need to be preprocessed. In our case, 
+the dataset we are using has replicate experiments for the monotherapy curves, as seen below: 
+```{r plotting_monotherapy_replicates}
+treatmentResponse(NCI_ALMANAC_2017) |>
+  subset(treatment2id == "") |>
+  aggregate(
+      assay="response",
+      N=.N,
+      by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
+  ) |>
+  with(expr=hist(N))
+```
+
+The majority of these were replicates across plates, most probably so that monotherapy results could be plate matched to combination results. 
+Therefore, we can make two choices for how to handle these replicates, either average across plates, or to match analysis by plate whenever possible. 
+Ideally, we would recommend the latter approach, however, it is computationally more expensive (as we must fit monotherapy curves per-plate).
+In interest of computation time, we average replicates across all experiments for our demonstration.
+
+Here, we use the endoaggregate TRE method while setting the `by` argument to compute
+an aggregation over each unique combination of `treatment1id`, `sampleid` and
+`bio_rep` (summarizing over technical replicates). 
+
+```{r extracting_nci_monotherapy_data}
+nci <- NCI_ALMANAC_2017
+
+# -- Extract and summarize monotherapy data, defined by an absent treatment2id
+treatmentResponse(nci) |>
+  endoaggregate(
+    assay="response",
+    target="mono_response",
+    subset = treatment2id == "",
+    viability=mean(viability),
+    by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
+  ) ->
+  treatmentResponse(nci)
+
+```
+
+
+Additionally, computing the Loewe and ZIP scores requires knowing the Hill Fit parameters for the monotherapy experiemnts. 
+This is also a required step whenever it is necessary to interpolate between measured monotherapy doses to predict 
+for the measured combination viability doses.
+
+We can fit the curves using `logLogisticRegression`, and save the monotherapy
+fits back to the PharmacoSet using the same endoaggregate pattern as above. 
+Since we are already calculating the Hill Curve fits for these experiments, we will also calculate the AAC and IC50 values. 
+
+Note that by default, `logLogisticRegression` returns the `E_inf` parameter on a percentage scale. We convert to a fraction scale because 
+that makes the subsequent calculations simpler.  
+
+```{r fitting_hill_curves_to_monotherapy, warning=FALSE}
+# -- Fit the Hill curve model to monotherapy drugs and compute associated metrics
+treatmentResponse(nci) |>
+  endoaggregate(
+    {
+      fit <- PharmacoGx::logLogisticRegression(treatment1dose, viability)
+      ic50 <- PharmacoGx::computeIC50(treatment1dose, Hill_fit = fit)
+      aac <- PharmacoGx::computeAUC(treatment1dose, Hill_fit = fit, area.type = "Fitted")
+      list(
+        HS = fit[["HS"]], E_inf = fit[["E_inf"]]/100, EC50 = fit[["EC50"]],
+        Rsq = as.numeric(unlist(attributes(fit))),
+        aac = aac,
+        ic50 = ic50
+      )
+    },
+    assay = "mono_response",
+    by = c("treatment1id", "sampleid", "bio_rep"),
+    enlist = FALSE, 
+    target = "mono_profiles"
+  ) -> treatmentResponse(nci)
+
+```
+
+We will now extract the combination data, and append the monotherapy Hill fits using the `merge` function, so that we can later use the fitted data from above to calculate expected combination viability.
+Notice that we need to do two merges, one for appending the Hill fits for the first treatment, and one for appending the Hill fits for the second treatment. Fortunately, the `suffix` parameter
+will allow us to differentiate between the two once they are merged to the same table.
+
+```{r build_combo_profiles}
+# -- Attach the Hill parameters from the monotherapy profiles to the combination data
+# Extract the monotherapy fits
+treatmentResponse(nci) |>
+  assay("mono_profiles", summarize=TRUE) |>
+  subset(
+    Rsq > 0.5,  # filter to only good quality fits
+    c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")
+  ) ->
+  mono_fits
+
+# Extract the combination response observations
+treatmentResponse(nci) |>
+  assay("response") |>
+  subset(treatment2id != "") ->
+  combo_response
+
+# Merge with the fits from the monotherapy experiments
+combo_response |>
+  merge(
+    mono_fits,
+    by = c("treatment1id", "sampleid", "bio_rep")
+  ) |>
+  merge(
+    mono_fits,
+    by.x = c("treatment2id", "sampleid", "bio_rep"),
+    by.y = c("treatment1id", "sampleid", "bio_rep"),
+    suffixes = c("_1", "_2")
+  ) ->
+  combo_response
+
+## We key and sort the data table here for speed and convenience - this step is not 100% necessary
+setkeyv(combo_response, c("treatment1id", "treatment2id", "sampleid",
+  "bio_rep"))
+setcolorder(combo_response, c("treatment1id", "treatment2id", "sampleid",
+  "bio_rep"))
+```
+
+Finally, we can make predictions for each of the measured combination doses using the corresponding fit parameters 
+and the Hill Curve models. This step is necessary when interpolating between monotherapy doses, but is often recommended
+in either case, as the predicted viabilities can be less noisy than each individual monotherapy measurement. 
+
+```{r predicting_mono_response_for_combo_doses, warning=FALSE}
+# predict viability at the combo doses from the Hill curves fit to monotherapy data
+combo_response[,
+  c("viability_1", "viability_2") := .(
+    PharmacoGx:::.Hill(
+      log10(treatment1dose),
+      c(HS_1, E_inf_1, log10(EC50_1))
+    ),
+    PharmacoGx:::.Hill(
+      log10(treatment2dose),
+      c(HS_2, E_inf_2, log10(EC50_2))
+    )
+  ),
+  by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+    "sampleid", "bio_rep")
+]
+```
+
+Finally, we can assign the `combo_response` matrix back to our `TRE` seamlessly:
+
+```{r assigning_combo_responses}
+
+treatmentResponse(nci)$combo_response <- combo_response
+
+```
+
+Finally, we can talk about the different models to compute the predicted response from monotherapy, and thereby compute estimates of 
+synergy or antagonism. 
+
 
 ## Highest Single Agent / Highest Single Effect
 
@@ -925,6 +1084,25 @@ Intuitively, this model can be interpreted as assuming that one compound is at t
 treated as a potentiator, contributing little to the response itself, but allowing the maximum response of the first drug to
 be increased. Practically, this case is not very often observed during in-vitro dose-response experiments, and the highest
 single agent model is often a very weak baseline from which to compute synergy.
+
+
+### Computing HSA reference viabilities
+
+As one can imagine, this is very simple to do using the `min` or `max` functions in R. 
+
+```{r compute_combo_references, warning=FALSE}
+# -- compute our drug synergy metrics
+(treatmentResponse(nci) |>
+  endoaggregate(
+    HSA = min(viability_1, viability_2),
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+      "sampleid", "bio_rep"),
+    assay="combo_response"
+  ) -> treatmentResponse(nci))
+
+```
+
+
 
 ## Bliss Independence
 
@@ -1017,7 +1195,7 @@ to the available data. For Loewe, this needs to be done only in monotherapy, whi
 On the other hand, both HSA and Bliss can be computed from the raw measurements of monotherapy viability, not requiring any models of the dose-response data to be fit.
 
 In general, we would recommend using a model which makes stronger assumptions than HSA, which is the weakest of the presented models. If the number of tested
-doses is low (<6), the Bliss model is probably the reference of choice, even though it is know to be quite strict. When possible to calculate, the ZIP
+doses is low (<6), the Bliss model is probably the reference of choice, even though it is known to be quite strict. When possible to calculate, the ZIP
 approach has advantages in a high-throughput setting, where it would be difficult to pick between Bliss and Loewe a-priori for each individual combination.
 
 
@@ -1047,73 +1225,10 @@ experiment.
 In this section, we will work through analyzing the combination data from the NCI-Almanac dataset to calculate synergy surfaces at each dose for each combination of response. Here, the
 TreatmentResponseExperiment aggregate API will allow us to expressively apply the modeling to every experiment in the data.
 
-First, we will fit Hill Curve models to the monotherapy experiments in the data. This is required for calculating Loewe and ZIP based synergy scores, as well as whenever it is necessary to interpolate
-between measured monotherapy doses to predict for the measured viability doses.
 
-```{r plotting_monotherapy_replicates}
-treatmentResponse(NCI_ALMANAC_2017) |>
-  subset(treatment2id == "") |>
-  aggregate(
-      assay="response",
-      N=.N,
-      by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
-  ) |>
-  with(expr=hist(N))
-```
 
-First, we notice that there are replicate experiments for the monotherapy curves - the majority of these were replicates across plates, most probably so that monotherapy results could be plate matched to combination results.
-We can make two choices for how to handle these replicates, either average across plates, or to match analysis by plate whenever possible. Ideally, we would prefer the latter, but in interest of computation time, we will demonstrate
-the former approach.
 
-Below, we will be first summarizing the replicate measurements using the mean
-viability before fitting dose-response curves, using the `aggregate` method.
-We then fit the curves using `logLogisticRegression`, and save the monotherapy
-fits back to the PharmacoSet.
 
-```{r extracting_nci_monotherapy_data}
-nci <- NCI_ALMANAC_2017
-
-# -- Extract and summarize monotherapy data, defined by an absent treatment2id
-treatmentResponse(nci) |>
-  subset(treatment2id == "") |>
-  aggregate(
-    assay="response",
-    viability=mean(viability),
-    by=c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
-  ) ->
-  mono_response
-
-(treatmentResponse(nci)$mono_response <- mono_response)
-```
-
-We can then apply the aggregate function function to fit the curves to the
-mean viability. Here, we aggregate while setting the `by` argument to compute
-an aggregation over each unique combination of `treatment1id`, `sampleid` and
-`bio_rep`.
-
-```{r fitting_hill_curves_to_monotherapy, warning=FALSE}
-# -- Fit the Hill curve model to monotherapy drugs and compute associated metrics
-mono_response |>
-  aggregate(
-    {
-      fit <- PharmacoGx::logLogisticRegression(treatment1dose, viability)
-      ic50 <- PharmacoGx::computeIC50(treatment1dose, Hill_fit = fit)
-      auc <- PharmacoGx::computeAUC(treatment1dose, Hill_fit = fit, area.type = "Fitted")
-      list(
-        HS = fit[["HS"]], E_inf = fit[["E_inf"]], EC50 = fit[["EC50"]],
-        Rsq = as.numeric(unlist(attributes(fit))),
-        auc = auc,
-        ic50 = ic50
-      )
-    },
-    by = c("treatment1id", "sampleid", "bio_rep"),
-    enlist = FALSE
-  ) ->
-  mono_profiles
-
-# Store the results as TRE assays in out PharmacoSet
-(treatmentResponse(nci)$mono_profiles <- mono_profiles)
-```
 
 We will now extract the combination data, and append the monotherapy Hill fits using the `merge` function, so that we can later use the fitted data from above to calculate expected combination viability.
 Notice that we need to do two merges, one for appending the Hill fits for the first treatment, and one for appending the Hill fits for the second treatment. Fortunately, the `suffix` parameter
