@@ -1,13 +1,13 @@
 ---
 title: "Pharmacogenomic Analysis of Drug Combination Experiments to Identify
-  Biomarkers of Response or Resistance"
+  Biomarkers of Response or Resistance Slides"
 author:
   - name: Christopher Eeles
   - name: Petr Smirnov
 output: ioslides_presentation
 bibliography: BioC2022Conference.bib
 vignette: >
-  %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance}
+  %\VignetteIndexEntry{Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance Slides}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
