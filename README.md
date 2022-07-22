@@ -21,7 +21,7 @@ create a PharmacoSet&mdash;an integrative container for the storage, analysis an
 visualization of pharmacogenomic experiments. Particular focus will be placed
 on newly developed support for storing, analyzing and visualizing drug
 combination sensitivity experiments and correlating results therefrom for
-with multi-omic molecular profiles to discover biomarkers of drug senstivity
+with multi-omic molecular profiles to discover biomarkers of drug sensitivity
 or resistance.
 
 ### Pre-requisites
@@ -40,9 +40,6 @@ Useful publications:
 
 ### Workshop Participation
 
-**Interactive Portion in Development, will be updated when needed.**
-
-
 Participants expected to have the following required packages installed on their machines to be able to run the commands along with the instructors.
 PharmacoGx, synergyfinder from Bioconductor, data.table from CRAN.
 <!-- The workshop will be presented as a set of analysis steps to be replicated by the learners, with instructors available to explain the why and how of applying these functions to the given datasets. Learners will write analysis scripts as well as use interactive commands to explore the generated data structures and results. Learners will then brainstorm potential applications of the analysis results in their field as well as comment on use case examples presented by the instructors on research in our lab. -->
@@ -60,8 +57,6 @@ CRAN:
 
 ## Time outline
 
-**Tentative, likely to change!**
-
 For a 1.5-hr workshop:
 
 | Activity                                                   | Time |
@@ -77,8 +72,6 @@ For a 1.5-hr workshop:
 
 
 ## Workshop goals and objectives
-
-**To Be Updated**
 
 ### Learning goals
 
