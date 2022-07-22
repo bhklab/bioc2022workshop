@@ -828,59 +828,9 @@ print(PharmacoGx::computeIC50(concentration = concentrations, Hill_fit = pars))
 ```
 
 
-### Processing Monotherapy Data With the TRE
-
-Usually, we will have more than one dose-viability experiment we wish to analyze at a time. Thankfully, the TRE
-data class makes it very easy to process large numbers of drug sensitivity experiments at the same time.
-
-For this example, we will subset out the monotherapy experiments in the NCI-Alamanac dataset which we were using
-as an example above.
-
-
-```{r extracting_monotherapy_from_tre, warning=FALSE}
-NCI_tre <- treatmentResponse(NCI_ALMANAC_2017)
-
-## TreatmentResponseExperiment method
-NCI_tre |>
-    subset(treatment2id == "") ->
-    NCI_mono
-```
-
-For the interest of computation time, we will only look at experiments involving Vincristine.
-```{r fitting_hill_curve_to_tre, warning=FALSE}
-NCI_mono |>
-  subset(treatment1id == "Vincristine") |>
-  aggregate(
-    assay = "response",
-    viability = mean(viability),
-    by = c("treatment1id", "treatment1dose", "sampleid", "bio_rep")
-  ) |>
-  aggregate(
-    by=c("treatment1id", "sampleid", "bio_rep"),
-    {
-      pars <- logLogisticRegression(treatment1dose, viability = viability)
-      auc <- computeAUC(treatment1dose, Hill_fit = pars)
-      ic50 <- computeIC50(treatment1dose, Hill_fit = pars)
-      list(HS=pars[[1]], Einf=pars[[2]], EC50=pars[[3]], AAC=auc, IC50=ic50)
-    },
-    enlist=FALSE
-  ) ->
-  vincristine_monotherapy
-```
-
-As you can see, by using the `aggregate` method, we are able to to fit our
-the 3-parameter Hill curve to our data, then use the fit parameters to
-simultaneously calculate AUC and IC50. This is the power of using the
-`aggregate` method with `enlist=FALSE`.
-
-Once we have values computed in a `data.table`, we can store them back in the
-`TreatmentResponseExperiment`. Notice that the TRE object handles seemlessly
-the fact that we have values computed for only a subset of experiments.
-
-```{r vincristine_assignment, warning=FALSE}
-NCI_mono$vincristine_profiles <- vincristine_monotherapy
-head(NCI_mono$vincristine_profiles[order(sampleid)])
-```
+As processsing monotherapy data is often a step in preparing for assessing synergy from combination experiments, 
+we will demonstrate how to use these functions together with a TreatmentResponseExperiment during our preprocessing 
+for synergy calculation. 
 
 # Drug Combination Synergy Models
 
@@ -968,8 +918,8 @@ We can fit the curves using `logLogisticRegression`, and save the monotherapy
 fits back to the PharmacoSet using the same endoaggregate pattern as above. 
 Since we are already calculating the Hill Curve fits for these experiments, we will also calculate the AAC and IC50 values. 
 
-Note that by default, `logLogisticRegression` returns the `E_inf` parameter on a percentage scale. We convert to a fraction scale because 
-that makes the subsequent calculations simpler.  
+Note that by default, `logLogisticRegression` returns the `E_inf` parameter on a percentage scale when the input data is 
+on a percentage scale. We convert to a fraction scale because that makes the subsequent calculations simpler.  
 
 ```{r fitting_hill_curves_to_monotherapy, warning=FALSE}
 # -- Fit the Hill curve model to monotherapy drugs and compute associated metrics
@@ -1007,34 +957,34 @@ treatmentResponse(nci) |>
     Rsq > 0.5,  # filter to only good quality fits
     c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")
   ) ->
-  mono_fits
+  treatmentResponse(nci)$mono_fits
 
 # Extract the combination response observations
 treatmentResponse(nci) |>
   assay("response") |>
   subset(treatment2id != "") ->
-  combo_response
+  treatmentResponse(nci)$combo_response
 
 # Merge with the fits from the monotherapy experiments
-combo_response |>
-  merge(
-    mono_fits,
-    by = c("treatment1id", "sampleid", "bio_rep")
+treatmentResponse(nci) |>
+  mergeAssays(
+    x="combo_response",
+    y="mono_fits",
+    by = c("treatment1id", "sampleid", "bio_rep"),
+    sort = FALSE # workaround to not have weird keys as a result. 
   ) |>
-  merge(
-    mono_fits,
+  mergeAssays(
+    x="combo_response",
+    y="mono_fits",
     by.x = c("treatment2id", "sampleid", "bio_rep"),
     by.y = c("treatment1id", "sampleid", "bio_rep"),
-    suffixes = c("_1", "_2")
+    suffixes = c("_1", "_2"),
+    sort = FALSE # workaround to not have weird keys as a result.
   ) ->
-  combo_response
+  treatmentResponse(nci)
 
-## We key and sort the data table here for speed and convenience - this step is not 100% necessary
-setkeyv(combo_response, c("treatment1id", "treatment2id", "sampleid",
-  "bio_rep"))
-setcolorder(combo_response, c("treatment1id", "treatment2id", "sampleid",
-  "bio_rep"))
 ```
+
 
 Finally, we can make predictions for each of the measured combination doses using the corresponding fit parameters 
 and the Hill Curve models. This step is necessary when interpolating between monotherapy doses, but is often recommended
@@ -1042,27 +992,37 @@ in either case, as the predicted viabilities can be less noisy than each individ
 
 ```{r predicting_mono_response_for_combo_doses, warning=FALSE}
 # predict viability at the combo doses from the Hill curves fit to monotherapy data
-combo_response[,
-  c("viability_1", "viability_2") := .(
-    PharmacoGx:::.Hill(
-      log10(treatment1dose),
-      c(HS_1, E_inf_1, log10(EC50_1))
-    ),
-    PharmacoGx:::.Hill(
-      log10(treatment2dose),
-      c(HS_2, E_inf_2, log10(EC50_2))
-    )
-  ),
-  by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
-    "sampleid", "bio_rep")
-]
+treatmentResponse(nci) |>
+  endoaggregate(
+    {
+      viability_1 <- PharmacoGx:::.Hill(
+        log10(treatment1dose),
+        c(HS_1, E_inf_1, log10(EC50_1))
+      )
+      viability_2 <- PharmacoGx:::.Hill(
+        log10(treatment2dose),
+        c(HS_2, E_inf_2, log10(EC50_2))
+      )
+      list(
+        viability_1 = viability_1,
+        viability_2 = viability_2
+      )
+    },
+    assay = "combo_response",
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+    "sampleid", "bio_rep"),
+    enlist = FALSE
+  ) -> treatmentResponse(nci)
+
+
+
 ```
 
-Finally, we can assign the `combo_response` matrix back to our `TRE` seamlessly:
+Last, we also put the measured combination viabilily onto a fractional, not percentage scale.
 
-```{r assigning_combo_responses}
+```{r fix_viability_percentage}
 
-treatmentResponse(nci)$combo_response <- combo_response
+treatmentResponse(nci)$combo_response$viability <- treatmentResponse(nci)$combo_response$viability / 100
 
 ```
 
@@ -1086,23 +1046,24 @@ be increased. Practically, this case is not very often observed during in-vitro 
 single agent model is often a very weak baseline from which to compute synergy.
 
 
-### Computing HSA reference viabilities
+### Computing HSA Reference Viabilities
 
 As one can imagine, this is very simple to do using the `min` or `max` functions in R. 
 
-```{r compute_combo_references, warning=FALSE}
+```{r computeHSA, warning=FALSE}
 # -- compute our drug synergy metrics
 (treatmentResponse(nci) |>
   endoaggregate(
     HSA = min(viability_1, viability_2),
     by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
       "sampleid", "bio_rep"),
-    assay="combo_response"
+    assay = "combo_response", 
+    target = "combo_response"
   ) -> treatmentResponse(nci))
 
 ```
 
-
+For convenience, `PharmacoGx::computeHSA(viability_1, viability_2)` is a more readable alias for computing the HSA reference viability. 
 
 ## Bliss Independence
 
@@ -1122,6 +1083,27 @@ $$BLISS((r_1,x_1), (r_2,x_2)) = r_1 + r_2 - r_1*r_2$$
 This model is always going to be more strict that HSA (as long as response is between 0 and 1), and is usually a more practical assumption
 to make when searching for drug synergy. Intuitively, one can think of it as modeling the case where the two drugs have separate mechanisms,
 with synergy signifiying a biological interaction that makes them more effective than expected.
+
+
+
+### Computing Bliss Reference Viabilities
+
+This is also quite simple to do, as we just use the product of the monotherapy viabilities. 
+
+```{r computeBliss, warning=FALSE}
+# -- compute our drug synergy metrics
+(treatmentResponse(nci) |>
+  endoaggregate(
+    Bliss = prod(viability_1, viability_2),
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+      "sampleid", "bio_rep"),
+    assay="combo_response", 
+    target = "combo_response"
+  ) -> treatmentResponse(nci))
+
+```
+
+For convenience, `PharmacoGx::computeBliss(viability_1, viability_2)` is a more readable alias for computing the Bliss reference viability. 
 
 ## Loewe Additivity
 
@@ -1149,6 +1131,7 @@ $$ \frac{x_1}{EC50_1 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,1}})^{\frac{1}{HS
 
 This formula can be solved numerically to find the value of $v_loewe$ for any two particular fitted curves.
 
+
 While the Loewe Additivity model can be used to calculate the expected response at any pair of doses, more commonly, the Loewe Additivity is assessed in terms of the
 Combination Index. The combination index measures the deviation from the Loewe assumption as a ratio at each point, by computing the Loewe model with the observed
 combination viability instead of the reference viability. As it doesn't require calculating $v_{loewe}$, it is also easier to compute. The formula for the
@@ -1157,7 +1140,31 @@ Combination Index given a Loewe assumption is:
 $$ CI_{loewe} = \frac{x_1}{EC50^1*(\frac{y_c}{E_{\infty}^1-y_c})^{1/HS^1}} + \frac{x_2}{EC50^2*(\frac{y_c}{E_{\infty}^2-y_c})^{1/HS^2}} $$
 
 
-## ZIP
+
+### Computing Loewe Reference Viabilities
+
+As mentioned above, the computation of the Loewe reference viability requires solving a non-linear implicitly defined equation. PharmacoGx provides 
+the `computeLoewe` function to do this calculation. 
+
+
+```{r computeLoewe, warning=FALSE}
+# -- compute our drug synergy metrics
+(treatmentResponse(nci) |>
+  endoaggregate(
+    Loewe = PharmacoGx::computeLoewe(
+      treatment1dose, HS_1, E_inf_1, EC50_1,
+      treatment2dose, HS_2, E_inf_2, EC50_2
+    ),
+    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
+      "sampleid", "bio_rep"),
+    assay = "combo_response"
+  ) -> treatmentResponse(nci))
+
+```
+
+
+
+## BONUS: ZIP
 
 The Zero interaction Potency model was recently introduced with the goal of capturing the ideas behind both the Bliss and Loewe assumptions. As the name implies
 the model assumes that the two drugs do not "potentiate" each other, meaning, that the only difference between the dose response curves of Drug 1 with and without
@@ -1173,7 +1180,7 @@ suggest a new method to assess syngergy or antagosism at each point. Building on
 each particular drug, the ZIP $delta$ score defines a measure comparing the difference between the fitted curve for each drug with and without the presence of the second
 drug, taking the average of differences for the two drugs.
 
-Mathmatically, ZIP defines two values:
+Mathematically, ZIP defines two values:
 $$ v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) = \frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2})}^{HS^{1 \leftarrow 2}}}$$
 $$ v_c^{2 \leftarrow 1}((v_1,x_1), (v_2,x_2)) = \frac{v_1}{1+(\frac{x_1}{EC50^{2 \leftarrow 1})}^{HS^{2 \leftarrow 1}}}$$
 
@@ -1182,6 +1189,22 @@ of adding $x_2$ of drug 2 ($v_2$), and then treat drug 1 as if it is a monothera
 by this curve and the ZIP predicted viability, averaged over treating each of the drugs as the "main drug":
 
 $$\delta((v_1,x_1), (v_2,x_2)) = \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2} + \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2}$$
+
+### Computing ZIP Reference Viabilities
+
+Unlike Loewe, the ZIP reference viability is fairly easy to compute. In fact, it is simply the Bliss formula applied to the 2 paramater predicted viability. 
+
+```{r computeZip, eval=FALSE}
+ZIP <- {
+  dose_ratio1 <- (treatment1dose / EC50_1)
+  dose_ratio2 <- (treatment2dose / EC50_2)
+  ZIP1 <- 1 / (1 + dose_ratio1^HS_1)
+  ZIP2 <- 1 / (1 + dose_ratio2^HS_2)
+  ZIP1 * ZIP2
+}
+```
+
+ZIP also has a helpful function in PharmacoGx for its computation: `PharmacoGx::computeZIP(treatment1dose, treatment2dose, HS_1, HS_2, EC50_1, EC50_2)`
 
 ## Picking a Null Drug Combination Model
 
@@ -1216,187 +1239,36 @@ the range is unbalanced around the reference.
 In practice, our preference is to use the absolute deviation from the Bliss predicted value for downstream analysis.
 
 
-NB: Usually, the monotherapy response will be a subset of the full combination dose-response matrix, and therefore, will have been measured on the same doses. If this is not the case,
-it may be necessary to fit a Hill Curve model even when using the Bliss or HSA approaches, to interpolate what the observed monotherapy viability should be at the doses used in the combination
-experiment.
-
-## Calculating Synergy Surfaces using a Treatment Response Experiment
-
-In this section, we will work through analyzing the combination data from the NCI-Almanac dataset to calculate synergy surfaces at each dose for each combination of response. Here, the
-TreatmentResponseExperiment aggregate API will allow us to expressively apply the modeling to every experiment in the data.
-
-
-
-
-
-
-We will now extract the combination data, and append the monotherapy Hill fits using the `merge` function, so that we can later use the fitted data from above to calculate expected combination viability.
-Notice that we need to do two merges, one for appending the Hill fits for the first treatment, and one for appending the Hill fits for the second treatment. Fortunately, the `suffix` parameter
-will allow us to differentiate between the two once they are merged to the same table.
-
-```{r build_combo_profiles}
-# -- Attach the Hill parameters from the monotherapy profiles to the combination data
-# Extract the monotherapy fits
-treatmentResponse(nci) |>
-  assay("mono_profiles", summarize=TRUE) |>
-  subset(
-    Rsq > 0.5,  # filter to only good quality fits
-    c("treatment1id", "sampleid", "bio_rep", "HS", "E_inf", "EC50")
-  ) ->
-  mono_fits
-
-# Extract the combination response observations
-treatmentResponse(nci) |>
-  assay("response") |>
-  subset(treatment2id != "") ->
-  combo_response
-
-# Merge with the fits from the monotherapy experiments
-combo_response |>
-  merge(
-    mono_fits,
-    by = c("treatment1id", "sampleid", "bio_rep")
-  ) |>
-  merge(
-    mono_fits,
-    by.x = c("treatment2id", "sampleid", "bio_rep"),
-    by.y = c("treatment1id", "sampleid", "bio_rep"),
-    suffixes = c("_1", "_2")
-  ) ->
-  combo_response
-
-## We key and sort the data table here for speed and convenience - this step is not 100% necessary
-setkeyv(combo_response, c("treatment1id", "treatment2id", "sampleid",
-  "bio_rep"))
-setcolorder(combo_response, c("treatment1id", "treatment2id", "sampleid",
-  "bio_rep"))
-```
-
-By default, `logLogisticRegression` returns parameters with E_inf on a
-percentage scale. Here we convert that to fraction to simplify the formulas
-for calculating expected combination viabilities.
-
-```{r fix_e_inf, warning=FALSE}
-# -- predict viability for each drug in our combination
-# fix the scale of E_inf to be a proportion instead of a percent
-combo_response[,
-  c("E_inf_1", "E_inf_2") := .(E_inf_1 / 100, E_inf_2 / 100)
-]
-```
-
-We then make predictions for each of the measured combination doses using fit
-corresponding parameters and the Hill Curve models.
-
-```{r predicting_mono_response_for_combo_doses, warning=FALSE}
-# predict viability at the combo doses from the Hill curves fit to monotherapy data
-combo_response[,
-  c("viability_1", "viability_2") := .(
-    PharmacoGx:::.Hill(
-      log10(treatment1dose),
-      c(HS_1, E_inf_1, log10(EC50_1))
-    ),
-    PharmacoGx:::.Hill(
-      log10(treatment2dose),
-      c(HS_2, E_inf_2, log10(EC50_2))
-    )
-  ),
-  by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
-    "sampleid", "bio_rep")
-]
-```
-
-We can now finally compute the reference combination viabilites. Again, we can
-use `aggregate` to make the calculation happen for each sample,
-pair of treatments, pair of doses, and replicate.
-
-```{r compute_combo_references, warning=FALSE}
-# -- compute our drug synergy metrics
-(combo_response |>
-  aggregate(
-    HSA = min(viability_1, viability_2),
-    Bliss = prod(viability_1, viability_2),
-    Loewe_CI = (
-      (treatment1dose /
-        EC50_1 * ((1 - viability_1) / (viability_1 - E_inf_1))^(1 / HS_1)
-      ) +
-        (treatment2dose /
-          EC50_2 * ((1 - viability_2) / (viability_2 - E_inf_2))^(1 / HS_2)
-        )
-    ),
-    ZIP = {
-      dose_ratio1 <- (treatment1dose / EC50_1)
-      dose_ratio2 <- (treatment2dose / EC50_2)
-      ZIP1 <- 1 / (1 + dose_ratio1^HS_1)
-      ZIP2 <- 1 / (1 + dose_ratio2^HS_2)
-      ZIP1 * ZIP2
-    },
-    Loewe=PharmacoGx::computeLoewe(
-      treatment1dose, HS_1, E_inf_1, EC50_1,
-      treatment2dose, HS_2, E_inf_2, EC50_2
-    ),
-    viability_1 = viability_1,
-    viability_2 = viability_2,
-    viability = viability / 100, # put on the same scale as the predicted viabilities
-    by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
-      "sampleid", "bio_rep")
-  ) -> combo_scores)
-
-```
-
-Note that while we wrote out all the functions above, we could also use built
-in PharmacoGx functions for computing these scores, as below:
-
-```{r, compute_combo_references_pgx, eval=FALSE, warning=FALSE}
-combo_response |>
-  aggregate(
-    HSA = PharmacoGx::computeHSA(viability_1, viability_2),
-    Bliss = PharmacoGx::computeBliss(viability_1, viability_2),
-    Loewe_CI = (
-      (treatment1dose /
-        EC50_1 * ((1 - viability_1) / (viability_1 - E_inf_1))^(1 / HS_1)
-      ) +
-        (treatment2dose /
-          EC50_2 * ((1 - viability_2) / (viability_2 - E_inf_2))^(1 / HS_2)
-        )
-    ),
-    ZIP = PharmacoGx::computeZIP(treatment1dose, treatment2dose, HS_1, HS_2, EC50_1, EC50_2),
-    Loewe=PharmacoGx::computeLoewe(
-      treatment1dose, HS_1, E_inf_1, EC50_1,
-      treatment2dose, HS_2, E_inf_2, EC50_2
-    ),
-    viability_1 = viability_1,
-    viability_2 = viability_2,
-    viability = viability / 100, # put on the same scale as the predicted viabilities
-    by = c(
-      "treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
-      "sampleid", "bio_rep"
-    )
-  ) -> combo_scores
-```
-
-Once we have the reference/expected viabilities under each Null Model assumption,
-we can compute the related Combination Index or Score.
-
 _Note that we also skip the ZIP delta score computation in the interest of time._
 
 ```{r compute_combo_profiles, warning=FALSE}
 # -- compute combination index and score
-combo_scores |>
-  aggregate(
+(treatmentResponse(nci) |>
+  endoaggregate(
     HSA_CI = viability / HSA,
     HSA_score = HSA - viability,
     Bliss_CI = viability / Bliss,
     Bliss_score = Bliss - viability,
-    ZIP_CI = viability / ZIP,
-    ZIP_score = ZIP - viability,
-    Loewe_CI = Loewe_CI,
+    Loewe_CI = (
+      (treatment1dose /
+        EC50_1 * ((1 - viability_1) / (viability_1 - E_inf_1))^(1 / HS_1)
+      ) +
+        (treatment2dose /
+          EC50_2 * ((1 - viability_2) / (viability_2 - E_inf_2))^(1 / HS_2)
+        )
+        ),
     Loewe_score = Loewe - viability,
     viability = viability,
     viability_1 = viability_1,
     viability_2 = viability_2,
     by = c("treatment1id", "treatment2id", "treatment1dose", "treatment2dose",
-      "sampleid", "bio_rep")
-  ) -> combo_profiles
+      "sampleid", "bio_rep"),
+    assay = "combo_response",
+    target = "combo_scores"
+  ) ->
+  treatmentResponse(nci))
+
+  combo_scores <- treatmentResponse(nci)$combo_scores
 ```
 
 Once we have a measure of synergy calculated for each dose combination in a
@@ -1412,7 +1284,7 @@ expected.
 ```{r bliss_score_plot, warning=FALSE}
 library(ggplot2)
 
-ggplot(combo_profiles[
+p <- ggplot(combo_scores[
     treatment1id == "Mitotane" & treatment2id == "Paclitaxel" & sampleid == "A-549"
     ],
     aes(treatment1dose, treatment2dose, fill = Bliss_score)
@@ -1422,12 +1294,13 @@ ggplot(combo_profiles[
   scale_y_log10() +
   xlab("Mitotane") +
   ylab("Paclitaxel")
+print(p)
 ```
 
 Note that here, it seems that antagonism is exacerbated at higher doses, suggesting a dose-dependant mechanism for antagonism.
 
 
-### Summarizing Synergy Matrices into Single Values
+## Summarizing Synergy Matrices into Single Values
 
 Often, we will want to summarize a whole synergy surface into a single synergy score for a drug combination per cell-line, for example, if we want to discover biomarkers of synergy. There are several methods that
 this can be done, the most common of which is taking the average value of your score matrix for the combination. If your doses are equally spaced (on the log scale), this will give a measure of Volume Under the Surface.
@@ -1442,7 +1315,7 @@ instead be more appropriate.
 For our demo, we will summarize the combination profiles we have calculated into a Mean Bliss Score per experiment.
 
 ```{r mean_bliss_calculation, warning=FALSE}
-mean_bliss_score <- combo_profiles[,
+mean_bliss_score <- combo_scores[,
   .(Mean_Bliss = mean(Bliss_score)),
   .(treatment1id, treatment2id, sampleid)
 ]
