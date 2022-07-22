@@ -243,7 +243,7 @@ on the same set of features and samples) where as the `MAE` allows storage of
 disjoint sets of feature and samples via the use of the `sampleMap`, which
 stores a graph of the mapping from samples to each assay in the object.
 
-```{r mae_schema, echo=FALSE, fig.wide=TRUE, fig.cap="**SummarizedExperiment** and **MultiAssayExperiment** classes."}
+```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fig.cap = "**SummarizedExperiment** and **MultiAssayExperiment** classes. "}
 knitr::include_graphics("./MultiAssayExperiment_SummarizedExperiment_schematics.png")
 
 ```
@@ -1076,7 +1076,15 @@ with the probability of cell death being proportional to the response observed i
 cell death events from the two drugs are independent, for example because they occur through completely separate pathways. As such,
 the model predicts that adding a second drug will kill the same fraction of cells as it kills on its own, and therefore the fractions
 of cells remaining alive are caculated by multplying the fraction of cells alive after treatment with drug 1 in monotherapy,
-with the fraction of cells alive after treatment with drug 2 in monotherapy. Mathematically, that works out to:
+with the fraction of cells alive after treatment with drug 2 in monotherapy.
+
+
+```{r bliss_diagram, echo=FALSE, fig.cap="Diagram of Bliss Independence Assumption. Bliss independence assumes a constant fraction of cells is killed independently by each drug. In this diagram, the orange drug leaves 40% of the cells alive, and the blue drug leaves 60% of the cells alive. Therefore, Bliss predicts that the two drugs in combination will leave 24% of the cells alive."}
+knitr::include_graphics("./BlissDiagram.png")
+```
+
+
+Mathematically, that works out to:
 
 $$BLISS((v_1,x_1), (v_2,x_2)) = v_1 v_2$$
 
@@ -1087,6 +1095,7 @@ $$BLISS((r_1,x_1), (r_2,x_2)) = r_1 + r_2 - r_1*r_2$$
 This model is always going to be more strict that HSA (as long as response is between 0 and 1), and is usually a more practical assumption
 to make when searching for drug synergy. Intuitively, one can think of it as modeling the case where the two drugs have separate mechanisms,
 with synergy signifiying a biological interaction that makes them more effective than expected.
+
 
 
 
