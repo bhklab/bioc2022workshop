@@ -147,7 +147,7 @@ For a 1.5-hr workshop:
 
 ----
 
-```{r global_knitr_opts}
+```{r global_knitr_opts, echo=FALSE}
 knitr::opts_chunk$set(echo=TRUE, include=TRUE, warning=FALSE, message=TRUE)
 ```
 
