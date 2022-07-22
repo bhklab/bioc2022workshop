@@ -1149,6 +1149,11 @@ Combination Index given a Loewe assumption is:
 $$ CI_{loewe} = \frac{x_1}{EC50^1*(\frac{y_c}{E_{\infty}^1-y_c})^{1/HS^1}} + \frac{x_2}{EC50^2*(\frac{y_c}{E_{\infty}^2-y_c})^{1/HS^2}} $$
 
 
+```{r loewe_diagram, echo=FALSE, fig.cap="Diagram of Loewe Additivity Assumption. Loewe additivity assumes that when plotting viability as a function of both concentrations (bottom plots), lines of equal viability (isoboles) will be straight. Using this assumption, either the expected viability for each pair of concentrations can be calculated (left), or the combination index can be computed to assess synergy or antagonism directly (right)."}
+knitr::include_graphics("./LoeweDiagram.png")
+```
+
+
 
 ### Computing Loewe Reference Viabilities
 
