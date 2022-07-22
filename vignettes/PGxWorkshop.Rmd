@@ -226,6 +226,7 @@ to _in vitro_ immortalized human cell-lines.
 
 ```{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet / PharmacoSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./CoreSet-class.drawio.png")
+
 ```
 
 ## `MultiAssayExperiment` and `SummarizedExperiment`
@@ -242,8 +243,9 @@ on the same set of features and samples) where as the `MAE` allows storage of
 disjoint sets of feature and samples via the use of the `sampleMap`, which
 stores a graph of the mapping from samples to each assay in the object.
 
-```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fig.cap="**SummarizedExperiment** and **MultiAssayExperiment** classes."}
+```{r mae_schema, echo=FALSE, fig.wide=TRUE, fig.cap="**SummarizedExperiment** and **MultiAssayExperiment** classes."}
 knitr::include_graphics("./MultiAssayExperiment_SummarizedExperiment_schematics.png")
+
 ```
 
 For both these objects, rows map to molecular features
@@ -265,8 +267,9 @@ For those familar with relational modelling from RDBMS systems,
 our design has taken inspiration from the star schema often used in OLAP
 applications to improve the efficiency of analytic database queries.
 
-```{r tre_class, echo=FALSE, fig.wide=TRUE, fig.cap = " **TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
+```{r tre_class, echo=FALSE, fig.wide=TRUE, fig.cap = "**TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./TreatmentResponseExperimentClassDiagram.drawio.png")
+
 ```
 
 The `TRE` differentiates between full assays and summary assays by the presence
@@ -284,6 +287,7 @@ relationships between the `rowIDs`, `colIDs` and each respective `assay`.
 
 ```{r tre_structure, echo=FALSE, fig.wide=TRUE, fig.cap="The structure of a `TreatmentResponseExperiment` centers around the `assayIndex` which contains a mapping from unique identifiers for row or columns and the primary key of each assay in the object. Summaries over rowKey and colKeys, and thus their corresponding identifiers, and made possible by repeating a givan assay key for ecah rowKey/colKey combination it has been summarized over."}
 knitr::include_graphics("./TreatmentResponseExperimentStructure.drawio.png")
+
 ```
 
 ----
@@ -563,7 +567,7 @@ mean of viability within groups defined by `by`. We have excluded "tech_rep" for
 the by argument which means that our summarize will be computed over it.
 
 The resulting table will contain the identifer columns specified to `by`,
-as well as any columsn which were summarized. By default, for
+as well as any columns which were summarized. By default, for
 unnamed aggregations, `aggregate` tries to guess the column name. We can see in
 the results it figured out that we are taking the mean of the viability column
 and returned the results as "mean_viability".
