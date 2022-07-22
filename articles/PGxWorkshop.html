@@ -50,9 +50,6 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/PGxWorkshipSlides.html">Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance Slides</a>
-    </li>
-    <li>
       <a href="../articles/PGxWorkshop.html">Pharmacogenomic Analysis of Drug Combination Experiments to Identify Biomarkers of Response or Resistance</a>
     </li>
   </ul>
@@ -303,8 +300,6 @@ and the <code>PharmacoSet</code>
 biomarkers of drug response, resistance, synergy, or antagnoism</li>
 </ul>
 <hr>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html" class="external-link">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>echo<span class="op">=</span><span class="cn">TRUE</span>, include<span class="op">=</span><span class="cn">TRUE</span>, warning<span class="op">=</span><span class="cn">FALSE</span>, message<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -556,7 +551,7 @@ attaching additional metadata for treatments, sample and any other
 entities defined in the publication. We have done this already and
 included it as the <code>NCI_ALMANAC_raw</code> dataset in the workshop
 package.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NCI_ALMANAC_raw</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_ALMANAC_raw</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -817,7 +812,7 @@ class to work, our rawdata must first be in a single large, tidy
 conditions are already met for the included example data, we can create
 of <code>TREDataMapper</code> object and start exploring the to
 dimensionality of the experiment in question!</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">treDataMapper</span> <span class="op">&lt;-</span> <span class="fu">TREDataMapper</span><span class="op">(</span>rawdata<span class="op">=</span><span class="va">NCI_ALMANAC_raw</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code>##  [33m [1m [3m&lt;TREDataMapper&gt; 
 ##  [23m [22m [39m [33m [1mrawdata: [22m [39m dim(534179, 32)
@@ -859,7 +854,7 @@ rows, columns and assays, we specify the subset parmeter to indicate we
 want to remove any mapped columns before moving on to the next group.
 This prevents multimapping a column to several groups and is generally
 recommended.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">groups1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    rowDataMap<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>,</span>
 <span>        <span class="st">"treatment2dose"</span><span class="op">)</span>,</span>
@@ -923,7 +918,7 @@ combination experiment. One potential cause for this is inclusion of
 technical or biological replicates.</p>
 <p>Indeed, for the NCI-ALMANAC both of these kinds of replicates are
 present.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">rawdata</span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span>, give.attr<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Classes 'data.table' and 'data.frame':   534179 obs. of  32 variables:</span></span>
 <span><span class="co">##  $ treatment1id     : chr  "1,3-Bis(2-chloroethyl)-1-nitrosourea" "1,3-Bis(2-chloroethyl)-1-nitrosourea" "1,3-Bis(2-chloroethyl)-1-nitrosourea" "1,3-Bis(2-chloroethyl)-1-nitrosourea" ...</span></span>
@@ -971,7 +966,7 @@ unique observation within an experiment.</p>
 <p>For our second guess we will include these columns, mapping
 biological replicates to samples and technical replicates to
 treatments.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">groups2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    rowDataMap<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>,</span>
 <span>        <span class="st">"treatment2dose"</span>, <span class="st">"tech_rep"</span><span class="op">)</span>,</span>
@@ -1042,13 +1037,13 @@ so we can use it to construct a
 <code>metadata</code> list of the createed <code>TRE</code>, other
 dimension maps can be assigned directly to the slots of the
 <code>TREDataMapper</code>.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">metadataMap</span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>experiment_metadata<span class="op">=</span><span class="va">guess2</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">mapped_columns</span><span class="op">)</span></span>
 <span><span class="fu">rowDataMap</span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">guess2</span><span class="op">$</span><span class="va">rowDataMap</span></span>
 <span><span class="fu">colDataMap</span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">guess2</span><span class="op">$</span><span class="va">colDataMap</span></span></code></pre></div>
 <p>Unless we wish to have a single large assay in our <code>TRE</code>,
 we should further subdivide our assay columns into sensible groups.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">guess2</span><span class="op">$</span><span class="va">assayMap</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## $id_columns</span></span>
 <span><span class="co">## [1] "treatment1id"   "treatment2id"   "treatment1dose" "treatment2dose"</span></span>
@@ -1076,7 +1071,7 @@ specifies the definition of the assay table.</p>
 However, this is not a requirement and it may be more efficient to test
 further subgroupings with our identifier columns to prevent uncessarily
 repeating values in our <code>TRE</code>.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">assaymap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    response<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>        id_columns<span class="op">=</span><span class="va">guess2</span><span class="op">$</span><span class="va">assayMap</span><span class="op">$</span><span class="va">id_columns</span>,</span>
@@ -1135,7 +1130,7 @@ repeating values in our <code>TRE</code>.</p>
 <code>metaConstruct</code>, which combines together the rawdata and the
 metadata into a constructor call for the
 <code>TreatmentResponseExperiment</code>.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">NCI_ALMANAC_tre</span> <span class="op">&lt;-</span> <span class="fu">metaConstruct</span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #BBBB00; font-weight: bold; font-style: italic;">&lt;TreatmentResponseExperiment&gt; </span></span></span>
 <span><span class="co"><span style="color: #BBBB00; font-weight: bold; font-style: italic;">## </span><span style="color: #BBBB00; font-weight: bold;">dim:  10080 62 </span></span></span>
@@ -1161,7 +1156,7 @@ be applied over groups of identifiers within an assay. For example, we
 may want to take averages for all mono therapy vaibilities over
 technical replicates. We can do so using the <code>aggregate</code>
 method as follows:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">NCI_ALMANAC_tre</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">treatment2id</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span></span>
@@ -1212,7 +1207,7 @@ taking the mean of the viability column and returned the results as
 <p>You can also customize your resulting column names by naming the
 aggregation arguments:</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">NCI_ALMANAC_tre</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span></span>
 <span>    subset<span class="op">=</span><span class="va">treatment2id</span> <span class="op">==</span> <span class="st">""</span>,</span>
@@ -1283,7 +1278,7 @@ data to the NCI-ALMANAC <code>PharmacoSet</code> requires no manual
 curation. We must simply subset the <code>NCI60</code> dataset to those
 cell-lines present in NCI-ALMANAC.</p>
 <p>Lets examine the included molecualr data:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NCI60_molecular_data</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">NCI60_molecular_data</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## A MultiAssayExperiment object of 4 listed</span></span>
@@ -1324,7 +1319,7 @@ a set of standardized annotations from sources like PubChem or ChEMBL
 for treatments and Cellosaurus for cancer cell-lines and using these to
 standardize identifiers in your data as well as adding links to
 additional information in external databases.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NCI_ALMANAC_sample_metadata</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_ALMANAC_sample_metadata</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -1416,7 +1411,7 @@ additional information in external databases.</p>
 set of standardized identifiers including <code>cellid</code> and
 <code>tissueid</code>, as well as cell-line identifiers from the
 NCI-ALMANAC publication and some additional metadata we have added.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">NCI_ALMANAC_treatment_metadata</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_ALMANAC_treatment_metadata</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -1497,7 +1492,7 @@ from the NCI-ALMANAC publication.</p>
 identifiers to dataset specific identifiers and store those separately
 to ensure these associations are not lost should the treatment or sample
 metadata tables be modified.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">curation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  sample<span class="op">=</span><span class="va">NCI_ALMANAC_sample_metadata</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sampleid"</span>, <span class="st">"NCI_ALMANAC.sampleid"</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  treatment<span class="op">=</span><span class="va">NCI_ALMANAC_treatment_metadata</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatmentid"</span>, <span class="st">"NCI_ALMANAC.treatmentid"</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -1522,7 +1517,7 @@ new package features, simply call <code>updateObject</code> to return
 the dataset with an updated class structure. This method will be
 available in all future releases to ensure datasets can be updated and
 reused regardless of their age.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">NCI_ALMANAC_2017</span> <span class="op">&lt;-</span> <span class="fu">PharmacoSet2</span><span class="op">(</span></span>
 <span>  name<span class="op">=</span><span class="st">"NCI_ALMANAC_2017"</span>,</span>
 <span>  molecularProfiles<span class="op">=</span><span class="va">NCI60_molecular_data</span>,</span>
@@ -1533,7 +1528,7 @@ reused regardless of their age.</p>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## &lt;PharmacoSet&gt;</span></span>
 <span><span class="co">## Name:  NCI_ALMANAC_2017 </span></span>
-<span><span class="co">## Date Created:  Fri Jul 22 18:38:34 2022 </span></span>
+<span><span class="co">## Date Created:  Fri Jul 22 19:29:37 2022 </span></span>
 <span><span class="co">## Number of samples:  60 </span></span>
 <span><span class="co">## Molecular profiles:</span></span>
 <span><span class="co">##    A MultiAssayExperiment object of 4 listed</span></span>
@@ -1602,7 +1597,7 @@ cooperativity/antagonism.</p>
 <p>PharmacoGx provides functions to both fit and visualize
 dose-viability curves. Plotting dose-viability data is easy using the
 <code>drugDoseResponseCurve</code> function:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span></span>
 <span><span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span></span>
 <span></span>
@@ -1615,7 +1610,7 @@ dose-viability curves. Plotting dose-viability data is easy using the
 <p>Similarly, fitting Log-Logistic models to data is simple using the
 <code>logLogisticRegression</code> function in
 <code>PharmacoGx</code>.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span></span>
 <span><span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span></span>
 <span></span>
@@ -1659,13 +1654,13 @@ dose-response curve</p>
 quantifying the observed drug sensitivity. If you noticed above, the
 <code>drugDoseResponseCurve</code> function computes them by default. In
 PharmacoGx, they can be computed manually as follows:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span></span>
 <span><span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeAUC.html" class="external-link">computeAUC</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, viability <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 46.63697</span></span></code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeICn.html" class="external-link">computeIC50</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, viability <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 0.0713488</span></span></code></pre>
 <p>If measurements are passed into these function, the Log Logistic
@@ -1673,14 +1668,14 @@ model is fit to compute the IC50 and AAC. Clearly, if multiple metrics
 are being computed, redoing the fit is inefficent. Therefore, these
 functions can also take parameters fit by
 <code>logLogisticRegression</code>.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">concentrations</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span></span>
 <span><span class="va">viabilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">23.8</span>, <span class="fl">55.2</span>, <span class="fl">85.9</span>, <span class="fl">96.9</span>, <span class="fl">98.4</span>, <span class="fl">99.2</span><span class="op">)</span></span>
 <span><span class="va">pars</span> <span class="op">&lt;-</span> <span class="fu">logLogisticRegression</span><span class="op">(</span>conc <span class="op">=</span> <span class="va">concentrations</span>, viability <span class="op">=</span> <span class="va">viabilities</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeAUC.html" class="external-link">computeAUC</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, Hill_fit <span class="op">=</span> <span class="va">pars</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 46.63697</span></span></code></pre>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeICn.html" class="external-link">computeIC50</a></span><span class="op">(</span>concentration <span class="op">=</span> <span class="va">concentrations</span>, Hill_fit <span class="op">=</span> <span class="va">pars</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 0.0713488</span></span></code></pre>
 <p>As processsing monotherapy data is often a step in preparing for
@@ -1750,7 +1745,7 @@ TreatmentResponseExperiment API.</p>
 the monotherapy data may need to be preprocessed. In our case, the
 dataset we are using has replicate experiments for the monotherapy
 curves, as seen below:</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">NCI_ALMANAC_2017</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">treatment2id</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span></span>
@@ -1772,7 +1767,7 @@ across all experiments for our demonstration.</p>
 <code>by</code> argument to compute an aggregation over each unique
 combination of <code>treatment1id</code>, <code>sampleid</code> and
 <code>bio_rep</code> (summarizing over technical replicates).</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nci</span> <span class="op">&lt;-</span> <span class="va">NCI_ALMANAC_2017</span></span>
 <span></span>
 <span><span class="co"># -- Extract and summarize monotherapy data, defined by an absent treatment2id</span></span>
@@ -1799,7 +1794,7 @@ and IC50 values.</p>
 <code>E_inf</code> parameter on a percentage scale when the input data
 is on a percentage scale. We convert to a fraction scale because that
 makes the subsequent calculations simpler.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- Fit the Hill curve model to monotherapy drugs and compute associated metrics</span></span>
 <span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
@@ -1827,7 +1822,7 @@ Hill fits for the first treatment, and one for appending the Hill fits
 for the second treatment. Fortunately, the <code>suffix</code> parameter
 will allow us to differentiate between the two once they are merged to
 the same table.</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- Attach the Hill parameters from the monotherapy profiles to the combination data</span></span>
 <span><span class="co"># Extract the monotherapy fits</span></span>
 <span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1866,7 +1861,7 @@ doses using the corresponding fit parameters and the Hill Curve models.
 This step is necessary when interpolating between monotherapy doses, but
 is often recommended in either case, as the predicted viabilities can be
 less noisy than each individual monotherapy measurement.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># predict viability at the combo doses from the Hill curves fit to monotherapy data</span></span>
 <span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
@@ -1891,7 +1886,7 @@ less noisy than each individual monotherapy measurement.</p>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span></span></code></pre></div>
 <p>Last, we also put the measured combination viabilily onto a
 fractional, not percentage scale.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">&lt;-</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">/</span> <span class="fl">100</span></span></code></pre></div>
 <p>Finally, we can talk about the different models to compute the
 predicted response from monotherapy, and thereby compute estimates of
@@ -1920,7 +1915,7 @@ baseline from which to compute synergy.</p>
 </h4>
 <p>As one can imagine, this is very simple to do using the
 <code>min</code> or <code>max</code> functions in R.</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute our drug synergy metrics</span></span>
 <span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
@@ -1983,7 +1978,7 @@ effective than expected.</p>
 </h4>
 <p>This is also quite simple to do, as we just use the product of the
 monotherapy viabilities.</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute our drug synergy metrics</span></span>
 <span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
@@ -2062,7 +2057,7 @@ Loewe assumption is:</p>
 requires solving a non-linear implicitly defined equation. PharmacoGx
 provides the <code>computeLoewe</code> function to do this
 calculation.</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute our drug synergy metrics</span></span>
 <span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
@@ -2135,7 +2130,7 @@ v_{ZIP}}{2}\]</span></p>
 <p>Unlike Loewe, the ZIP reference viability is fairly easy to compute.
 In fact, it is simply the Bliss formula applied to the 2 paramater
 predicted viability.</p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ZIP</span> <span class="op">&lt;-</span> <span class="op">{</span></span>
 <span>  <span class="va">dose_ratio1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">treatment1dose</span> <span class="op">/</span> <span class="va">EC50_1</span><span class="op">)</span></span>
 <span>  <span class="va">dose_ratio2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">treatment2dose</span> <span class="op">/</span> <span class="va">EC50_2</span><span class="op">)</span></span>
@@ -2201,7 +2196,7 @@ reference.</p>
 Bliss predicted value for downstream analysis.</p>
 <p><em>Note that we also skip the ZIP delta score computation in the
 interest of time.</em></p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute combination index and score</span></span>
 <span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
@@ -2236,7 +2231,7 @@ interest of time.</em></p>
 <span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colnames(62): </span><span style="color: #00BB00;">786-O:1 A-498:1 A-549:1 ... UACC-257:1 UACC-62:1 UO-31:1</span> </span></span>
 <span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colData(6): </span><span style="color: #00BB00;">sampleid bio_rep CELLNAME CELLNBR PANEL PANELNBR</span> </span></span>
 <span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">metadata(1): </span><span style="color: #00BB00;">experiment_metadata</span></span></span></code></pre>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>  <span class="va">combo_scores</span> <span class="op">&lt;-</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">combo_scores</span></span></code></pre></div>
 <p>Once we have a measure of synergy calculated for each dose
 combination in a particular experiment, we often would like to visualize
@@ -2247,7 +2242,7 @@ drugs, Mitotane and Paclitaxel, on the A-549 cell line. If we recall the
 formula for the Bliss score above, we took <span class="math inline">\(v_{model} - v_c\)</span>, meaning that in this
 case, negative numbers indicate antagonism, as there is more viability
 observed than expected.</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">combo_scores</span><span class="op">[</span></span>
@@ -2288,7 +2283,7 @@ a narrow dose range, the most extreme deviation from the reference
 metrics) may instead be more appropriate.</p>
 <p>For our demo, we will summarize the combination profiles we have
 calculated into a Mean Bliss Score per experiment.</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mean_bliss_score</span> <span class="op">&lt;-</span> <span class="va">combo_scores</span><span class="op">[</span>,</span>
 <span>  <span class="fu">.</span><span class="op">(</span>Mean_Bliss <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Bliss_score</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="fu">.</span><span class="op">(</span><span class="va">treatment1id</span>, <span class="va">treatment2id</span>, <span class="va">sampleid</span><span class="op">)</span></span>
@@ -2339,7 +2334,7 @@ each drug combination and cell line.</p>
 <p>Above, we had already summarized our synergy surfaces into a single
 mean value for each experiment. Now, we need to reshape the “long”
 format table into a table of drug combinations x cell lines.</p>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Create a matrix of drug combo x cell lines.</span></span>
 <span><span class="va">synergy_summaries</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span></span>
 <span>  <span class="va">mean_bliss_score</span>,</span>
@@ -2356,7 +2351,7 @@ format table into a table of drug combinations x cell lines.</p>
 <span><span class="co">## Removing the two columns of treatment ids, and converting to a numerical matrix.</span></span>
 <span><span class="va">synergy_summaries</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.matrix.html" class="external-link">data.matrix</a></span><span class="op">(</span><span class="va">synergy_summaries</span><span class="op">[</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we can run our biomarker discovery.</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gene_exp_sigs</span> <span class="op">&lt;-</span> <span class="fu">drugSensitivitySig</span><span class="op">(</span><span class="va">NCI_ALMANAC_2017</span>,</span>
 <span>  mDataType <span class="op">=</span> <span class="st">"rnaseq.comp"</span>,</span>
 <span>  sProfiles <span class="op">=</span> <span class="va">synergy_summaries</span>,</span>
@@ -2365,7 +2360,7 @@ format table into a table of drug combinations x cell lines.</p>
 <span>  nthread <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Computing drug sensitivity signatures...</span></span></code></pre>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gene_exp_sigs</span><span class="op">)</span></span></code></pre></div>
 <p><img src="PGxWorkshop_files/figure-html/biomarker_prediction-1.png" width="700"></p>
 <hr>
