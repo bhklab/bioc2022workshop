@@ -116,9 +116,9 @@ For a 1.5-hr workshop:
 | How the `TRE` Supports Drug Combinations Data Analysis     |  10m |
 | Using a `DataMapper` to build a Drug Combo PharmacoSet     |  10m |
 | Dose Response Models and Drug Sensitivity measures         |  10m |
-| Drug Combination Synergy Models                            |  10m |
-| Biomarker Discovery                                        |  15m |
-| Introduction to Resources for Biomarker Validation         |  5m  |
+| Drug Combination Synergy Models                            |  15m |
+| Biomarker Discovery                                        |  10m |
+| Further Resources                                          |  5m  |
 
 
 ## Workshop goals and objectives {-}
