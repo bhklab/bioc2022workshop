@@ -854,7 +854,7 @@ response that each drug elicits in monotherapy. However, there are a few models 
 different biological assumptions behind them.
 
 To introduce these models, we will define some mathematical notation, which we will use both throughout our exposition and the
-example computations. Let $$x_{1}$$, and $x_{2}$ correspond to the corresponding drug 1 and drug 2 doses at which we wish to predict
+example computations. Let $x_{1}$, and $x_{2}$ correspond to the corresponding drug 1 and drug 2 doses at which we wish to predict
 the expected combination response. Let $v_{1}$ and $v_{2}$ be the viabilities that are observed in monotherapy for these drugs, and
 $v_{c}$ be the viability observed in combination. Furthermore, let $r_{i} = 1 - v_{i}$ be the response value corresponding to each
 measured viability. We will use both response and viability measurements in explaining the models, as some are more natural from one
