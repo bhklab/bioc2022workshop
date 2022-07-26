@@ -1162,7 +1162,7 @@ Combination Index. The combination index measures the deviation from the Loewe a
 combination viability instead of the reference viability. As it doesn't require calculating $v_{loewe}$, it is also easier to compute. The formula for the
 Combination Index given a Loewe assumption is:
 
-$$ CI_{loewe} = \frac{x_1}{EC50^1*(\frac{y_c}{E_{\infty}^1-y_c})^{1/HS^1}} + \frac{x_2}{EC50^2*(\frac{y_c}{E_{\infty}^2-y_c})^{1/HS^2}} $$
+$$ CI_{loewe} = \frac{x_1}{EC50^1*(\frac{v_c}{E_{\infty}^1-v_c})^{1/HS^1}} + \frac{x_2}{EC50^2*(\frac{v_c}{E_{\infty}^2-v_c})^{1/HS^2}} $$
 
 
 ```{r loewe_diagram, echo=FALSE, fig.cap="Diagram of Loewe Additivity Assumption. Loewe additivity assumes that when plotting viability as a function of both concentrations (bottom plots), lines of equal viability (isoboles) will be straight. Using this assumption, either the expected viability for each pair of concentrations can be calculated (left), or the combination index can be computed to assess synergy or antagonism directly (right)."}
@@ -1212,8 +1212,8 @@ each particular drug, the ZIP $\delta$ score defines a measure comparing the dif
 drug, taking the average of differences for the two drugs.
 
 Mathematically, ZIP defines two values:
-$$ v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) = \frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2})}^{HS^{1 \leftarrow 2}}}$$
-$$ v_c^{2 \leftarrow 1}((v_1,x_1), (v_2,x_2)) = \frac{v_1}{1+(\frac{x_1}{EC50^{2 \leftarrow 1})}^{HS^{2 \leftarrow 1}}}$$
+$$ v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) = \frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2}})^{HS^{1 \leftarrow 2}}}$$
+$$ v_c^{2 \leftarrow 1}((v_1,x_1), (v_2,x_2)) = \frac{v_1}{1+(\frac{x_1}{EC50^{2 \leftarrow 1}})^{HS^{2 \leftarrow 1}}}$$
 
 In this notation, {$1 \leftarrow 2$} means that we fit the Hill Curve for drug 1 after the addition of drug 2 at the dose $x_2$. Intuitively, we adjust for the observed effect
 of adding $x_2$ of drug 2 ($v_2$), and then treat drug 1 as if it is a monotherapy experiment. The $\delta$ score is then defined as the difference of the viability predicted
