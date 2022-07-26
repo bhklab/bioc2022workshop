@@ -923,7 +923,7 @@ This is also a required step whenever it is necessary to interpolate between mea
 for the measured combination viability doses.
 
 We can fit the curves using `logLogisticRegression`, and save the monotherapy
-fits back to the PharmacoSet using the same endoaggregate pattern as above. 
+fits back to the TreatmentResponseExperimentClassDiagram using the same endoaggregate pattern as above. 
 Since we are already calculating the Hill Curve fits for these experiments, we will also calculate the AAC and IC50 values. 
 
 Note that by default, `logLogisticRegression` returns the `E_inf` parameter on a percentage scale when the input data is 
