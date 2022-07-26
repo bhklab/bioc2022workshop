@@ -997,7 +997,7 @@ NCI_TRE |>
     sort = FALSE # workaround to not have weird DT keys as a result.
   ) ->
   NCI_TRE
-
+(NCI_TRE$combo_response)
 ```
 
 
@@ -1154,7 +1154,7 @@ We can then plug this relationship in to get an emplicit formula for $v_{loewe}$
 
 $$ \frac{x_1}{EC50_1 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,1}})^{\frac{1}{HS_1}}} + \frac{x_2}{EC50_2 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,2}})^{\frac{1}{HS_2}}} = 1$$
 
-This formula can be solved numerically to find the value of $v_loewe$ for any two particular fitted curves.
+This formula can be solved numerically to find the value of $v_{loewe}$ for any two particular fitted curves.
 
 
 While the Loewe Additivity model can be used to calculate the expected response at any pair of doses, more commonly, the Loewe Additivity is assessed in terms of the
