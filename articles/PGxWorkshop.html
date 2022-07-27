@@ -234,14 +234,14 @@ PharmacoSet</td>
 </tr>
 <tr class="even">
 <td>Drug Combination Synergy Models</td>
-<td>10m</td>
+<td>15m</td>
 </tr>
 <tr class="odd">
 <td>Biomarker Discovery</td>
-<td>15m</td>
+<td>10m</td>
 </tr>
 <tr class="even">
-<td>Introduction to Resources for Biomarker Validation</td>
+<td>Further Resources</td>
 <td>5m</td>
 </tr>
 </tbody>
@@ -294,7 +294,7 @@ compound treatments in cell-lines</li>
 in cell lines</li>
 <li>Compute and store various metrics of drug synergy and antagonism
 using <em><a href="https://bioconductor.org/packages/3.16/PharmacoGx" class="external-link">PharmacoGx</a></em>
-and the <code>PharmacoSet</code>
+and the <code>TreatmentResponseExperiment</code>
 </li>
 <li>Learn how to use <code>PharmacoGx</code> to discover univariate
 biomarkers of drug response, resistance, synergy, or antagnoism</li>
@@ -332,10 +332,10 @@ inheriting packages —to be more general.</p>
 <ul>
 <li>Previous reference to cell (cell-line) have become sample, allowing
 the <code>CoreSet</code> to be used for other model systems</li>
-<li>Drug (radiation in <code>RadioGx</code>) ahve become treatment,
+<li>Drug (radiation in <code>RadioGx</code>) have become treatment,
 allowing the <code>CoreSet</code> to be treatment type (or stimuli)
 agnostic</li>
-<li>Sensitivity will become response (sensitivty slot becomes
+<li>Sensitivity will become response (sensitivity slot becomes
 treatmentResponse)</li>
 </ul>
 <p>As a result of these changes, the names of some common accessors have
@@ -403,7 +403,7 @@ abberation and protein abundace. Along with the
 to store molecular phenotype data in a <code>CoreSet</code> and
 <code>PharmacoSet</code>.</p>
 <p>At the heart of both objects is a feature by sample matrix, with the
-major difference being that the <code>SE</code> require symetric
+major difference being that the <code>SE</code> require congruent
 matrices (i.e., observations on the same set of features and samples)
 where as the <code>MAE</code> allows storage of disjoint sets of feature
 and samples via the use of the <code>sampleMap</code>, which stores a
@@ -532,10 +532,10 @@ captured in our <code>TRE</code> and therefore in our
 <p>By curating and releasing such <code>PharmacoSet</code> objects, we
 ensure that our users can access all information from the original
 publication via <em><a href="https://bioconductor.org/packages/3.16/PharmacoGx" class="external-link">PharmacoGx</a></em>
-and therefore easily ensure the reproducbility of the results as well as
-simplify their comparison against other curated mono and combination
+and therefore easily ensure the reproducibility of the results as well
+as simplify their comparison against other curated mono and combination
 therapy <code>PharmacoSet</code>s object. In doing so, we help to
-improve the reproducbility and consistency of <em>in-vitro</em>
+improve the reproducibility and consistency of <em>in vitro</em>
 pharmacogenomic experiments and accelerate translation of insights from
 the lab into the clinic.</p>
 </div>
@@ -960,9 +960,9 @@ the sample treatment, dose and sample combination across multiple dates.
 Technical replicates were the defined as any additional rows not mapped
 to treatment, dose, sample and biological replicates.</p>
 <p>For your own data in the wild, you will likely need to consult the
-original publication and explore the data to differential these two
-types of replicates and assign identifiers which differentiate every
-unique observation within an experiment.</p>
+original publication and explore the data to differentiate these two
+types of replicates and assign identifiers which make every observation
+within an experiment unique.</p>
 <p>For our second guess we will include these columns, mapping
 biological replicates to samples and technical replicates to
 treatments.</p>
@@ -1125,7 +1125,7 @@ repeating values in our <code>TRE</code>.</p>
 ##       CONCINDEX2, SAMPLE1, SAMPLE2 [33m [1m
 ## metadataMap: [22m [39m
 ##    [32mexperiment_metadata: [39m</code></pre>
-<p>Now that we have assigned all the necessaru metadata to the
+<p>Now that we have assigned all the necessary metadata to the
 <code>TREDataMapper</code>, creating the object is as simple as calling
 <code>metaConstruct</code>, which combines together the rawdata and the
 metadata into a constructor call for the
@@ -1147,15 +1147,15 @@ metadata into a constructor call for the
 <p>So far we have seen how a <code>TRE</code> allows for flexible
 definitions of treatments and samples to enable storage of dose-response
 observations across a range of experimental designs. However, data
-storage is not the point of the <code>TRE</code>. Once our data is
+storage is not the sole point of the <code>TRE</code>. Once our data is
 curated and stored safely inside our object we are ready to start
 answering interesting questions about the experiment.</p>
 <p>To facilitate computation over a <code>TRE</code>, we have included
 the <code>aggregate</code> method which allows arbitrary R functions to
 be applied over groups of identifiers within an assay. For example, we
-may want to take averages for all mono therapy vaibilities over
-technical replicates. We can do so using the <code>aggregate</code>
-method as follows:</p>
+may want to take averages for all monotherapy viabilities over technical
+replicates. We can do so using the <code>aggregate</code> method as
+follows:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">NCI_ALMANAC_tre</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">treatment2id</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1196,7 +1196,7 @@ the “response” assay. We also specify how we want our groups defined
 using the <code>by</code> argument. Finally, we can specify one or more
 functions to aggregate columns with. In this case, we are simply taking
 the mean of viability within groups defined by <code>by</code>. We have
-excluded “tech_rep” for the by argument which means that our summarize
+excluded “tech_rep” for the by argument which means that our summary
 will be computed over it.</p>
 <p>The resulting table will contain the identifer columns specified to
 <code>by</code>, as well as any columns which were summarized. By
@@ -1255,8 +1255,7 @@ use much more RAM than their serialized counterparts. Since there is
 also overhead associated with dispatching parallel threads for a
 computation, this feature should be used sparingly for only complex and
 time consuming computations.</p>
-<p>We will see examples of parallelized aggregation in subsequent
-sections.</p>
+<!-- We will see examples of parallelized aggregation in subsequent sections. -->
 <p>The final feature of <code>aggregate</code> is allowing information
 be shared between summarized columns to prevent the need for multiple
 parallelized calls On our <code>TRE</code> object. For these cases, we
@@ -1528,7 +1527,7 @@ reused regardless of their age.</p>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## &lt;PharmacoSet&gt;</span></span>
 <span><span class="co">## Name:  NCI_ALMANAC_2017 </span></span>
-<span><span class="co">## Date Created:  Tue Jul 26 00:21:34 2022 </span></span>
+<span><span class="co">## Date Created:  Wed Jul 27 21:09:48 2022 </span></span>
 <span><span class="co">## Number of samples:  60 </span></span>
 <span><span class="co">## Molecular profiles:</span></span>
 <span><span class="co">##    A MultiAssayExperiment object of 4 listed</span></span>
@@ -1560,18 +1559,19 @@ response!</p>
 </h2>
 <p>Understanding monotherapy dose-viability data is an important step in
 assessing drug combination response. Drug synergy is assessed by
-comparing the observed combination response compared to what is expected
-from the response of cells to each drug separately. While different
-models for “expected” combination effect will be discussed in the next
-section, we first review how monotherapy data is analyzed.</p>
+comparing the observed combination response to what is expected from the
+response of cells to each drug separately. While different models for
+“expected” combination effect will be discussed in the next section, we
+first review how monotherapy data are analyzed.</p>
 <p>Monotherapy dose-response experiments are usually analyzed by first
-fitting a dose-viability model to the observed measurements. The most
-common model used in the literature is a form of sigmoid function,
-called the Hill Curve. The Hill Curve has its basis in the
-Michaelis-Menten chemical kinetics model, while adding an extra
-parameter to account for co-operativity of binding. To better match real
-observed data, the model can also be extended to include parameters
-controlling the maximum and minimum observed viability.</p>
+fitting a dose-response or dose-viability model to the observed
+measurements. The most common model used in the literature is a form of
+sigmoid function, called the Hill Curve. The Hill Curve has its basis in
+the Michaelis-Menten chemical kinetics model, while adding an extra
+parameter that is traditionally interpreted to account for
+co-operativity of binding. To better match real observed data, the model
+can also be extended to include parameters controlling the maximum and
+minimum observed viability.</p>
 <p><em>NB: Sometimes, dose-viability and dose-response curves are used
 interchangebly in the literature. Precisely, dose-response curves for a
 cell kiling screen would plot % cell death against dose, leading to an
@@ -1580,17 +1580,19 @@ increasing sigmoid curve.</em></p>
 we use the 3 Parameter Hill Curve function as our model of drug response
 in cancer cell lines:</p>
 <p><span class="math display">\[y = E_\infty + \frac{1-E_\infty}{1 +
-(\frac{x}{EC50})^{HS}}\]</span> This is a log-logistic model, meaning
-that it takes the form of a logistic curve when x is on the log scale.
-The three parameters are: <span class="math inline">\(E_\infty\)</span>,
-which is the maximal inhibition predicted at infinite concentration of
-the drug (the right asymptote); <span class="math inline">\(EC50\)</span>, which is the inflection point of
-the logit, where the inhibition reaches 50% of the maximum; <span class="math inline">\(HS\)</span>, the Hill Slope, which is a measure of
-the cooperativity of binding. This parameter controls the steepness of
-the logit, and is interpreted based on its relation to 1. Values larger
-than 1 imply positive cooperativity in inhibition/binding of the target
-for the small molecule ligands, which values less than 1 imply negative
-cooperativity/antagonism.</p>
+(\frac{x}{EC50})^{HS}}\]</span></p>
+<p>This is a log-logistic model, meaning that it takes the form of a
+logistic curve when x is on the log scale. The three parameters are:
+<span class="math inline">\(E_\infty\)</span>, which is the maximal
+inhibition predicted at infinite concentration of the drug (the right
+asymptote); <span class="math inline">\(EC50\)</span>, which is the
+inflection point of the logit, where the inhibition reaches 50% of the
+maximum; <span class="math inline">\(HS\)</span>, the Hill Slope, which
+is thought to be a measure of the cooperativity of binding. This
+parameter controls the steepness of the logit, and is interpreted based
+on its relation to 1. Values larger than 1 imply positive cooperativity
+in inhibition/binding of the target for the small molecule ligands,
+which values less than 1 imply negative cooperativity/antagonism.</p>
 <div class="figure">
 <img src="hill_slope.png" alt=""><p class="caption">Diagram of a logLogistic Hill Slope</p>
 </div>
@@ -1633,8 +1635,9 @@ model, including a parameter for the left-assymptote, that is, the
 measurement when no drug is added. <code>PharmacoGx</code> is opiniated
 in using the 3 parameter model, as the logical value for the viability
 as a percentage of untreated cells when no drug is added is 100%.
-However, the <code>drc</code> CRAN package provides a larger variety of
-dose-response models, should it be appropriate in your application.</p>
+However, the <em><a href="https://CRAN.R-project.org/package=drc" class="external-link">drc</a></em> CRAN package
+provides a larger variety of dose-response models, should it be
+appropriate in your application.</p>
 <p>We will soon demonstrate how to apply the
 <code>logLogisticRegression</code> to dose-viability data stored in a
 <code>TreatmentResponseExperiment</code>, but first we will talk about
@@ -1704,7 +1707,7 @@ we we restrict ourselves to the two-drug combination case, however, the
 principles we discuss can be extended to handle multiple drugs.</p>
 <p>Unfortunately, there is no consensus of what the theoretical expected
 value of response for combining two drugs is, given the response that
-each drug elicits in monotherapy. However, there are three models widely
+each drug elicits in monotherapy. However, there are a few models widely
 applied in the literature, each with different biological assumptions
 behind them.</p>
 <p>To introduce these models, we will define some mathematical notation,
@@ -1727,7 +1730,9 @@ v_{model}\)</span> or <span class="math inline">\(v_c /
 v_{model}\)</span>. However, some models, such as the ZIP, also
 perscribe a certain perspective or scoring method to assess synergy.</p>
 <p>This vignette covers 4 different models for predicting what the
-effect of drug combination treatment should be:</p>
+effect of drug combination treatment should be.</p>
+<p><em>In the live workshop we focus only on the first 3
+models.</em></p>
 <ol style="list-style-type: decimal">
 <li>Highest Single Agent</li>
 <li>Bliss Independence</li>
@@ -1763,15 +1768,16 @@ possible. Ideally, we would recommend the latter approach, however, it
 is computationally more expensive (as we must fit monotherapy curves
 per-plate). In interest of computation time, we average replicates
 across all experiments for our demonstration.</p>
-<p>Here, we use the endoaggregate TRE method while setting the
-<code>by</code> argument to compute an aggregation over each unique
-combination of <code>treatment1id</code>, <code>sampleid</code> and
-<code>bio_rep</code> (summarizing over technical replicates).</p>
+<p>Here, we use the <code>endoaggregate</code> TRE method while setting
+the <code>by</code> argument to compute an aggregation over each unique
+combination of <code>treatment1id</code>, <code>treatment1dose</code>,
+<code>sampleid</code> and <code>bio_rep</code> (summarizing over
+technical replicates).</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nci</span> <span class="op">&lt;-</span> <span class="va">NCI_ALMANAC_2017</span></span>
+<code class="sourceCode R"><span><span class="va">NCI_TRE</span> <span class="op">&lt;-</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">NCI_ALMANAC_2017</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># -- Extract and summarize monotherapy data, defined by an absent treatment2id</span></span>
-<span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
 <span>    assay<span class="op">=</span><span class="st">"response"</span>,</span>
 <span>    target<span class="op">=</span><span class="st">"mono_response"</span>,</span>
@@ -1779,24 +1785,41 @@ combination of <code>treatment1id</code>, <code>sampleid</code> and
 <span>    viability<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">viability</span><span class="op">)</span>,</span>
 <span>    by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment1dose"</span>, <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span></span>
-<span>  <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="va">NCI_TRE</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">mono_response</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                            treatment1id treatment1dose sampleid bio_rep</span></span>
+<span><span class="co">## 1: 1,3-Bis(2-chloroethyl)-1-nitrosourea           0.05    786-O       1</span></span>
+<span><span class="co">## 2: 1,3-Bis(2-chloroethyl)-1-nitrosourea           0.05    A-498       1</span></span>
+<span><span class="co">## 3: 1,3-Bis(2-chloroethyl)-1-nitrosourea           0.05    A-549       1</span></span>
+<span><span class="co">## 4: 1,3-Bis(2-chloroethyl)-1-nitrosourea           0.05     ACHN       1</span></span>
+<span><span class="co">## 5: 1,3-Bis(2-chloroethyl)-1-nitrosourea           0.05   BT-549       1</span></span>
+<span><span class="co">## 6: 1,3-Bis(2-chloroethyl)-1-nitrosourea           0.05 CCRF-CEM       1</span></span>
+<span><span class="co">##    viability</span></span>
+<span><span class="co">## 1:  98.89562</span></span>
+<span><span class="co">## 2:  98.63179</span></span>
+<span><span class="co">## 3: 100.91533</span></span>
+<span><span class="co">## 4: 100.81652</span></span>
+<span><span class="co">## 5:  95.67643</span></span>
+<span><span class="co">## 6: 102.38559</span></span></code></pre>
 <p>Additionally, computing the Loewe and ZIP scores requires knowing the
-Hill Fit parameters for the monotherapy experiemnts. This is also a
+Hill Fit parameters for the monotherapy experiments. This is also a
 required step whenever it is necessary to interpolate between measured
 monotherapy doses to predict for the measured combination viability
 doses.</p>
 <p>We can fit the curves using <code>logLogisticRegression</code>, and
-save the monotherapy fits back to the PharmacoSet using the same
-endoaggregate pattern as above. Since we are already calculating the
-Hill Curve fits for these experiments, we will also calculate the AAC
-and IC50 values.</p>
+save the monotherapy fits back to the
+TreatmentResponseExperimentClassDiagram using the same endoaggregate
+pattern as above. Since we are already calculating the Hill Curve fits
+for these experiments, we will also calculate the AAC and IC50
+values.</p>
 <p>Note that by default, <code>logLogisticRegression</code> returns the
 <code>E_inf</code> parameter on a percentage scale when the input data
 is on a percentage scale. We convert to a fraction scale because that
 makes the subsequent calculations simpler.</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- Fit the Hill curve model to monotherapy drugs and compute associated metrics</span></span>
-<span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
 <span>    <span class="op">{</span></span>
 <span>      <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/logLogisticRegression.html" class="external-link">logLogisticRegression</a></span><span class="op">(</span><span class="va">treatment1dose</span>, <span class="va">viability</span><span class="op">)</span></span>
@@ -1813,39 +1836,62 @@ makes the subsequent calculations simpler.</p>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
 <span>    enlist <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>    target <span class="op">=</span> <span class="st">"mono_profiles"</span></span>
-<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span></span></code></pre></div>
-<p>We will now extract the combination data, and append the monotherapy
-Hill fits using the <code>merge</code> function, so that we can later
-use the fitted data from above to calculate expected combination
-viability. Notice that we need to do two merges, one for appending the
-Hill fits for the first treatment, and one for appending the Hill fits
-for the second treatment. Fortunately, the <code>suffix</code> parameter
-will allow us to differentiate between the two once they are merged to
-the same table.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">mono_profiles</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                            treatment1id sampleid bio_rep HS      E_inf EC50</span></span>
+<span><span class="co">## 1: 1,3-Bis(2-chloroethyl)-1-nitrosourea    786-O       1  1 0.08977556   50</span></span>
+<span><span class="co">## 2: 1,3-Bis(2-chloroethyl)-1-nitrosourea    A-498       1  1 0.56096579  500</span></span>
+<span><span class="co">## 3: 1,3-Bis(2-chloroethyl)-1-nitrosourea    A-549       1  1 0.15732265   50</span></span>
+<span><span class="co">## 4: 1,3-Bis(2-chloroethyl)-1-nitrosourea     ACHN       1  1 0.01729107   50</span></span>
+<span><span class="co">## 5: 1,3-Bis(2-chloroethyl)-1-nitrosourea   BT-549       1  1 0.05578801   20</span></span>
+<span><span class="co">## 6: 1,3-Bis(2-chloroethyl)-1-nitrosourea CCRF-CEM       1  1 0.12852970   50</span></span>
+<span><span class="co">##          Rsq       aac     ic50</span></span>
+<span><span class="co">## 1: 0.9425047 23.687649 60.94225</span></span>
+<span><span class="co">## 2: 0.7388963  3.303585       NA</span></span>
+<span><span class="co">## 3: 0.8796848 21.929806 72.95492</span></span>
+<span><span class="co">## 4: 0.8303083 25.573983 51.79104</span></span>
+<span><span class="co">## 5: 0.4578065 33.375273 22.51177</span></span>
+<span><span class="co">## 6: 0.9603414 22.679113 67.30013</span></span></code></pre>
+<p>We will now extract the combination data into its own assay in the
+LongTable, and append the monotherapy Hill fits using the
+<code>mergeAssays</code> function, so that we can later use the fitted
+data from above to calculate expected combination viability. We also
+filter our downstream analysis only to those experiments where the
+monotherapy fits were good (R squared better than 0.5).</p>
+<p>Notice that we need to do two merges, one for appending the
+monotherapy Hill fits for the first compound treatment, and one for
+appending the monotherapy Hill fits for the second compound treatment.
+Fortunately, the <code>suffixes</code> parameter will allow us to
+differentiate between the two once they are merged to the same
+table.</p>
+<p><em>The <code>mergeAssays</code> is built on top of R’s merge
+function (actually, merge from <code>data.table</code>), and therefore
+accepts the same arguments to control how the merge is done.</em></p>
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- Attach the Hill parameters from the monotherapy profiles to the combination data</span></span>
 <span><span class="co"># Extract the monotherapy fits</span></span>
-<span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">assay</span><span class="op">(</span><span class="st">"mono_profiles"</span>, summarize<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span></span>
 <span>    <span class="va">Rsq</span> <span class="op">&gt;</span> <span class="fl">0.5</span>,  <span class="co"># filter to only good quality fits</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span>, <span class="st">"HS"</span>, <span class="st">"E_inf"</span>, <span class="st">"EC50"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span></span>
-<span>  <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">mono_fits</span></span>
+<span>  <span class="va">NCI_TRE</span><span class="op">$</span><span class="va">mono_fits</span></span>
 <span></span>
 <span><span class="co"># Extract the combination response observations</span></span>
-<span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">assay</span><span class="op">(</span><span class="st">"response"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">treatment2id</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">-&gt;</span></span>
-<span>  <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">combo_response</span></span>
+<span>  <span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span></span>
 <span></span>
 <span><span class="co"># Merge with the fits from the monotherapy experiments</span></span>
-<span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mergeAssays</span><span class="op">(</span></span>
 <span>    x<span class="op">=</span><span class="st">"combo_response"</span>,</span>
 <span>    y<span class="op">=</span><span class="st">"mono_fits"</span>,</span>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
-<span>    sort <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># workaround to not have weird keys as a result. </span></span>
+<span>    sort <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># workaround to not have weird DT keys as a result.</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mergeAssays</span><span class="op">(</span></span>
 <span>    x<span class="op">=</span><span class="st">"combo_response"</span>,</span>
@@ -1853,17 +1899,78 @@ the same table.</p>
 <span>    by.x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment2id"</span>, <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
 <span>    by.y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
 <span>    suffixes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"_1"</span>, <span class="st">"_2"</span><span class="op">)</span>,</span>
-<span>    sort <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># workaround to not have weird keys as a result.</span></span>
+<span>    sort <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># workaround to not have weird DT keys as a result.</span></span>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span></span>
-<span>  <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="va">NCI_TRE</span></span>
+<span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                                 treatment1id treatment2id treatment1dose</span></span>
+<span><span class="co">##      1: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##      2: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##      3: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##      4: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##      5: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##     ---                                                                 </span></span>
+<span><span class="co">## 127310:                           Vorinostat  Vincristine            1.0</span></span>
+<span><span class="co">## 127311:                           Vorinostat  Vincristine            1.0</span></span>
+<span><span class="co">## 127312:                           Vorinostat  Vincristine            1.0</span></span>
+<span><span class="co">## 127313:                           Vorinostat  Vincristine            1.0</span></span>
+<span><span class="co">## 127314:                           Vorinostat  Vincristine            1.0</span></span>
+<span><span class="co">##         treatment2dose tech_rep sampleid bio_rep CONC1 CONC2 CONCINDEX2   NSC2</span></span>
+<span><span class="co">##      1:           0.03        1    786-O       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##      2:           0.03        1    A-498       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##      3:           0.03        1    A-549       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##      4:           0.03        1     ACHN       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##      5:           0.03        1 CCRF-CEM       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##     ---                                                                       </span></span>
+<span><span class="co">## 127310:           0.10        1       SR       1 1e-06 1e-07          3  67574</span></span>
+<span><span class="co">## 127311:           0.10        1    SW620       1 1e-06 1e-07          3  67574</span></span>
+<span><span class="co">## 127312:           0.10        1    T-47D       1 1e-06 1e-07          3  67574</span></span>
+<span><span class="co">## 127313:           0.10        1 UACC-257       1 1e-06 1e-07          3  67574</span></span>
+<span><span class="co">## 127314:           0.10        1  UACC-62       1 1e-06 1e-07          3  67574</span></span>
+<span><span class="co">##          CELLNAME CELLNBR                      PANEL PANELNBR  viability</span></span>
+<span><span class="co">##      1:     786-0      18               Renal Cancer        9 101.481127</span></span>
+<span><span class="co">##      2:      A498      13               Renal Cancer        9 103.771525</span></span>
+<span><span class="co">##      3: A549/ATCC       4 Non-Small Cell Lung Cancer        1  93.210581</span></span>
+<span><span class="co">##      4:      ACHN      23               Renal Cancer        9 100.015651</span></span>
+<span><span class="co">##      5:  CCRF-CEM       3                   Leukemia        7 106.627710</span></span>
+<span><span class="co">##     ---                                                                 </span></span>
+<span><span class="co">## 127310:        SR      19                   Leukemia        7   2.297507</span></span>
+<span><span class="co">## 127311:    SW-620       9               Colon Cancer        4  39.885949</span></span>
+<span><span class="co">## 127312:     T-47D      14              Breast Cancer        5  40.278674</span></span>
+<span><span class="co">## 127313:  UACC-257      21                   Melanoma       10  47.402650</span></span>
+<span><span class="co">## 127314:   UACC-62      20                   Melanoma       10  36.644778</span></span>
+<span><span class="co">##         PERCENTGROWTH PERCENTGROWTHNOTZ EXPECTEDGROWTH TESTVALUE CONTROLVALUE</span></span>
+<span><span class="co">##      1:        101.75            101.48        100.000   6951240      6849786</span></span>
+<span><span class="co">##      2:        104.84            103.77        100.000   4182200      4030200</span></span>
+<span><span class="co">##      3:         92.34             93.21         95.400   5888640      6317566</span></span>
+<span><span class="co">##      4:        100.02            100.02         98.098   6607800      6606766</span></span>
+<span><span class="co">##      5:        107.76            106.63        100.000  13606520     12760773</span></span>
+<span><span class="co">##     ---                                                                      </span></span>
+<span><span class="co">## 127310:        -77.71              2.30        -82.190    199440      8680713</span></span>
+<span><span class="co">## 127311:         32.22             39.89         14.564   7887720     19775686</span></span>
+<span><span class="co">## 127312:          4.38             40.28          4.133   1612280      4002813</span></span>
+<span><span class="co">## 127313:          9.23             47.40          5.886   6928760     14616820</span></span>
+<span><span class="co">## 127314:        -25.42             36.64        -15.760   4056120     11068753</span></span>
+<span><span class="co">##         TZVALUE      HS_1    E_inf_1     EC50_1 HS_2   E_inf_2      EC50_2</span></span>
+<span><span class="co">##      1: 1042043 1.0000000 0.08977556  50.000000    1 0.2720558  3.00000000</span></span>
+<span><span class="co">##      2:  889724 1.0000000 0.56096579 500.000000    1 0.4647826 30.00000000</span></span>
+<span><span class="co">##      3:  716463 1.0000000 0.15732265  50.000000    1 0.2215019  3.00000000</span></span>
+<span><span class="co">##      4: 1158169 1.0000000 0.01729107  50.000000    1 0.2172949  3.00000000</span></span>
+<span><span class="co">##      5: 1863442 1.0000000 0.12852970  50.000000    1 0.2407407  3.00000000</span></span>
+<span><span class="co">##     ---                                                                   </span></span>
+<span><span class="co">## 127310:  894742 1.0000000 0.17711243   2.000000    4 0.1928192  0.01523461</span></span>
+<span><span class="co">## 127311: 2235554 1.0000000 0.07429719   1.000000    1 0.4680214  0.03000000</span></span>
+<span><span class="co">## 127312: 1502784 4.0000000 0.36282782   1.429975    1 0.4751067  0.03000000</span></span>
+<span><span class="co">## 127313: 6146751 0.9672031 0.26448079   1.146777    1 0.5252780  0.03000000</span></span>
+<span><span class="co">## 127314: 5438488 1.0000000 0.17486339   2.000000    1 0.6472657  0.03000000</span></span></code></pre>
 <p>Finally, we can make predictions for each of the measured combination
 doses using the corresponding fit parameters and the Hill Curve models.
 This step is necessary when interpolating between monotherapy doses, but
-is often recommended in either case, as the predicted viabilities can be
-less noisy than each individual monotherapy measurement.</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+is often done in any case, as the predicted viabilities can be less
+noisy than each individual monotherapy measurement.</p>
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># predict viability at the combo doses from the Hill curves fit to monotherapy data</span></span>
-<span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
 <span>    <span class="op">{</span></span>
 <span>      <span class="va">viability_1</span> <span class="op">&lt;-</span> <span class="fu">PharmacoGx</span><span class="fu">:::</span><span class="fu">.Hill</span><span class="op">(</span></span>
@@ -1883,11 +1990,12 @@ less noisy than each individual monotherapy measurement.</p>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>, <span class="st">"treatment2dose"</span>,</span>
 <span>    <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
 <span>    enlist <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span></code></pre></div>
 <p>Last, we also put the measured combination viabilily onto a
 fractional, not percentage scale.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">&lt;-</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">/</span> <span class="fl">100</span></span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">/</span> <span class="fl">100</span></span></code></pre></div>
 <p>Finally, we can talk about the different models to compute the
 predicted response from monotherapy, and thereby compute estimates of
 synergy or antagonism.</p>
@@ -1907,33 +2015,67 @@ independently. Mathematically, this is equivalent to:</p>
 compound is at the maximum possible effect, and the other is treated as
 a potentiator, contributing little to the response itself, but allowing
 the maximum response of the first drug to be increased. Practically,
-this case is not very often observed during in-vitro dose-response
-experiments, and the highest single agent model is often a very weak
-baseline from which to compute synergy.</p>
+this case is not very often observed during <em>in vitro</em>
+dose-response experiments, and the highest single agent model is often a
+very weak baseline from which to compute synergy.</p>
 <div class="section level4">
 <h4 id="computing-hsa-reference-viabilities">Computing HSA Reference Viabilities<a class="anchor" aria-label="anchor" href="#computing-hsa-reference-viabilities"></a>
 </h4>
 <p>As one can imagine, this is very simple to do using the
 <code>min</code> or <code>max</code> functions in R.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute our drug synergy metrics</span></span>
-<span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
 <span>    HSA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">viability_1</span>, <span class="va">viability_2</span><span class="op">)</span>,</span>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>, <span class="st">"treatment2dose"</span>,</span>
 <span>      <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
 <span>    assay <span class="op">=</span> <span class="st">"combo_response"</span>, </span>
 <span>    target <span class="op">=</span> <span class="st">"combo_response"</span></span>
-<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #BBBB00; font-weight: bold; font-style: italic;">&lt;TreatmentResponseExperiment&gt; </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold; font-style: italic;">## </span><span style="color: #BBBB00; font-weight: bold;">dim:  10080 62 </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold;">## assays(7): </span><span style="color: #BB0000;">response profiles assay_metadata mono_response mono_profiles mono_fits</span></span></span>
-<span><span class="co"><span style="color: #BB0000;">##   combo_response</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rownames(10080): </span><span style="color: #00BB00;">1,3-Bis(2-chloroethyl)-1-nitrosourea::0.05:NA:1 1,3-Bis(2-chloroethyl)-1-nitrosourea::0.15:NA:1 ... Vorinostat:Vincristine:1:0.01:1 Vorinostat:Vincristine:1:0.1:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rowData(9): </span><span style="color: #00BB00;">treatment1id treatment2id treatment1dose ... CONC2 NSC2 CONCINDEX2</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colnames(62): </span><span style="color: #00BB00;">786-O:1 A-498:1 A-549:1 ... UACC-257:1 UACC-62:1 UO-31:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colData(6): </span><span style="color: #00BB00;">sampleid bio_rep CELLNAME CELLNBR PANEL PANELNBR</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">metadata(1): </span><span style="color: #00BB00;">experiment_metadata</span></span></span></code></pre>
+<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                            treatment1id treatment2id treatment1dose</span></span>
+<span><span class="co">## 1: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 2: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 3: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 4: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 5: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 6: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##    treatment2dose tech_rep sampleid bio_rep CONC1 CONC2 CONCINDEX2   NSC2</span></span>
+<span><span class="co">## 1:           0.03        1    786-O       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 2:           0.03        1    A-498       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 3:           0.03        1    A-549       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 4:           0.03        1     ACHN       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 5:           0.03        1 CCRF-CEM       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 6:           0.03        1 COLO 205       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##     CELLNAME CELLNBR                      PANEL PANELNBR viability</span></span>
+<span><span class="co">## 1:     786-0      18               Renal Cancer        9 1.0148113</span></span>
+<span><span class="co">## 2:      A498      13               Renal Cancer        9 1.0377152</span></span>
+<span><span class="co">## 3: A549/ATCC       4 Non-Small Cell Lung Cancer        1 0.9321058</span></span>
+<span><span class="co">## 4:      ACHN      23               Renal Cancer        9 1.0001565</span></span>
+<span><span class="co">## 5:  CCRF-CEM       3                   Leukemia        7 1.0662771</span></span>
+<span><span class="co">## 6:  COLO 205      10               Colon Cancer        4 0.9205163</span></span>
+<span><span class="co">##    PERCENTGROWTH PERCENTGROWTHNOTZ EXPECTEDGROWTH TESTVALUE CONTROLVALUE</span></span>
+<span><span class="co">## 1:        101.75            101.48        100.000   6951240      6849786</span></span>
+<span><span class="co">## 2:        104.84            103.77        100.000   4182200      4030200</span></span>
+<span><span class="co">## 3:         92.34             93.21         95.400   5888640      6317566</span></span>
+<span><span class="co">## 4:        100.02            100.02         98.098   6607800      6606766</span></span>
+<span><span class="co">## 5:        107.76            106.63        100.000  13606520     12760773</span></span>
+<span><span class="co">## 6:         90.74             92.05         86.870   5822480      6325233</span></span>
+<span><span class="co">##    TZVALUE HS_1    E_inf_1 EC50_1 HS_2    E_inf_2 EC50_2 viability_1</span></span>
+<span><span class="co">## 1: 1042043    1 0.08977556     50    1 0.27205581      3   0.9963736</span></span>
+<span><span class="co">## 2:  889724    1 0.56096579    500    1 0.46478261     30   0.9998245</span></span>
+<span><span class="co">## 3:  716463    1 0.15732265     50    1 0.22150189      3   0.9966427</span></span>
+<span><span class="co">## 4: 1158169    1 0.01729107     50    1 0.21729490      3   0.9960848</span></span>
+<span><span class="co">## 5: 1863442    1 0.12852970     50    1 0.24074074      3   0.9965280</span></span>
+<span><span class="co">## 6:  895972    1 0.07365439     50    1 0.02186312      3   0.9963094</span></span>
+<span><span class="co">##    viability_2       HSA</span></span>
+<span><span class="co">## 1:   0.9927926 0.9927926</span></span>
+<span><span class="co">## 2:   0.9994653 0.9994653</span></span>
+<span><span class="co">## 3:   0.9922921 0.9922921</span></span>
+<span><span class="co">## 4:   0.9922504 0.9922504</span></span>
+<span><span class="co">## 5:   0.9924826 0.9924826</span></span>
+<span><span class="co">## 6:   0.9903155 0.9903155</span></span></code></pre>
 <p>For convenience,
 <code>PharmacoGx::computeHSA(viability_1, viability_2)</code> is a more
 readable alias for computing the HSA reference viability.</p>
@@ -1978,25 +2120,59 @@ effective than expected.</p>
 </h4>
 <p>This is also quite simple to do, as we just use the product of the
 monotherapy viabilities.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute our drug synergy metrics</span></span>
-<span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
 <span>    Bliss <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="va">viability_1</span>, <span class="va">viability_2</span><span class="op">)</span>,</span>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>, <span class="st">"treatment2dose"</span>,</span>
 <span>      <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
 <span>    assay<span class="op">=</span><span class="st">"combo_response"</span>, </span>
 <span>    target <span class="op">=</span> <span class="st">"combo_response"</span></span>
-<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #BBBB00; font-weight: bold; font-style: italic;">&lt;TreatmentResponseExperiment&gt; </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold; font-style: italic;">## </span><span style="color: #BBBB00; font-weight: bold;">dim:  10080 62 </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold;">## assays(7): </span><span style="color: #BB0000;">response profiles assay_metadata mono_response mono_profiles mono_fits</span></span></span>
-<span><span class="co"><span style="color: #BB0000;">##   combo_response</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rownames(10080): </span><span style="color: #00BB00;">1,3-Bis(2-chloroethyl)-1-nitrosourea::0.05:NA:1 1,3-Bis(2-chloroethyl)-1-nitrosourea::0.15:NA:1 ... Vorinostat:Vincristine:1:0.01:1 Vorinostat:Vincristine:1:0.1:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rowData(9): </span><span style="color: #00BB00;">treatment1id treatment2id treatment1dose ... CONC2 NSC2 CONCINDEX2</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colnames(62): </span><span style="color: #00BB00;">786-O:1 A-498:1 A-549:1 ... UACC-257:1 UACC-62:1 UO-31:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colData(6): </span><span style="color: #00BB00;">sampleid bio_rep CELLNAME CELLNBR PANEL PANELNBR</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">metadata(1): </span><span style="color: #00BB00;">experiment_metadata</span></span></span></code></pre>
+<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                            treatment1id treatment2id treatment1dose</span></span>
+<span><span class="co">## 1: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 2: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 3: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 4: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 5: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 6: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##    treatment2dose tech_rep sampleid bio_rep CONC1 CONC2 CONCINDEX2   NSC2</span></span>
+<span><span class="co">## 1:           0.03        1    786-O       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 2:           0.03        1    A-498       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 3:           0.03        1    A-549       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 4:           0.03        1     ACHN       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 5:           0.03        1 CCRF-CEM       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 6:           0.03        1 COLO 205       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##     CELLNAME CELLNBR                      PANEL PANELNBR viability</span></span>
+<span><span class="co">## 1:     786-0      18               Renal Cancer        9 1.0148113</span></span>
+<span><span class="co">## 2:      A498      13               Renal Cancer        9 1.0377152</span></span>
+<span><span class="co">## 3: A549/ATCC       4 Non-Small Cell Lung Cancer        1 0.9321058</span></span>
+<span><span class="co">## 4:      ACHN      23               Renal Cancer        9 1.0001565</span></span>
+<span><span class="co">## 5:  CCRF-CEM       3                   Leukemia        7 1.0662771</span></span>
+<span><span class="co">## 6:  COLO 205      10               Colon Cancer        4 0.9205163</span></span>
+<span><span class="co">##    PERCENTGROWTH PERCENTGROWTHNOTZ EXPECTEDGROWTH TESTVALUE CONTROLVALUE</span></span>
+<span><span class="co">## 1:        101.75            101.48        100.000   6951240      6849786</span></span>
+<span><span class="co">## 2:        104.84            103.77        100.000   4182200      4030200</span></span>
+<span><span class="co">## 3:         92.34             93.21         95.400   5888640      6317566</span></span>
+<span><span class="co">## 4:        100.02            100.02         98.098   6607800      6606766</span></span>
+<span><span class="co">## 5:        107.76            106.63        100.000  13606520     12760773</span></span>
+<span><span class="co">## 6:         90.74             92.05         86.870   5822480      6325233</span></span>
+<span><span class="co">##    TZVALUE HS_1    E_inf_1 EC50_1 HS_2    E_inf_2 EC50_2 viability_1</span></span>
+<span><span class="co">## 1: 1042043    1 0.08977556     50    1 0.27205581      3   0.9963736</span></span>
+<span><span class="co">## 2:  889724    1 0.56096579    500    1 0.46478261     30   0.9998245</span></span>
+<span><span class="co">## 3:  716463    1 0.15732265     50    1 0.22150189      3   0.9966427</span></span>
+<span><span class="co">## 4: 1158169    1 0.01729107     50    1 0.21729490      3   0.9960848</span></span>
+<span><span class="co">## 5: 1863442    1 0.12852970     50    1 0.24074074      3   0.9965280</span></span>
+<span><span class="co">## 6:  895972    1 0.07365439     50    1 0.02186312      3   0.9963094</span></span>
+<span><span class="co">##    viability_2       HSA     Bliss</span></span>
+<span><span class="co">## 1:   0.9927926 0.9927926 0.9891924</span></span>
+<span><span class="co">## 2:   0.9994653 0.9994653 0.9992899</span></span>
+<span><span class="co">## 3:   0.9922921 0.9922921 0.9889607</span></span>
+<span><span class="co">## 4:   0.9922504 0.9922504 0.9883656</span></span>
+<span><span class="co">## 5:   0.9924826 0.9924826 0.9890367</span></span>
+<span><span class="co">## 6:   0.9903155 0.9903155 0.9866606</span></span></code></pre>
 <p>For convenience,
 <code>PharmacoGx::computeBliss(viability_1, viability_2)</code> is a
 more readable alias for computing the Bliss reference viability.</p>
@@ -2025,8 +2201,8 @@ same effect by replacing the missing dose with a similar amount of drug
 <p>Practically, this formula is not very useful for estimating <span class="math inline">\(v_{loewe}\)</span> from actual dose-response data.
 However, if we assume that drug response follows a Hill Curve model, we
 can define <span class="math inline">\(y_{loewe}\)</span> implicitly
-using the parameters <span class="math inline">\(HS_{1}\)</span>, <span class="math inline">\(EC50_{1}\)</span>, and <span class="math inline">\(E_{\infty,1}\)</span>, and <span class="math inline">\(HS_{2}\)</span>, <span class="math inline">\(EC50_{2}\)</span>, and $E_{,2} by rearranging the
-Hill Curve relationship as follows:</p>
+using the parameters <span class="math inline">\(HS_{1}\)</span>, <span class="math inline">\(EC50_{1}\)</span>, and <span class="math inline">\(E_{\infty,1}\)</span>, and <span class="math inline">\(HS_{2}\)</span>, <span class="math inline">\(EC50_{2}\)</span>, and <span class="math inline">\(E_{\infty,2}\)</span> by rearranging the Hill
+Curve relationship as follows:</p>
 <p><span class="math display">\[ x = EC50 *
 (\frac{v-1}{v-E_{\infty}})^{\frac{1}{HS}}\]</span></p>
 <p>We can then plug this relationship in to get an emplicit formula for
@@ -2036,7 +2212,7 @@ Hill Curve relationship as follows:</p>
 \frac{x_2}{EC50_2 *
 (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,2}})^{\frac{1}{HS_2}}} =
 1\]</span></p>
-<p>This formula can be solved numerically to find the value of <span class="math inline">\(v_loewe\)</span> for any two particular fitted
+<p>This formula can be solved numerically to find the value of <span class="math inline">\(v_{loewe}\)</span> for any two particular fitted
 curves.</p>
 <p>While the Loewe Additivity model can be used to calculate the
 expected response at any pair of doses, more commonly, the Loewe
@@ -2048,8 +2224,8 @@ require calculating <span class="math inline">\(v_{loewe}\)</span>, it
 is also easier to compute. The formula for the Combination Index given a
 Loewe assumption is:</p>
 <p><span class="math display">\[ CI_{loewe} =
-\frac{x_1}{EC50^1*(\frac{y_c}{E_{\infty}^1-y_c})^{1/HS^1}} +
-\frac{x_2}{EC50^2*(\frac{y_c}{E_{\infty}^2-y_c})^{1/HS^2}} \]</span></p>
+\frac{x_1}{EC50^1*(\frac{v_c}{E_{\infty}^1-v_c})^{1/HS^1}} +
+\frac{x_2}{EC50^2*(\frac{v_c}{E_{\infty}^2-v_c})^{1/HS^2}} \]</span></p>
 <div class="figure">
 <img src="LoeweDiagram.png" alt=""><p class="caption">Diagram of Loewe Additivity Assumption. Loewe
 additivity assumes that when plotting viability as a function of both
@@ -2066,9 +2242,9 @@ index can be computed to assess synergy or antagonism directly
 requires solving a non-linear implicitly defined equation. PharmacoGx
 provides the <code>computeLoewe</code> function to do this
 calculation.</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute our drug synergy metrics</span></span>
-<span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
 <span>    Loewe <span class="op">=</span> <span class="fu">PharmacoGx</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/PharmacoGx/man/computeLoewe.html" class="external-link">computeLoewe</a></span><span class="op">(</span></span>
 <span>      <span class="va">treatment1dose</span>, <span class="va">HS_1</span>, <span class="va">E_inf_1</span>, <span class="va">EC50_1</span>,</span>
@@ -2077,16 +2253,50 @@ calculation.</p>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>, <span class="st">"treatment2dose"</span>,</span>
 <span>      <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
 <span>    assay <span class="op">=</span> <span class="st">"combo_response"</span></span>
-<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #BBBB00; font-weight: bold; font-style: italic;">&lt;TreatmentResponseExperiment&gt; </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold; font-style: italic;">## </span><span style="color: #BBBB00; font-weight: bold;">dim:  10080 62 </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold;">## assays(7): </span><span style="color: #BB0000;">response profiles assay_metadata mono_response mono_profiles mono_fits</span></span></span>
-<span><span class="co"><span style="color: #BB0000;">##   combo_response</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rownames(10080): </span><span style="color: #00BB00;">1,3-Bis(2-chloroethyl)-1-nitrosourea::0.05:NA:1 1,3-Bis(2-chloroethyl)-1-nitrosourea::0.15:NA:1 ... Vorinostat:Vincristine:1:0.01:1 Vorinostat:Vincristine:1:0.1:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rowData(9): </span><span style="color: #00BB00;">treatment1id treatment2id treatment1dose ... CONC2 NSC2 CONCINDEX2</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colnames(62): </span><span style="color: #00BB00;">786-O:1 A-498:1 A-549:1 ... UACC-257:1 UACC-62:1 UO-31:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colData(6): </span><span style="color: #00BB00;">sampleid bio_rep CELLNAME CELLNBR PANEL PANELNBR</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">metadata(1): </span><span style="color: #00BB00;">experiment_metadata</span></span></span></code></pre>
+<span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                            treatment1id treatment2id treatment1dose</span></span>
+<span><span class="co">## 1: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 2: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 3: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 4: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 5: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 6: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##    treatment2dose tech_rep sampleid bio_rep CONC1 CONC2 CONCINDEX2   NSC2</span></span>
+<span><span class="co">## 1:           0.03        1    786-O       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 2:           0.03        1    A-498       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 3:           0.03        1    A-549       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 4:           0.03        1     ACHN       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 5:           0.03        1 CCRF-CEM       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">## 6:           0.03        1 COLO 205       1 2e-07 3e-08          1 102816</span></span>
+<span><span class="co">##     CELLNAME CELLNBR                      PANEL PANELNBR viability</span></span>
+<span><span class="co">## 1:     786-0      18               Renal Cancer        9 1.0148113</span></span>
+<span><span class="co">## 2:      A498      13               Renal Cancer        9 1.0377152</span></span>
+<span><span class="co">## 3: A549/ATCC       4 Non-Small Cell Lung Cancer        1 0.9321058</span></span>
+<span><span class="co">## 4:      ACHN      23               Renal Cancer        9 1.0001565</span></span>
+<span><span class="co">## 5:  CCRF-CEM       3                   Leukemia        7 1.0662771</span></span>
+<span><span class="co">## 6:  COLO 205      10               Colon Cancer        4 0.9205163</span></span>
+<span><span class="co">##    PERCENTGROWTH PERCENTGROWTHNOTZ EXPECTEDGROWTH TESTVALUE CONTROLVALUE</span></span>
+<span><span class="co">## 1:        101.75            101.48        100.000   6951240      6849786</span></span>
+<span><span class="co">## 2:        104.84            103.77        100.000   4182200      4030200</span></span>
+<span><span class="co">## 3:         92.34             93.21         95.400   5888640      6317566</span></span>
+<span><span class="co">## 4:        100.02            100.02         98.098   6607800      6606766</span></span>
+<span><span class="co">## 5:        107.76            106.63        100.000  13606520     12760773</span></span>
+<span><span class="co">## 6:         90.74             92.05         86.870   5822480      6325233</span></span>
+<span><span class="co">##    TZVALUE HS_1    E_inf_1 EC50_1 HS_2    E_inf_2 EC50_2 viability_1</span></span>
+<span><span class="co">## 1: 1042043    1 0.08977556     50    1 0.27205581      3   0.9963736</span></span>
+<span><span class="co">## 2:  889724    1 0.56096579    500    1 0.46478261     30   0.9998245</span></span>
+<span><span class="co">## 3:  716463    1 0.15732265     50    1 0.22150189      3   0.9966427</span></span>
+<span><span class="co">## 4: 1158169    1 0.01729107     50    1 0.21729490      3   0.9960848</span></span>
+<span><span class="co">## 5: 1863442    1 0.12852970     50    1 0.24074074      3   0.9965280</span></span>
+<span><span class="co">## 6:  895972    1 0.07365439     50    1 0.02186312      3   0.9963094</span></span>
+<span><span class="co">##    viability_2       HSA     Bliss     Loewe</span></span>
+<span><span class="co">## 1:   0.9927926 0.9927926 0.9891924 0.9892436</span></span>
+<span><span class="co">## 2:   0.9994653 0.9994653 0.9992899 0.9993076</span></span>
+<span><span class="co">## 3:   0.9922921 0.9922921 0.9889607 0.9889720</span></span>
+<span><span class="co">## 4:   0.9922504 0.9922504 0.9883656 0.9884240</span></span>
+<span><span class="co">## 5:   0.9924826 0.9924826 0.9890367 0.9890752</span></span>
+<span><span class="co">## 6:   0.9903155 0.9903155 0.9866606 0.9867043</span></span></code></pre>
 </div>
 </div>
 <div class="section level3">
@@ -2112,44 +2322,32 @@ from multiplying the two fitted Dose-Response curves together.</p>
 works out to being the Bliss formula applied to the fitted curves, the
 ZIP assumptions suggest a new method to assess syngergy or antagosism at
 each point. Building on the assumption that combination without synergy
-should not change the potency of each particular drug, the ZIP <span class="math inline">\(delta\)</span> score defines a measure comparing
+should not change the potency of each particular drug, the ZIP <span class="math inline">\(\delta\)</span> score defines a measure comparing
 the difference between the fitted curve for each drug with and without
 the presence of the second drug, taking the average of differences for
 the two drugs.</p>
 <p>Mathematically, ZIP defines two values: <span class="math display">\[
 v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) =
-\frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2})}^{HS^{1 \leftarrow
+\frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2}})^{HS^{1 \leftarrow
 2}}}\]</span> <span class="math display">\[ v_c^{2 \leftarrow
 1}((v_1,x_1), (v_2,x_2)) = \frac{v_1}{1+(\frac{x_1}{EC50^{2 \leftarrow
-1})}^{HS^{2 \leftarrow 1}}}\]</span></p>
-<p>In this notation, {1 } means that we fit the Hill Curve for drug 1
-after the addition of drug 2 at the dose <span class="math inline">\(x_2\)</span>. Intuitively, we adjust for the
-observed effect of adding <span class="math inline">\(x_2\)</span> of
-drug 2 (<span class="math inline">\(v_2\)</span>), and then treat drug 1
-as if it is a monotherapy experiment. The <span class="math inline">\(\delta\)</span> score is then defined as the
-difference of the viability predicted by this curve and the ZIP
-predicted viability, averaged over treating each of the drugs as the
-“main drug”:</p>
+1}})^{HS^{2 \leftarrow 1}}}\]</span></p>
+<p>In this notation, {<span class="math inline">\(1 \leftarrow
+2\)</span>} means that we fit the Hill Curve for drug 1 after the
+addition of drug 2 at the dose <span class="math inline">\(x_2\)</span>.
+Intuitively, we adjust for the observed effect of adding <span class="math inline">\(x_2\)</span> of drug 2 (<span class="math inline">\(v_2\)</span>), and then treat drug 1 as if it is a
+monotherapy experiment. The <span class="math inline">\(\delta\)</span>
+score is then defined as the difference of the viability predicted by
+this curve and the ZIP predicted viability, averaged over treating each
+of the drugs as the “main drug”:</p>
 <p><span class="math display">\[\delta((v_1,x_1), (v_2,x_2)) =
 \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2} + \frac{v_c^{1 \leftarrow 2} -
 v_{ZIP}}{2}\]</span></p>
-<div class="section level4">
-<h4 id="computing-zip-reference-viabilities">Computing ZIP Reference Viabilities<a class="anchor" aria-label="anchor" href="#computing-zip-reference-viabilities"></a>
-</h4>
-<p>Unlike Loewe, the ZIP reference viability is fairly easy to compute.
-In fact, it is simply the Bliss formula applied to the 2 paramater
-predicted viability.</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ZIP</span> <span class="op">&lt;-</span> <span class="op">{</span></span>
-<span>  <span class="va">dose_ratio1</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">treatment1dose</span> <span class="op">/</span> <span class="va">EC50_1</span><span class="op">)</span></span>
-<span>  <span class="va">dose_ratio2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">treatment2dose</span> <span class="op">/</span> <span class="va">EC50_2</span><span class="op">)</span></span>
-<span>  <span class="va">ZIP1</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">dose_ratio1</span><span class="op">^</span><span class="va">HS_1</span><span class="op">)</span></span>
-<span>  <span class="va">ZIP2</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">dose_ratio2</span><span class="op">^</span><span class="va">HS_2</span><span class="op">)</span></span>
-<span>  <span class="va">ZIP1</span> <span class="op">*</span> <span class="va">ZIP2</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>ZIP also has a helpful function in PharmacoGx for its computation:
-<code>PharmacoGx::computeZIP(treatment1dose, treatment2dose, HS_1, HS_2, EC50_1, EC50_2)</code></p>
-</div>
+<p>For more information on the ZIP model, we refer the reader to the
+original publication <span class="citation">(Yadav et al. 2015)</span>.
+Alternatively, the <em><a href="https://bioconductor.org/packages/3.16/synergyfinder" class="external-link">synergyfinder</a></em>
+package contains vignettes and the reference implementation for ZIP
+calculations.</p>
 </div>
 <div class="section level3">
 <h3 id="picking-a-null-drug-combination-model">Picking a Null Drug Combination Model<a class="anchor" aria-label="anchor" href="#picking-a-null-drug-combination-model"></a>
@@ -2199,15 +2397,15 @@ model. For this, the scale chosen is a matter of preference. However, if
 the downstream goal is biomarker discovery using a summary of synergy
 for each model tested with a particular combination, if the Combination
 Index or a ratio is used, it may be more appropriate to analyze the
-results on a log-scale, as otherwise the range is unbalanced around the
+results on a log-scale, as otherwise the range is asymmetric around the
 reference.</p>
-<p>In practice, our preference is to use the absolute deviation from the
-Bliss predicted value for downstream analysis.</p>
+<p>In practice, our personal preference is to use the absolute deviation
+from the Bliss predicted value for downstream analysis.</p>
 <p><em>Note that we also skip the ZIP delta score computation in the
 interest of time.</em></p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># -- compute combination index and score</span></span>
-<span><span class="op">(</span><span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">endoaggregate</span><span class="op">(</span></span>
 <span>    HSA_CI <span class="op">=</span> <span class="va">viability</span> <span class="op">/</span> <span class="va">HSA</span>,</span>
 <span>    HSA_score <span class="op">=</span> <span class="va">HSA</span> <span class="op">-</span> <span class="va">viability</span>,</span>
@@ -2230,18 +2428,31 @@ interest of time.</em></p>
 <span>    assay <span class="op">=</span> <span class="st">"combo_response"</span>,</span>
 <span>    target <span class="op">=</span> <span class="st">"combo_scores"</span></span>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span></span>
-<span>  <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #BBBB00; font-weight: bold; font-style: italic;">&lt;TreatmentResponseExperiment&gt; </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold; font-style: italic;">## </span><span style="color: #BBBB00; font-weight: bold;">dim:  10080 62 </span></span></span>
-<span><span class="co"><span style="color: #BBBB00; font-weight: bold;">## assays(8): </span><span style="color: #BB0000;">response profiles assay_metadata mono_response mono_profiles mono_fits</span></span></span>
-<span><span class="co"><span style="color: #BB0000;">##   combo_response combo_scores</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rownames(10080): </span><span style="color: #00BB00;">1,3-Bis(2-chloroethyl)-1-nitrosourea::0.05:NA:1 1,3-Bis(2-chloroethyl)-1-nitrosourea::0.15:NA:1 ... Vorinostat:Vincristine:1:0.01:1 Vorinostat:Vincristine:1:0.1:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">rowData(9): </span><span style="color: #00BB00;">treatment1id treatment2id treatment1dose ... CONC2 NSC2 CONCINDEX2</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colnames(62): </span><span style="color: #00BB00;">786-O:1 A-498:1 A-549:1 ... UACC-257:1 UACC-62:1 UO-31:1</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">colData(6): </span><span style="color: #00BB00;">sampleid bio_rep CELLNAME CELLNBR PANEL PANELNBR</span> </span></span>
-<span><span class="co">## <span style="color: #BBBB00; font-weight: bold;">metadata(1): </span><span style="color: #00BB00;">experiment_metadata</span></span></span></code></pre>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="va">combo_scores</span> <span class="op">&lt;-</span> <span class="fu">treatmentResponse</span><span class="op">(</span><span class="va">nci</span><span class="op">)</span><span class="op">$</span><span class="va">combo_scores</span></span></code></pre></div>
+<span>  <span class="va">NCI_TRE</span></span>
+<span></span>
+<span><span class="va">combo_scores</span> <span class="op">&lt;-</span> <span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_scores</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">combo_scores</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                            treatment1id treatment2id treatment1dose</span></span>
+<span><span class="co">## 1: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 2: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 3: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 4: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 5: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">## 6: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine            0.2</span></span>
+<span><span class="co">##    treatment2dose sampleid bio_rep    HSA_CI    HSA_score  Bliss_CI Bliss_score</span></span>
+<span><span class="co">## 1:           0.03    786-O       1 1.0221785 -0.022018634 1.0258988 -0.02561889</span></span>
+<span><span class="co">## 2:           0.03    A-498       1 1.0382704 -0.038249933 1.0384527 -0.03842538</span></span>
+<span><span class="co">## 3:           0.03    A-549       1 0.9393462  0.060186284 0.9425105  0.05685488</span></span>
+<span><span class="co">## 4:           0.03     ACHN       1 1.0079678 -0.007906062 1.0119297 -0.01179090</span></span>
+<span><span class="co">## 5:           0.03 CCRF-CEM       1 1.0743535 -0.073794516 1.0780966 -0.07724041</span></span>
+<span><span class="co">## 6:           0.03 COLO 205       1 0.9295182  0.069799189 0.9329614  0.06614431</span></span>
+<span><span class="co">##    Loewe_CI Loewe_score viability viability_1 viability_2</span></span>
+<span><span class="co">## 1: 1.16e-04 -0.02556769 1.0148113   0.9963736   0.9927926</span></span>
+<span><span class="co">## 2: 1.16e-06 -0.03840768 1.0377152   0.9998245   0.9994653</span></span>
+<span><span class="co">## 3: 1.16e-04  0.05686616 0.9321058   0.9966427   0.9922921</span></span>
+<span><span class="co">## 4: 1.16e-04 -0.01173252 1.0001565   0.9960848   0.9922504</span></span>
+<span><span class="co">## 5: 1.16e-04 -0.07720193 1.0662771   0.9965280   0.9924826</span></span>
+<span><span class="co">## 6: 1.16e-04  0.06618805 0.9205163   0.9963094   0.9903155</span></span></code></pre>
 <p>Once we have a measure of synergy calculated for each dose
 combination in a particular experiment, we often would like to visualize
 the whole surface of drug-dose combinations to understand how synergy
@@ -2251,7 +2462,7 @@ drugs, Mitotane and Paclitaxel, on the A-549 cell line. If we recall the
 formula for the Bliss score above, we took <span class="math inline">\(v_{model} - v_c\)</span>, meaning that in this
 case, negative numbers indicate antagonism, as there is more viability
 observed than expected.</p>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">combo_scores</span><span class="op">[</span></span>
@@ -2292,11 +2503,26 @@ a narrow dose range, the most extreme deviation from the reference
 metrics) may instead be more appropriate.</p>
 <p>For our demo, we will summarize the combination profiles we have
 calculated into a Mean Bliss Score per experiment.</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mean_bliss_score</span> <span class="op">&lt;-</span> <span class="va">combo_scores</span><span class="op">[</span>,</span>
-<span>  <span class="fu">.</span><span class="op">(</span>Mean_Bliss <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Bliss_score</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  <span class="fu">.</span><span class="op">(</span><span class="va">treatment1id</span>, <span class="va">treatment2id</span>, <span class="va">sampleid</span><span class="op">)</span></span>
-<span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">NCI_TRE</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span></span>
+<span>    Mean_Bliss <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Bliss_score</span><span class="op">)</span>,</span>
+<span>    assay <span class="op">=</span> <span class="st">"combo_scores"</span>,</span>
+<span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"sampleid"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">-&gt;</span> </span>
+<span>  <span class="va">mean_bliss_score</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                                treatment1id treatment2id sampleid   Mean_Bliss</span></span>
+<span><span class="co">##     1: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine    786-O -0.038395834</span></span>
+<span><span class="co">##     2: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine    A-498  0.063834787</span></span>
+<span><span class="co">##     3: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine    A-549 -0.048417317</span></span>
+<span><span class="co">##     4: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine     ACHN -0.039941211</span></span>
+<span><span class="co">##     5: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine CCRF-CEM -0.018621532</span></span>
+<span><span class="co">##    ---                                                                        </span></span>
+<span><span class="co">## 14142:                           Vorinostat  Vincristine       SR  0.170580191</span></span>
+<span><span class="co">## 14143:                           Vorinostat  Vincristine    SW620 -0.078155666</span></span>
+<span><span class="co">## 14144:                           Vorinostat  Vincristine    T-47D -0.006124021</span></span>
+<span><span class="co">## 14145:                           Vorinostat  Vincristine UACC-257 -0.025048742</span></span>
+<span><span class="co">## 14146:                           Vorinostat  Vincristine  UACC-62  0.099422703</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -2325,25 +2551,33 @@ is a standardized regression coefficient, which may be difficult to
 interpret and compare between biomarkers.</p>
 <p>The second approach is to use a Pearson Correlation, or a Partial
 Pearson Correlation corrected for tissue type to test for associations.
-Currently, this is our preferred approach for two reasons: 1. The
-returned effect size estimate will be on the scale of a Pearson
+Currently, this is our preferred approach for two reasons:</p>
+<ol style="list-style-type: decimal">
+<li>The returned effect size estimate will be on the scale of a Pearson
 Correlation, which is familiar to most scientists and comparable between
 molecular features (as long as the sample sizes do not vary too
-drastically). 2. Currently, PharmacoGx has implemented efficient
-permutation testing of Pearson Correlations for significance assessment,
-in addition to the regular asymptotic formulas for inferring
-significance.</p>
+drastically).</li>
+<li>Currently, PharmacoGx has implemented efficient permutation testing
+of Pearson Correlations for significance assessment, in addition to the
+regular asymptotic formulas for inferring significance.</li>
+</ol>
+<p>As our focus is on drug combination analysis in this workshop, we
+won’t be demonstrating the usage of <code>drugSensitivitySig</code> to
+compute monotherapy associations with drug response. Rather, we skip
+directly to computing associations with drug synergy. An example of
+monotherapy analysis can be found in the <em><a href="https://bioconductor.org/packages/3.16/PharmacoGx" class="external-link">PharmacoGx</a></em>
+vignette: <code>vignette("PharmacoGx")</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="combination-synergy">Combination Synergy<a class="anchor" aria-label="anchor" href="#combination-synergy"></a>
 </h3>
-<p>The same <code>drugSensitivitySig</code> function can be used to find
+<p>The <code>drugSensitivitySig</code> function can be used to find
 biomarkers for synergy, by passing in a matrix of synergy values for
 each drug combination and cell line.</p>
 <p>Above, we had already summarized our synergy surfaces into a single
 mean value for each experiment. Now, we need to reshape the “long”
 format table into a table of drug combinations x cell lines.</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Create a matrix of drug combo x cell lines.</span></span>
 <span><span class="va">synergy_summaries</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/dcast.data.table.html" class="external-link">dcast</a></span><span class="op">(</span></span>
 <span>  <span class="va">mean_bliss_score</span>,</span>
@@ -2359,8 +2593,12 @@ format table into a table of drug combinations x cell lines.</p>
 <span></span>
 <span><span class="co">## Removing the two columns of treatment ids, and converting to a numerical matrix.</span></span>
 <span><span class="va">synergy_summaries</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.matrix.html" class="external-link">data.matrix</a></span><span class="op">(</span><span class="va">synergy_summaries</span><span class="op">[</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p>Finally, we can run our biomarker discovery.</p>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<p>Finally, we can run our biomarker discovery. Note that we pass in the
+treatment x sample matrix to the <code>sProfiles</code> argument, short
+for sensitivity profiles. For the purposes of this demonstration, we
+also subset the features we are computing over to 100 random genes,
+simply to save time.</p>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gene_exp_sigs</span> <span class="op">&lt;-</span> <span class="fu">drugSensitivitySig</span><span class="op">(</span><span class="va">NCI_ALMANAC_2017</span>,</span>
 <span>  mDataType <span class="op">=</span> <span class="st">"rnaseq.comp"</span>,</span>
 <span>  sProfiles <span class="op">=</span> <span class="va">synergy_summaries</span>,</span>
@@ -2369,17 +2607,59 @@ format table into a table of drug combinations x cell lines.</p>
 <span>  nthread <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Computing drug sensitivity signatures...</span></span></code></pre>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gene_exp_sigs</span><span class="op">)</span></span></code></pre></div>
-<p><img src="PGxWorkshop_files/figure-html/biomarker_prediction-1.png" width="700"></p>
-<hr>
+<p>The object returned by <code>drugSensitivitySig</code> is a 3D array,
+with the first two dimensions of features X treatments, and the third
+dimension returning computed statistics, the associated confidence
+intervals, p values, and FDR correction.</p>
+<p>One intersting (toy) example we find here is that expression of a
+couple of genes are significantly correlated with antagonism (negative
+Mean Bliss Score) for the combination of Vinblastine and Dasatinib.</p>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">significant_vin_das</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span></span>
+<span>  <span class="va">gene_exp_sigs</span><span class="op">[</span>, <span class="st">"Vinblastine_+_Dasatinib"</span>, <span class="op">]</span>,</span>
+<span>  <span class="va">gene_exp_sigs</span><span class="op">[</span>, <span class="st">"Vinblastine_+_Dasatinib"</span>, <span class="st">"significant"</span><span class="op">]</span> <span class="op">==</span> <span class="fl">1</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##           estimate  n df significant       pvalue      lower      upper</span></span>
+<span><span class="co">## NEUROD2 -0.5835669 42 30           1 0.0004550797 -0.7746336 -0.2948762</span></span>
+<span><span class="co">## MOBP    -0.6246952 42 30           1 0.0001325058 -0.7992833 -0.3528649</span></span>
+<span><span class="co">##                fdr</span></span>
+<span><span class="co">## NEUROD2 0.02275399</span></span>
+<span><span class="co">## MOBP    0.01325058</span></span></code></pre>
+<p>To get a more global view of the results, we can also plot the
+resulting object, which by default will display as a volcano plot. Note
+below that the object returned is a normal ggplot2 plot, and therefore
+we can add other annotations to it, such as the gene labels. Below, we
+will add the labels for the two genes predicting antagonism between
+Vinblastine and Dasatinib to the plot.</p>
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gene_exp_sigs</span><span class="op">)</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_label</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">significant_vin_das</span><span class="op">[</span>, <span class="st">"estimate"</span><span class="op">]</span>,</span>
+<span>                        y <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">significant_vin_das</span><span class="op">[</span>, <span class="st">"pvalue"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                        label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">significant_vin_das</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></code></pre></div>
+<p><img src="PGxWorkshop_files/figure-html/plotDrugSensSig-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="introduction-to-resources-for-biomarker-validation">Introduction to Resources for Biomarker Validation<a class="anchor" aria-label="anchor" href="#introduction-to-resources-for-biomarker-validation"></a>
+<h2 id="further-resources">Further Resources<a class="anchor" aria-label="anchor" href="#further-resources"></a>
 </h2>
-<p>This section is still under construction. Please check back after our
-presentation in July!</p>
+<p>We hope that this workshop leaves you feeling familiar with both the
+data structures defined in <em><a href="https://bioconductor.org/packages/3.16/CoreGx" class="external-link">CoreGx</a></em> as
+well as the analysis of drug combination experiments. Over time, our
+group will be curating public drug combination studies and releasing
+<code>PharmacoSet</code> objects through our <em><a href="https://orcestra.ca" class="external-link">orcestra.ca</a></em> platform, which will be
+available for everyone to download and use in their own research. These
+studies will use identifiers mapped to the same databases (Pubchem and
+Cellosaurus) as already existing monotherapy PSets, allowing studies
+combining monotherapy and combination response data.</p>
+<p>Furthermore, on <em><a href="https://orcestra.ca" class="external-link">orcestra.ca</a></em> we are curating clinical
+datasets combining genomic or transcriptomic profiling of cancer patient
+samples with clinical drug response, mapped to the same identifiers and
+processed as much as possible with the same pipelines. Much of the time,
+clinical treatments are done in combination therapies, as standard of
+care often involves more than 1 treatment. As this resource grows, it
+will become possible to evaluate how well cell line combination
+experiment results translate to clinical outcomes.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -2394,6 +2674,13 @@ et al. 2017. <span>“The <span>National Cancer Institute ALMANAC</span>:
 <span>Detection</span> of <span>Anticancer Drug Pairs</span> with
 <span>Enhanced Therapeutic Activity</span>.”</span> <em>Cancer
 Research</em> 77 (13): 3564–76. <a href="https://doi.org/10.1158/0008-5472.CAN-17-0489" class="external-link">https://doi.org/10.1158/0008-5472.CAN-17-0489</a>.
+</div>
+<div id="ref-yadavSearchingDrugSynergy2015" class="csl-entry">
+Yadav, Bhagwan, Krister Wennerberg, Tero Aittokallio, and Jing Tang.
+2015. <span>“Searching for <span>Drug Synergy</span> in <span>Complex
+Dose</span> an <span>Interaction Potency Model</span>.”</span>
+<em>Computational and Structural Biotechnology Journal</em> 13
+(January): 504–13. <a href="https://doi.org/10.1016/j.csbj.2015.09.001" class="external-link">https://doi.org/10.1016/j.csbj.2015.09.001</a>.
 </div>
 </div>
 </div>
@@ -2427,7 +2714,7 @@ Research</em> 77 (13): 3564–76. <a href="https://doi.org/10.1158/0008-5472.CAN
 <span><span class="co">##  [7] GenomicRanges_1.49.0        GenomeInfoDb_1.33.3        </span></span>
 <span><span class="co">##  [9] IRanges_2.31.0              S4Vectors_0.35.1           </span></span>
 <span><span class="co">## [11] MatrixGenerics_1.9.1        matrixStats_0.62.0         </span></span>
-<span><span class="co">## [13] BiocGenerics_0.43.0         pgxBioc2022Workshop_1.0.9  </span></span>
+<span><span class="co">## [13] BiocGenerics_0.43.1         pgxBioc2022Workshop_1.0.9  </span></span>
 <span><span class="co">## [15] BiocStyle_2.25.0           </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## loaded via a namespace (and not attached):</span></span>
