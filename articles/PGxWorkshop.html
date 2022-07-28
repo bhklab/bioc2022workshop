@@ -262,7 +262,7 @@ data structures</li>
 <li>Learn how to visualize experimental results from these datasets</li>
 <li>Learn how to model dose-response for both monotherapy and
 combination small compound datasets</li>
-<li>Learn measures to quantify response and synergy in cell-line
+<li>Learn measures to quantify response and synergy in cancer cell-line
 sensitivity screens</li>
 </ul>
 </div>
@@ -285,7 +285,7 @@ screening data</li>
 </li>
 <li>Learn to apply arbitrary R functions over a
 <code>TreatmentResponseExperiment</code> using the
-<code>aggregate</code> method</li>
+<code>aggregate</code> and <code>endoaggregate</code> methods</li>
 <li>Access the molecular features, dose-response and metadata contained
 within the data structures defined in our packages</li>
 <li>Fit Hill Slope models to dose-response experiments using small
@@ -376,10 +376,10 @@ storing molecular profile data.</p>
 <code>CoreSet</code>, the underling data structures are essentially
 identical. Previously, the “treatment” slot was specific to inheriting
 classes and named according to their domain specific use case, for
-example drugs in <em><a href="https://bioconductor.org/packages/3.16/PharmacoGx" class="external-link">PharmacoGx</a></em>
+example drug in <em><a href="https://bioconductor.org/packages/3.16/PharmacoGx" class="external-link">PharmacoGx</a></em>
 and radiation in <em><a href="https://bioconductor.org/packages/3.16/RadioGx" class="external-link">RadioGx</a></em>.
 Correspondingly, the “sample” slot was named cell and corresponded to
-<em>in vitro</em> immortalized human cell-lines.</p>
+<em>in vitro</em> immortalized human cancer cell-lines.</p>
 <div class="figure">
 <img src="CoreSet-class.drawio.png" alt=""><p class="caption"><strong>CoreSet / PharmacoSet class diagram</strong>.
 Objects comprising a <code>CoreSet</code> are enclosed in boxes. The
@@ -396,18 +396,19 @@ or method.</p>
 <code>SummarizedExperiment</code><a class="anchor" aria-label="anchor" href="#multiassayexperiment-and-summarizedexperiment"></a>
 </h3>
 <p>The <code>MultiAssayExperiment</code> (<code>MAE</code>) is a common
-Bioconductor class for storing the results of diverse mutli-omic
+Bioconductor class for storing the results of diverse multi-omic
 profiling experiments, including mutation, RNA expression, copy number
 abberation and protein abundace. Along with the
 <code>SummarizedExperiment</code> (<code>SE</code>), this object is used
-to store molecular phenotype data in a <code>CoreSet</code> and
+to store molecular phenotype data within a <code>CoreSet</code> and
 <code>PharmacoSet</code>.</p>
 <p>At the heart of both objects is a feature by sample matrix, with the
 major difference being that the <code>SE</code> require congruent
 matrices (i.e., observations on the same set of features and samples)
 where as the <code>MAE</code> allows storage of disjoint sets of feature
-and samples via the use of the <code>sampleMap</code>, which stores a
-graph of the mapping from samples to each assay in the object.</p>
+and samples via the use of the <code>sampleMap</code>, which,
+conceptually, stores a graph of the mapping from samples to each assay
+in the object.</p>
 <div class="figure">
 <img src="MultiAssayExperiment_SummarizedExperiment_schematics.png" alt=""><p class="caption"><strong>SummarizedExperiment</strong> and
 <strong>MultiAssayExperiment</strong> classes.</p>
@@ -834,7 +835,7 @@ dimensionality of the experiment in question!</p>
 ## assayMap: [22m [39m [33m [1m
 ## metadataMap: [22m [39m [32m NA [39m</code></pre>
 <p>A <code>DataMapper</code> as a concept is simply a collection of
-metadata around our rawdata which defines how different columns map to
+metadata around our raw data which defines how different columns map to
 different aspects of our target <code>S4</code> class. For a
 <code>TRE</code>, similar to a <em><a href="https://bioconductor.org/packages/3.16/SummarizedExperiment" class="external-link">SummarizedExperiment</a></em>,
 we have the concept of <code>rowData</code> which defines what is
@@ -954,7 +955,7 @@ present.</p>
 <span><span class="co">##  $ bio_rep          : int  1 1 1 1 1 1 1 1 1 1 ...</span></span>
 <span><span class="co">##  $ tech_rep         : int  1 1 1 1 1 1 1 1 1 1 ...</span></span></code></pre>
 <p>Examining the columns in our data, we see we have already defined the
-both <code>bio_rep</code>s and <code>tech_rep</code>s during rawdata in
+both <code>bio_rep</code>s and <code>tech_rep</code>s during raw data in
 preprocessing. We identified biological replicates as observations of
 the sample treatment, dose and sample combination across multiple dates.
 Technical replicates were the defined as any additional rows not mapped
@@ -1090,7 +1091,7 @@ repeating values in our <code>TRE</code>.</p>
 <span>    <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">assayMap</span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">assaymap</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">(</span><span class="va">treDataMapper</span><span class="op">)</span></span></code></pre></div>
 <pre><code>##  [33m [1m [3m&lt;TREDataMapper&gt; 
 ##  [23m [22m [39m [33m [1mrawdata: [22m [39m dim(534179, 32)
 ##                              treatment1id treatment2id treatment1dose
@@ -1151,11 +1152,11 @@ storage is not the sole point of the <code>TRE</code>. Once our data is
 curated and stored safely inside our object we are ready to start
 answering interesting questions about the experiment.</p>
 <p>To facilitate computation over a <code>TRE</code>, we have included
-the <code>aggregate</code> method which allows arbitrary R functions to
-be applied over groups of identifiers within an assay. For example, we
-may want to take averages for all monotherapy viabilities over technical
-replicates. We can do so using the <code>aggregate</code> method as
-follows:</p>
+the <code>aggregate</code> and <code>endoaggregate</code> methods which
+allows arbitrary R functions to be applied over groups of identifiers
+within an assay. For example, we may want to take averages for all
+monotherapy viabilities over technical replicates. We can do so using
+the <code>aggregate</code> method as follows:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">NCI_ALMANAC_tre</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">treatment2id</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1527,7 +1528,7 @@ reused regardless of their age.</p>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## &lt;PharmacoSet&gt;</span></span>
 <span><span class="co">## Name:  NCI_ALMANAC_2017 </span></span>
-<span><span class="co">## Date Created:  Wed Jul 27 21:09:48 2022 </span></span>
+<span><span class="co">## Date Created:  Thu Jul 28 17:24:00 2022 </span></span>
 <span><span class="co">## Number of samples:  60 </span></span>
 <span><span class="co">## Molecular profiles:</span></span>
 <span><span class="co">##    A MultiAssayExperiment object of 4 listed</span></span>
@@ -1834,7 +1835,7 @@ makes the subsequent calculations simpler.</p>
 <span>    <span class="op">}</span>,</span>
 <span>    assay <span class="op">=</span> <span class="st">"mono_response"</span>,</span>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
-<span>    enlist <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>    enlist <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    target <span class="op">=</span> <span class="st">"mono_profiles"</span></span>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span>
 <span></span>
@@ -1994,7 +1995,7 @@ noisy than each individual monotherapy measurement.</p>
 <p>Last, we also put the measured combination viabilily onto a
 fractional, not percentage scale.</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">&lt;-</span> </span>
+<code class="sourceCode R"><span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">$</span><span class="va">viability</span> <span class="op">/</span> <span class="fl">100</span></span></code></pre></div>
 <p>Finally, we can talk about the different models to compute the
 predicted response from monotherapy, and thereby compute estimates of
@@ -2030,7 +2031,7 @@ very weak baseline from which to compute synergy.</p>
 <span>    HSA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">viability_1</span>, <span class="va">viability_2</span><span class="op">)</span>,</span>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>, <span class="st">"treatment2dose"</span>,</span>
 <span>      <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
-<span>    assay <span class="op">=</span> <span class="st">"combo_response"</span>, </span>
+<span>    assay <span class="op">=</span> <span class="st">"combo_response"</span>,</span>
 <span>    target <span class="op">=</span> <span class="st">"combo_response"</span></span>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">)</span></span></code></pre></div>
@@ -2127,7 +2128,7 @@ monotherapy viabilities.</p>
 <span>    Bliss <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/prod.html" class="external-link">prod</a></span><span class="op">(</span><span class="va">viability_1</span>, <span class="va">viability_2</span><span class="op">)</span>,</span>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"treatment1dose"</span>, <span class="st">"treatment2dose"</span>,</span>
 <span>      <span class="st">"sampleid"</span>, <span class="st">"bio_rep"</span><span class="op">)</span>,</span>
-<span>    assay<span class="op">=</span><span class="st">"combo_response"</span>, </span>
+<span>    assay<span class="op">=</span><span class="st">"combo_response"</span>,</span>
 <span>    target <span class="op">=</span> <span class="st">"combo_response"</span></span>
 <span>  <span class="op">)</span> <span class="op">-&gt;</span> <span class="va">NCI_TRE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">NCI_TRE</span><span class="op">$</span><span class="va">combo_response</span><span class="op">)</span></span></code></pre></div>
@@ -2509,7 +2510,7 @@ calculated into a Mean Bliss Score per experiment.</p>
 <span>    Mean_Bliss <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Bliss_score</span><span class="op">)</span>,</span>
 <span>    assay <span class="op">=</span> <span class="st">"combo_scores"</span>,</span>
 <span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"treatment1id"</span>, <span class="st">"treatment2id"</span>, <span class="st">"sampleid"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">-&gt;</span> </span>
+<span>  <span class="op">)</span> <span class="op">-&gt;</span></span>
 <span>  <span class="va">mean_bliss_score</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##                                treatment1id treatment2id sampleid   Mean_Bliss</span></span>
 <span><span class="co">##     1: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine    786-O -0.038395834</span></span>
