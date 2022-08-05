@@ -1152,7 +1152,10 @@ $$ x = EC50 * (\frac{v-1}{v-E_{\infty}})^{\frac{1}{HS}}$$
 
 We can then plug this relationship in to get an emplicit formula for $v_{loewe}$:
 
-$$ \frac{x_1}{EC50_1 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,1}})^{\frac{1}{HS_1}}} + \frac{x_2}{EC50_2 * (\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,2}})^{\frac{1}{HS_2}}} = 1$$
+$$ 
+\frac{x_1}{EC50_1 (\frac{1 - v_{loewe}}{v_{loewe} - E_{\infty,1}})^{\frac{1}{HS_1}}} + 
+  \frac{x_2}{EC50_2 (\frac{1 - v_{loewe}}{v_{loewe} - E_{\infty,2}})^{\frac{1}{HS_2}}} = 1
+$$
 
 This formula can be solved numerically to find the value of $v_{loewe}$ for any two particular fitted curves.
 
@@ -1162,7 +1165,10 @@ Combination Index. The combination index measures the deviation from the Loewe a
 combination viability instead of the reference viability. As it doesn't require calculating $v_{loewe}$, it is also easier to compute. The formula for the
 Combination Index given a Loewe assumption is:
 
-$$ CI_{loewe} = \frac{x_1}{EC50^1*(\frac{v_c}{E_{\infty}^1-v_c})^{1/HS^1}} + \frac{x_2}{EC50^2*(\frac{v_c}{E_{\infty}^2-v_c})^{1/HS^2}} $$
+$$ 
+CI_{loewe} = \frac{x_1}{EC50^1(\frac{v_c}{v_c - E_{\infty}^1})^{1/HS_1}} + 
+  \frac{x_2}{EC50^2(\frac{v_c}{v_c - E_{\infty}^2})^{1/HS_2}} 
+$$
 
 
 ```{r loewe_diagram, echo=FALSE, fig.cap="Diagram of Loewe Additivity Assumption. Loewe additivity assumes that when plotting viability as a function of both concentrations (bottom plots), lines of equal viability (isoboles) will be straight. Using this assumption, either the expected viability for each pair of concentrations can be calculated (left), or the combination index can be computed to assess synergy or antagonism directly (right)."}
@@ -1204,7 +1210,11 @@ parameter Hill Curve models, it is simplest to understand and explain using the 
 
 The authors were then able to show that the ZIP model can be derived from multiplying the two fitted Dose-Response curves together.
 
-$$ZIP((v_1,x_1), (v_2,x_2)) = (E_{\infty}^1 + \frac{1-E_{infty}^1}{1+(\frac{x_1}{EC50^1})^{HS^1}})*(E_{\infty}^2 + \frac{1-E_{infty}^2}{1+(\frac{x_2}{EC50^2})^{HS^2}})$$
+$$
+ZIP((v_1,x_1), (v_2,x_2)) = 
+  (E_{\infty}^1 + \frac{1-E_{\infty}^1}{1+(\frac{x_1}{EC50^1})^{HS^1}})
+  (E_{\infty}^2 + \frac{1-E_{\infty}^2}{1+(\frac{x_2}{EC50^2})^{HS^2}})
+$$
 
 While the formula for computing the ZIP reference value at each point works out to being the Bliss formula applied to the fitted curves, the ZIP assumptions
 suggest a new method to assess syngergy or antagosism at each point. Building on the assumption that combination without synergy should not change the potency of
@@ -1212,14 +1222,24 @@ each particular drug, the ZIP $\delta$ score defines a measure comparing the dif
 drug, taking the average of differences for the two drugs.
 
 Mathematically, ZIP defines two values:
-$$ v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) = \frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2}})^{HS^{1 \leftarrow 2}}}$$
-$$ v_c^{2 \leftarrow 1}((v_1,x_1), (v_2,x_2)) = \frac{v_1}{1+(\frac{x_1}{EC50^{2 \leftarrow 1}})^{HS^{2 \leftarrow 1}}}$$
+$$ 
+v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) = 
+  \frac{v_2}{1 + (\frac{x_1}{EC50^{1 \leftarrow 2}})^{HS^{1 \leftarrow 2}}}
+$$
+$$ 
+v_c^{2 \leftarrow 1}((v_1,x_1), (v_2,x_2)) = 
+  \frac{v_1}{1 + (\frac{x_2}{EC50^{2 \leftarrow 1}})^{HS^{2 \leftarrow 1}}}
+$$
 
 In this notation, {$1 \leftarrow 2$} means that we fit the Hill Curve for drug 1 after the addition of drug 2 at the dose $x_2$. Intuitively, we adjust for the observed effect
 of adding $x_2$ of drug 2 ($v_2$), and then treat drug 1 as if it is a monotherapy experiment. The $\delta$ score is then defined as the difference of the viability predicted
 by this curve and the ZIP predicted viability, averaged over treating each of the drugs as the "main drug":
 
-$$\delta((v_1,x_1), (v_2,x_2)) = \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2} + \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2}$$
+$$
+\delta((v_1,x_1), (v_2,x_2)) = 
+  \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2} + 
+  \frac{v_c^{2 \leftarrow 1} - v_{ZIP}}{2}
+$$
 
 For more information on the ZIP model, we refer the reader to the original publication [@yadavSearchingDrugSynergy2015].
 Alternatively, the `r BiocStyle::Biocpkg("synergyfinder")` package contains vignettes and the reference implementation for ZIP calculations.
