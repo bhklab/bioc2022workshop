@@ -3,7 +3,7 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   PGxWorkshop: PGxWorkshop.html
-last_built: 2022-07-28T17:22Z
+last_built: 2022-08-05T23:50Z
 urls:
   reference: https://bhklab.github.io/bioc2022Workshop/reference
   article: https://bhklab.github.io/bioc2022Workshop/articles

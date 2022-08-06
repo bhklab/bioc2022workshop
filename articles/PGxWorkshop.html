@@ -1528,7 +1528,7 @@ reused regardless of their age.</p>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## &lt;PharmacoSet&gt;</span></span>
 <span><span class="co">## Name:  NCI_ALMANAC_2017 </span></span>
-<span><span class="co">## Date Created:  Thu Jul 28 17:24:00 2022 </span></span>
+<span><span class="co">## Date Created:  Fri Aug  5 23:52:07 2022 </span></span>
 <span><span class="co">## Number of samples:  60 </span></span>
 <span><span class="co">## Molecular profiles:</span></span>
 <span><span class="co">##    A MultiAssayExperiment object of 4 listed</span></span>
@@ -1959,7 +1959,7 @@ accepts the same arguments to control how the merge is done.</em></p>
 <span><span class="co">##      4: 1158169 1.0000000 0.01729107  50.000000    1 0.2172949  3.00000000</span></span>
 <span><span class="co">##      5: 1863442 1.0000000 0.12852970  50.000000    1 0.2407407  3.00000000</span></span>
 <span><span class="co">##     ---                                                                   </span></span>
-<span><span class="co">## 127310:  894742 1.0000000 0.17711243   2.000000    4 0.1928192  0.01523461</span></span>
+<span><span class="co">## 127310:  894742 1.0000000 0.17711243   2.000000    4 0.1928162  0.01523481</span></span>
 <span><span class="co">## 127311: 2235554 1.0000000 0.07429719   1.000000    1 0.4680214  0.03000000</span></span>
 <span><span class="co">## 127312: 1502784 4.0000000 0.36282782   1.429975    1 0.4751067  0.03000000</span></span>
 <span><span class="co">## 127313: 6146751 0.9672031 0.26448079   1.146777    1 0.5252780  0.03000000</span></span>
@@ -2208,11 +2208,12 @@ Curve relationship as follows:</p>
 (\frac{v-1}{v-E_{\infty}})^{\frac{1}{HS}}\]</span></p>
 <p>We can then plug this relationship in to get an emplicit formula for
 <span class="math inline">\(v_{loewe}\)</span>:</p>
-<p><span class="math display">\[ \frac{x_1}{EC50_1 *
-(\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,1}})^{\frac{1}{HS_1}}} +
-\frac{x_2}{EC50_2 *
-(\frac{v_{loewe}-1}{v_{loewe}-E_{\infty,2}})^{\frac{1}{HS_2}}} =
-1\]</span></p>
+<p><span class="math display">\[
+\frac{x_1}{EC50_1 (\frac{1 - v_{loewe}}{v_{loewe} -
+E_{\infty,1}})^{\frac{1}{HS_1}}} +
+  \frac{x_2}{EC50_2 (\frac{1 - v_{loewe}}{v_{loewe} -
+E_{\infty,2}})^{\frac{1}{HS_2}}} = 1
+\]</span></p>
 <p>This formula can be solved numerically to find the value of <span class="math inline">\(v_{loewe}\)</span> for any two particular fitted
 curves.</p>
 <p>While the Loewe Additivity model can be used to calculate the
@@ -2224,9 +2225,11 @@ combination viability instead of the reference viability. As it doesn’t
 require calculating <span class="math inline">\(v_{loewe}\)</span>, it
 is also easier to compute. The formula for the Combination Index given a
 Loewe assumption is:</p>
-<p><span class="math display">\[ CI_{loewe} =
-\frac{x_1}{EC50^1*(\frac{v_c}{E_{\infty}^1-v_c})^{1/HS^1}} +
-\frac{x_2}{EC50^2*(\frac{v_c}{E_{\infty}^2-v_c})^{1/HS^2}} \]</span></p>
+<p><span class="math display">\[
+CI_{loewe} = \frac{x_1}{EC50^1(\frac{v_c}{v_c - E_{\infty}^1})^{1/HS_1}}
++
+  \frac{x_2}{EC50^2(\frac{v_c}{v_c - E_{\infty}^2})^{1/HS_2}}
+\]</span></p>
 <div class="figure">
 <img src="LoeweDiagram.png" alt=""><p class="caption">Diagram of Loewe Additivity Assumption. Loewe
 additivity assumes that when plotting viability as a function of both
@@ -2315,10 +2318,11 @@ using the 2 parameter Hill Curve, which is equivalent to the case where
 <span class="math inline">\(E_{\infty}=0\)</span>.</p>
 <p>The authors were then able to show that the ZIP model can be derived
 from multiplying the two fitted Dose-Response curves together.</p>
-<p><span class="math display">\[ZIP((v_1,x_1), (v_2,x_2)) =
-(E_{\infty}^1 +
-\frac{1-E_{infty}^1}{1+(\frac{x_1}{EC50^1})^{HS^1}})*(E_{\infty}^2 +
-\frac{1-E_{infty}^2}{1+(\frac{x_2}{EC50^2})^{HS^2}})\]</span></p>
+<p><span class="math display">\[
+ZIP((v_1,x_1), (v_2,x_2)) =
+  (E_{\infty}^1 + \frac{1-E_{\infty}^1}{1+(\frac{x_1}{EC50^1})^{HS^1}})
+  (E_{\infty}^2 + \frac{1-E_{\infty}^2}{1+(\frac{x_2}{EC50^2})^{HS^2}})
+\]</span></p>
 <p>While the formula for computing the ZIP reference value at each point
 works out to being the Bliss formula applied to the fitted curves, the
 ZIP assumptions suggest a new method to assess syngergy or antagosism at
@@ -2329,10 +2333,13 @@ the presence of the second drug, taking the average of differences for
 the two drugs.</p>
 <p>Mathematically, ZIP defines two values: <span class="math display">\[
 v_c^{1 \leftarrow 2}((v_1,x_1), (v_2,x_2)) =
-\frac{v_2}{1+(\frac{x_1}{EC50^{1 \leftarrow 2}})^{HS^{1 \leftarrow
-2}}}\]</span> <span class="math display">\[ v_c^{2 \leftarrow
-1}((v_1,x_1), (v_2,x_2)) = \frac{v_1}{1+(\frac{x_1}{EC50^{2 \leftarrow
-1}})^{HS^{2 \leftarrow 1}}}\]</span></p>
+  \frac{v_2}{1 + (\frac{x_1}{EC50^{1 \leftarrow 2}})^{HS^{1 \leftarrow
+2}}}
+\]</span> <span class="math display">\[
+v_c^{2 \leftarrow 1}((v_1,x_1), (v_2,x_2)) =
+  \frac{v_1}{1 + (\frac{x_2}{EC50^{2 \leftarrow 1}})^{HS^{2 \leftarrow
+1}}}
+\]</span></p>
 <p>In this notation, {<span class="math inline">\(1 \leftarrow
 2\)</span>} means that we fit the Hill Curve for drug 1 after the
 addition of drug 2 at the dose <span class="math inline">\(x_2\)</span>.
@@ -2341,9 +2348,11 @@ monotherapy experiment. The <span class="math inline">\(\delta\)</span>
 score is then defined as the difference of the viability predicted by
 this curve and the ZIP predicted viability, averaged over treating each
 of the drugs as the “main drug”:</p>
-<p><span class="math display">\[\delta((v_1,x_1), (v_2,x_2)) =
-\frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2} + \frac{v_c^{1 \leftarrow 2} -
-v_{ZIP}}{2}\]</span></p>
+<p><span class="math display">\[
+\delta((v_1,x_1), (v_2,x_2)) =
+  \frac{v_c^{1 \leftarrow 2} - v_{ZIP}}{2} +
+  \frac{v_c^{2 \leftarrow 1} - v_{ZIP}}{2}
+\]</span></p>
 <p>For more information on the ZIP model, we refer the reader to the
 original publication <span class="citation">(Yadav et al. 2015)</span>.
 Alternatively, the <em><a href="https://bioconductor.org/packages/3.16/synergyfinder" class="external-link">synergyfinder</a></em>
@@ -2519,7 +2528,7 @@ calculated into a Mean Bliss Score per experiment.</p>
 <span><span class="co">##     4: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine     ACHN -0.039941211</span></span>
 <span><span class="co">##     5: 1,3-Bis(2-chloroethyl)-1-nitrosourea  Azacitidine CCRF-CEM -0.018621532</span></span>
 <span><span class="co">##    ---                                                                        </span></span>
-<span><span class="co">## 14142:                           Vorinostat  Vincristine       SR  0.170580191</span></span>
+<span><span class="co">## 14142:                           Vorinostat  Vincristine       SR  0.170580816</span></span>
 <span><span class="co">## 14143:                           Vorinostat  Vincristine    SW620 -0.078155666</span></span>
 <span><span class="co">## 14144:                           Vorinostat  Vincristine    T-47D -0.006124021</span></span>
 <span><span class="co">## 14145:                           Vorinostat  Vincristine UACC-257 -0.025048742</span></span>
@@ -2621,11 +2630,11 @@ Mean Bliss Score) for the combination of Vinblastine and Dasatinib.</p>
 <span>  <span class="va">gene_exp_sigs</span><span class="op">[</span>, <span class="st">"Vinblastine_+_Dasatinib"</span>, <span class="st">"significant"</span><span class="op">]</span> <span class="op">==</span> <span class="fl">1</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##           estimate  n df significant       pvalue      lower      upper</span></span>
-<span><span class="co">## NEUROD2 -0.5835669 42 30           1 0.0004550797 -0.7746336 -0.2948762</span></span>
-<span><span class="co">## MOBP    -0.6246952 42 30           1 0.0001325058 -0.7992833 -0.3528649</span></span>
+<span><span class="co">## NEUROD2 -0.5833826 42 30           1 0.0004574348 -0.7745218 -0.2946210</span></span>
+<span><span class="co">## MOBP    -0.6247997 42 30           1 0.0001320618 -0.7993452 -0.3530149</span></span>
 <span><span class="co">##                fdr</span></span>
-<span><span class="co">## NEUROD2 0.02275399</span></span>
-<span><span class="co">## MOBP    0.01325058</span></span></code></pre>
+<span><span class="co">## NEUROD2 0.02287174</span></span>
+<span><span class="co">## MOBP    0.01320618</span></span></code></pre>
 <p>To get a more global view of the results, we can also plot the
 resulting object, which by default will display as a volcano plot. Note
 below that the object returned is a normal ggplot2 plot, and therefore
@@ -2756,7 +2765,7 @@ Dose</span> an <span>Interaction Potency Model</span>.”</span>
 <span><span class="co">##  [69] highr_0.9                   NISTunits_1.0.1            </span></span>
 <span><span class="co">##  [71] desc_1.4.1                  plotrix_3.8-2              </span></span>
 <span><span class="co">##  [73] checkmate_2.1.0             caTools_1.18.2             </span></span>
-<span><span class="co">##  [75] boot_1.3-28                 BiocParallel_1.31.10       </span></span>
+<span><span class="co">##  [75] boot_1.3-28                 BiocParallel_1.31.12       </span></span>
 <span><span class="co">##  [77] rlang_1.0.4                 pkgconfig_2.0.3            </span></span>
 <span><span class="co">##  [79] systemfonts_1.0.4           bitops_1.0-7               </span></span>
 <span><span class="co">##  [81] pracma_2.3.8                evaluate_0.15              </span></span>
@@ -2766,8 +2775,8 @@ Dose</span> an <span>Interaction Potency Model</span>.”</span>
 <span><span class="co">##  [89] magrittr_2.0.3              bookdown_0.27              </span></span>
 <span><span class="co">##  [91] R6_2.5.1                    gplots_3.1.3               </span></span>
 <span><span class="co">##  [93] generics_0.1.3              sm_2.2-5.7.1               </span></span>
-<span><span class="co">##  [95] DelayedArray_0.23.0         withr_2.5.0                </span></span>
-<span><span class="co">##  [97] pillar_1.8.0                RCurl_1.98-1.7             </span></span>
+<span><span class="co">##  [95] DelayedArray_0.23.1         withr_2.5.0                </span></span>
+<span><span class="co">##  [97] pillar_1.8.0                RCurl_1.98-1.8             </span></span>
 <span><span class="co">##  [99] tibble_3.1.8                crayon_1.5.1               </span></span>
 <span><span class="co">## [101] KernSmooth_2.23-20          utf8_1.2.2                 </span></span>
 <span><span class="co">## [103] rmarkdown_2.14              grid_4.2.0                 </span></span>
