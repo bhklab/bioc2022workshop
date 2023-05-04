@@ -2,19 +2,18 @@
 title: "Pharmacogenomic Analysis of Drug Combination Experiments to Identify
   Biomarkers of Response or Resistance"
 author:
+  - name: Petr Smirnov
+    email: petr.smirnov@embl.de
+    affiliation:
+        - &embl European Molecular Biology Laboratory
   - name: Christopher Eeles
     email: christopher.eeles@uhnresearch.ca
     affiliation:
         - &pm Princess Margaret Cancer Centre
-  - name: Petr Smirnov
-    email: petr.smirnov@utoronto.ca
-    affiliation:
-        - *pm
-        - &uot University of Toronto
   - name: Feifei Li
     email: ff.li@mail.utoronto.ca
     affiliation:
-      - *uot
+      - &uot University of Toronto
 output: BiocStyle::html_document
 bibliography: BioC2022Conference.bib
 vignette: >
@@ -23,13 +22,19 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<!-- todo: add attribution for the core BioC figures -->
+
 <!-- Remove {-} from header to show numbering -->
 # Workshop Overview {-}
 
 ## Instructor(s) name(s) and contact information {-}
 
+* Petr Smirnov <petr.smirnov@embl.de>
+
+
+Co-Authors of Workshop Materials and Packages:
+
 * Christopher Eeles <christopher.eeles@uhnresearch.ca>
-* Petr Smirnov <petr.smirnov@utoronto.ca>
 * Benjamin Haibe-Kains <benjamin.haibe.kains@utoronto.ca>
 
 ## Workshop Description {-}
@@ -52,7 +57,7 @@ This workshop will introduce users to the `r CGx` and
 pharmacogenomic modelling to discover biomarkers of treatment response in cancer
 model systems. `r PGx` specifically focuses on
 drug sensitivity experiments in cancer cell lines, which will be the major
-focus of this workshop. Additional infrastructure from our lab includes
+focus of this workshop. Additional infrastructure available in this suite of packages includes
 `r TGx` for toxicogenomics in healthy human
 cell-lines, `r RGx` for
 radiogenomics in cancer cell-lines and `r Xv` for
@@ -62,7 +67,7 @@ Participants will learn the fundamentals of using `r CGx`
 and `r PGx` to create a `PharmacoSet`&mdash;an
 integrative container for the storage, analysis and visualization of
 pharmacogenomic experiments. Particular focus will be placed
-on newly developed support for storing, analyzing and visualizing drug
+on storing, analyzing and visualizing drug
 combination sensitivity experiments and correlating results therefrom
 with multi-omic molecular profiles to discover biomarkers of drug sensitivity,
 resistance, synergy, or antagonism.
@@ -107,18 +112,27 @@ CRAN:
 
 ## Time outline {-}
 
-For a 1.5-hr workshop:
+For a 3-hr workshop:
 
 | Activity                                                   | Time |
 |------------------------------------------------------------|------|
+| Introduction to the workshop and learning goals            |  5m  |
+| Overview of Drug Combination Experiments                   |  10m |
+| Introduction to Bioconductor Project                       |  5m  |
+| Overview of Bioconductor Data Structures                   |  10m |
+| Hands on with a `MultiAssayExperiment`                     |  5m  |
 | Introduction to CoreGx and PharmacoGx                      |  5m  |
-| Overview of Data Structures                                |  15m |
+| Introduction to the `CoreGx` data structures               |  10m |
+|------------------------------------------------------------|------|
 | How the `TRE` Supports Drug Combinations Data Analysis     |  10m |
-| Using a `DataMapper` to build a Drug Combo PharmacoSet     |  10m |
+| Using a `DataMapper` to build a Drug Combo PharmacoSet     |  20m |
+| Computing with a `TRE`                                     |  15m |
+|------------------------------------------------------------|------|
 | Dose Response Models and Drug Sensitivity measures         |  10m |
-| Drug Combination Synergy Models                            |  15m |
-| Biomarker Discovery                                        |  10m |
+| Drug Combination Synergy Models                            |  25m |
+| Biomarker Discovery                                        |  15m |
 | Further Resources                                          |  5m  |
+|------------------------------------------------------------|------|
 
 
 ## Workshop goals and objectives {-}
@@ -154,30 +168,146 @@ knitr::opts_chunk$set(echo=TRUE, include=TRUE, warning=FALSE, message=TRUE)
 ```{r load_packages, eval=TRUE, echo=FALSE, include=FALSE}
 suppressPackageStartupMessages({
     library(pgxBioc2022Workshop)
+    library(MultiAssayExperiment)
     library(PharmacoGx)
     library(data.table)
     library(ggplot2)
 })
 ```
 
+# Introduction to the Bioconductor Project
+
+Bioconductor is an open source, community driven software project and which 
+provides a set of data structures and tools for the analysis of biological data 
+in R. The project started circa 2002 and has grown to include 2230+ software
+packages, both developed by the core Bioconductor team (a minority), as well as 
+many external contributors. In general, these packages include Software 
+(Tools and Algorithms for analysis or visualization), Annotation Data packages, 
+Experimental Data packages, and Workflows giving examples of particular analysis 
+tasks. Inclusion of a package in Bioconductor requires it to conform to a set of 
+standards regarding code quality, documentation, and interoperability with other 
+packages in the ecosystem, the passing of an extended series of automated checks,
+as well as a review by a member of the core team.
+
+
+As mentioned above, one of the major goals of the Bioconductor project is 
+to provide an interoperable set of data structures in which to store biological data,
+which should accelerate the ability of users to apply novel methods and packages 
+to their data. As any open source project, this interoperability is not universal,
+but most Bioconductor pacakges will either use standard Bioconductor data types, or 
+provide methods to convert to and from them. This means that learning the core 
+Bioconductor classes, and the common abstractions between them opens up 100s of packages
+for use in your analysis.
+
+
+For the purposes of this workshop, we will focus on data structures that are used to store
+molecular readouts from human samples, and an extention of these data structures to store 
+complex phenotypic measurements, including drug combination screens, conducted on the 
+same model systems. 
+
+
+# Core Bioconductor Data Structures
+
+
+## `SummarizedExperiment` and `MultiAssayExperiment` 
+
+
+The `SummarizedExperiment` (`SE`) is one of the basic data containers in the
+Bioconductor ecosystem. This data class was developed to store biological 
+data that can be abstracted as measurements of a set of the same features across
+multiple samples. Several `assays` can be stored in the same object, with the restriction
+that they should map to the same set of features and sample identifiers, that is, 
+that they are congruent. This is often useful to store measurements of features at 
+different steps of processing. For example, a `SE` can store the raw counts as well 
+as normalized RNA expression for the same genes on the same samples.
+
+
+These data are stored together with a set of column and row annotations that describe the
+features and samples. These annotations are stored in the `colData` and `rowData` slots of the
+`SE` object. The rowData can also be defined as a `GenomicRanges` object, which allows you to 
+explicitly identify features with genomic coordinates, useful for storing measurements derived 
+from the sequencing of DNA or RNA (e.g., mutations, copy number abberations, CHIP-seq peaks, etc).
+
+```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fig.cap = "**SummarizedExperiment** and **MultiAssayExperiment** classes."}
+knitr::include_graphics("./SummarizedExperiment_schematic.png")
+
+```
+
+The `MultiAssayExperiment` (`MAE`) is an extension of the `SummarizedExperiment`
+class that allows for the storage of multiple assays that are not necessarily
+congruent. This is useful for storing the results of diverse multi-omic 
+profiling experiments, including mutation, RNA expression, copy number abberation 
+and protein abundace. 
+
+
+```{r MAE_schema, echo=FALSE, fig.wide=TRUE, fig.cap = "**SummarizedExperiment** and **MultiAssayExperiment** classes."}
+knitr::include_graphics("./MultiAssayExperiment_schematic.png")
+
+```
+
+
+At the heart of both objects are feature by sample matrices, with the major
+difference being that the `SE` require congruent matrices (i.e., observations
+on the same set of features and samples) where as the `MAE` allows storage of
+disjoint sets of feature and samples via the use of the `sampleMap`, which,
+conceptually, stores a graph of the mapping from samples to each assay in the
+object.
+
+
+### Hands on with a MultiAssayExperiment
+
+For the majority of this workshop, we will be working with the NCI-ALMANAC,
+a large-scale drug combination screen conducted by the National Cancer Institute.
+
+The NCI-ALMANAC study did not conduct its own set of molecular profiling
+experiments, since the cell lines screened are part of the NCI60 collection. 
+With this workshop, we included some of the NCI60 molecular datasets as a
+`MultiAssayExperiment` object.
+
+
+Lets examine the included molecular data:
+```{r load_molecular_data}
+data(NCI60_molecular_data)
+(NCI60_molecular_data)
+```
+
+We can see the molecular data is available as `MultiAssayExperiment` containing
+3 `RangedSummarizedExperiment` objects. The molecular data types are:
+
+  1. "rna" represents RNA expression microarray data.
+  2. "mirna" represents microRNA expression data.
+  3. "rnaseq.comp" contains RNA sequencing data.
+
+To gain familiarity with working with `MultiAssayExperiment` objects, we will
+try to answer 3 questions:
+
+1. What is the most represented tissue type in the profiled NCI60 cell lines?
+2. What is the cell line expressing the highest expression of the MYC oncogene?
+3. What is the tissue type with the highest expression of HER2?
+
+
+
 # Introduction to CoreGx and PharmacoGx
 
-This tutorial, titled *Pharmacogenomic Analysis of Drug Combination Experiments
-to Identify Biomarkers of Response or Resistance*, focuses on using the
-`r PGx` R package to correlate treatment response,
-measured as the viability of cancer cell-lines after _in vitro_ drug treatment,
-with their respective multi-omic profiles. `r CGx`
-provides the core infrastructure for storing, analyzing, and visualizing generic
-treatment response experiments. It provides methods and classes which can be
-inherited from in downstream packages, such as `r TGx` and
-`r RGx`. We hope that the `CoreSet` object is
-generalized enough that it can be reused by other developers for their specific
-treatment (or stimuli) response use case.
+The `r PGx` package was developed to provide a set of data structures and 
+tools to work with the results of high-throughput drug screening experiments
+conducted on cancer cell lines, with a focus on the discovery of biomarkers 
+predictive of drug response. In this workshop, we focus specifically on the 
+analysis of data that comes from combination experiments, where the response is 
+measured as the viability of the cell line after treatment with a combination of 
+compounds. 
+
+The `r PGx` package is built on top of the `r CGx` package, which provides 
+a set of common data structures and tools that are commonly useful in correlating  
+phenotypic response to perturbation with compounds with the molecular state of 
+samples. 
+
+<!--  insert a comment here about the GXsuite -->
 
 ## CoreGx
 
 ### Package Nomenclature
-
+<!-- Maybe make this into a sidebar comment? -->
 To facilitate modularization of the GxSuite of R packages, we have shifted
 the nomenclature within a `CoreSet`&mdash;and therefore in inheriting packages
 &mdash;to be more general.
@@ -201,57 +331,39 @@ best practices.
 `r PGx` stores drug screening data together with molecular profiling of
 cell-lines in an object called a `PharmacoSet`, or `PSet` for short. This object
 inherits for the `CoreSet` class defined in our package `CoreGx`, which is
-used to share common datas structure and method across our suite of package.
+used to share common data structure and methods across our suite of package.
 The primary use case for `PharmacoGx` is to provide a standardized and highly
 curated container for high-throughput screens in cancer-cell lines, with the
 goal of enabling discovery of biomarkers of treatment response or resistance
 which can be easily compared and validated across large published
 pharmacogneomic datasets.
 
+
+
 ---
 
-# Overview of Data Structures
+# Overview of CoreGx Data Structures
 
-The GxSuite of packages make use of various Bioconductor classes for storing
-molecular profile data.
+
+Conceptually, in vitro pharmacogenomic experiments contain 3 main "dimensions": the samples assayed, 
+the molecular features measured in those samples, and the compounds those samples were treated with. 
+The `r CGx` and `r PGx` packages further extend the `SummarizedExperiment` and `MultiAssayExperiment` 
+data structures to allow for the storage of the phenotypic readouts from the compound dimension, which 
+often do not cleanly map onto a sample by feature matrix, together with the molecular data characterizing 
+the treated samples. 
+
 
 ## `CoreSet` and `PharmacoSet`
 
-With the recent updates in the structure and nomenclature of the `CoreSet`,
-the underling data structures are essentially identical. Previously, the
-"treatment" slot was specific to inheriting classes and named according to
-their domain specific use case, for example drug in `r PGx` and radiation
-in `r RGx`. Correspondingly, the "sample" slot was named cell and corresponded
-to _in vitro_ immortalized human cancer cell-lines.
 
 ```{r coreset,  echo=FALSE, fig.wide=TRUE, fig.cap = "**CoreSet / PharmacoSet class diagram**. Objects comprising a `CoreSet` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./CoreSet-class.drawio.png")
 ```
 
-## `MultiAssayExperiment` and `SummarizedExperiment`
+<!-- add an exercise here to get people familiar with the accessors of these packages -->
 
-The `MultiAssayExperiment` (`MAE`) is a common Bioconductor class for storing
-the results of diverse multi-omic profiling experiments, including mutation,
-RNA expression, copy number abberation and protein abundace. Along with the
-`SummarizedExperiment` (`SE`), this object is used to store molecular
-phenotype data within a `CoreSet` and `PharmacoSet`.
 
-At the heart of both objects is a feature by sample matrix, with the major
-difference being that the `SE` require congruent matrices (i.e., observations
-on the same set of features and samples) where as the `MAE` allows storage of
-disjoint sets of feature and samples via the use of the `sampleMap`, which,
-conceptually, stores a graph of the mapping from samples to each assay in the
-object.
 
-```{r SummarizedExperiment_schema, echo=FALSE, fig.wide=TRUE, fig.cap = "**SummarizedExperiment** and **MultiAssayExperiment** classes."}
-knitr::include_graphics("./MultiAssayExperiment_SummarizedExperiment_schematics.png")
-
-```
-
-For both these objects, rows map to molecular features
-(often genomic coordinates to better generalize across diverse molecular datatypes),
-and columns to samples. Metadata for both is available via the
-`rowData` and `colData` accessors, respectively.
 
 ## `TreatmentResponseExperiment`
 
@@ -265,7 +377,8 @@ underlying data and observations live within columns of that table.
 
 For those familar with relational modelling from RDBMS systems,
 our design has taken inspiration from the star schema often used in OLAP
-applications to improve the efficiency of analytic database queries.
+(Online Analytical Processing) applications to improve the efficiency 
+of analytic database queries.
 
 ```{r tre_class, echo=FALSE, fig.wide=TRUE, fig.cap = "**TreatmentResponseExperiment class diagram**. Objects comprising a `TreatmentResponseExperiment` are enclosed in boxes. The first box indicates the type and name of each object. The second box indicates the structure of an object or class. The third box shows accessor methods from `PharmacoGx` for that specific object. '=>' represents return and specifies what is returned from that item or method."}
 knitr::include_graphics("./TreatmentResponseExperimentClassDiagram.drawio.png")
@@ -340,13 +453,13 @@ from the NCI-ALMANAC drug combination experiment into a `TRE` object, ensuring
 that all study observations and relevant metadata are captured in our
 `TRE` and therefore in our `PharmacoSet`.
 
-By curating and releasing such `PharmacoSet` objects, we ensure that our users
+<!-- By curating and releasing such `PharmacoSet` objects, we ensure that our users
 can access all information from the original publication via `r PGx` and
 therefore easily ensure the reproducibility of the results as well as simplify
 their comparison against other curated mono and combination therapy
 `PharmacoSet`s object. In doing so, we help to improve the reproducibility and
 consistency of _in vitro_ pharmacogenomic experiments and accelerate translation
-of insights from the lab into the clinic.
+of insights from the lab into the clinic. -->
 
 ### Using the `TREDataMapper` to Construct a `TreatmentResponseExperiment`
 
@@ -357,15 +470,11 @@ long format table by attaching additional metadata for treatments, sample and
 any other entities defined in the publication. We have done this already and
 included it as the `NCI_ALMANAC_raw` dataset in the workshop package.
 
-```{r nci_rawdata_echo, eval=FALSE, echo=TRUE}
+```{r nci_rawdata_echo, eval=TRUE, echo=TRUE}
 data(NCI_ALMANAC_raw)
 (head(NCI_ALMANAC_raw))
 ```
 
-```{r nci_rawdata_eval, eval=TRUE, echo=FALSE}
-data(NCI_ALMANAC_raw)
-knitr::kable(head(NCI_ALMANAC_raw, 5))
-```
 
 Viewing the table, we see that each column represents a variable, and that
 the number of rows in the table corresponds to the number of dose-response
@@ -439,8 +548,8 @@ biological replicates as observations of the sample treatment, dose and sample
 combination across multiple dates. Technical replicates were the defined as any
 additional rows not mapped to treatment, dose, sample and biological replicates.
 
-For your own data in the wild, you will likely need to consult the original
-publication and explore the data to differentiate these two types of replicates
+For your own data in the wild, you will likely need to consult your experimental colleagues,
+οr the original publication and explore the data to differentiate these two types of replicates
 and assign identifiers which make every observation within an experiment unique.
 
 For our second guess we will include these columns, mapping biological
@@ -487,7 +596,7 @@ subdivide our assay columns into sensible groups.
 
 For the NCI-ALMANAC we have decided to separate our treatment-response
 measurements into the "response" assay. Any additional metadata which doesn't
-map cleaning to rows or columns gets assigned to "assay_metadata". The publsihed
+map cleaning to rows or columns gets assigned to "assay_metadata". The published
 synergy score will go in the "profiles" assay, which generally stores metrics
 computed from the "response" assay.
 
@@ -532,7 +641,132 @@ together the rawdata and the metadata into a constructor call for the
 (NCI_ALMANAC_tre <- metaConstruct(treDataMapper))
 ```
 
-### Computing Over a `TreatmentResponseExperiment`
+<!-- add section on subsetting and interacting with tre -->
+
+## Working with a `TreatmentResponseExperiment`
+
+### Subsetting and Extracting Data
+
+One of the benefits of transforming your data into a `TRE` object is that you 
+gain an expressive syntax with which to subset and extract data. Recall that when
+we mapped the data onto the structure of the `TRE`, we defined row and column 
+identifiers. For example, using the `rowIDs` method, we can see the identifiers 
+that are associated with the rows of the object:
+
+```{r tre_rowids}
+(rowIDs(NCI_ALMANAC_tre)) 
+```
+
+These columns were combined to create pseudo-rownames for the object:
+
+```{r tre_rownames}
+tail(rownames(NCI_ALMANAC_tre)) 
+```
+
+These pseudo-rownames are concentrations of the values in the rowID columns, however,
+they do not explicitly exist as rownames to any particular assay. While they can be 
+used explicitly to get at specific observations, the power of the TRE comes when they 
+are combined with wildcards, denoted by `*`, to extract data from the object. For example,
+we could subset the TRE to a particular treatment as follows:
+
+```{r tre_subset_oneobs}
+NCI_ALMANAC_tre["Vorinostat:Vincristine:0.1:0.001:1",]
+```
+
+As you can see, this extracts the subset of data across all samples which were treated with 
+the combination of Vorinostat and Vincristine at concentrations of 0.1 and 0.001, µm respectively.
+If we want extract the response data for all the concentrations in this drug combo for a particular sample, we can 
+then subset the object, and then extract the response assay as follows:
+
+```{r tre_subset_combostar}
+NCI_ALMANAC_tre["Vorinostat:Vincristine:*:*:*","A-498:*"] |>
+  assay("response")
+```
+
+Here, we use the `*` character to denote that we want all the possible values for the last 
+three rowID columns (treatment1dose, treatment2dose, and tech_rep), and the second colID
+column (bio_rep).
+
+In an example like this, it is possible to also use a shorthand, where the `*` is omitted 
+for the trailing columns:
+
+```{r tre_subset_combo}
+NCI_ALMANAC_tre["Vorinostat:Vincristine","A-498"] |>
+  assay("response")
+```
+
+This is equivalent to the previous example, but is more concise. 
+
+If you've noticed, there is one annoying detail here, which is that we need to know which of the 
+two compounds is in the treatment1id column, and which is in the treatment2id column. Fortunately,
+the `TRE` subset method provides us with two efficient ways around this. When we subset using only single
+compound name, (for example `"Vincristine"`), it will automatically search all rowIDs for matches: 
+
+```{r tre_subset_onecompound}
+NCI_ALMANAC_tre["Vincristine", "A-498"]
+```
+
+We can string these subsets together to get a specific combination without knowing the ordering:
+
+```{r tre_subset_onecompound_twice}
+NCI_ALMANAC_tre["Vincristine", "A-498"]["Vorinostat", ]
+```
+
+Alternatively, the subset syntax supports or operations using the `|` character. This allows us to
+express the same subset as follows:
+
+```{r tre_subset_combo_or}
+NCI_ALMANAC_tre["Vincristine:Vorinostat|Vorinostat:Vincristine", "A-498"]
+```
+
+Note that whether the assignment of a compound to treatment 1 or treatment 2 is arbitrary is dependent 
+on the experimental design. In this case, the experiments were done in 3x3 or 5x5 designs, making the 
+distinction meaningless. However, other experimental designs can use an 'anchor' compound approach, 
+where one compound is tested at fewer (e.g. 2) concentrations together with a larger number of concentrations
+for compound 2. In that case, the experiment "Vincristine:Vorinostat" could be different from "Vorinostat:Vincristine".
+
+We have already seen that we can extract specific assays using the `assay` method. 
+This is also possible with the `$` operatior. 
+
+```{r subset_tre_assay_dollar}
+NCI_ALMANAC_tre$response |>
+  head()
+```
+
+Information about each specific 'row' or 'column' can be extracted using the `rowData` and `colData` methods:
+
+```{r tre_rowData}
+NCI_ALMANAC_tre |>
+  rowData() |>
+  head()
+```
+
+
+Finally, if you notice above, a call to assay returns the data with the rowData and colData  
+included in the data.frame. This is the default behaviour, however, it can be modified 
+either to only include the row and column IDs by setting `metadata=FALSE`, or to not append
+anything to the data.frame by setting `withDimnames=FALSE`. 
+
+```{r subset_tre_assay_dollar_nometa}
+NCI_ALMANAC_tre["Vorinostat:Vincristine", "A-498"] |>
+  assay("response", metadata=FALSE)
+```
+
+```{r subset_tre_assay_dollar_nodims}
+NCI_ALMANAC_tre["Vorinostat:Vincristine", "A-498"] |>
+  assay("response", withDimnames = FALSE)
+```
+
+In this case, the internal row and column keys are returned instead of translating them back into 
+the rowID and colID identifers that we defined earlier.
+
+So far this has all been akin to syntactic sugar, giving us a more convenient way to run subsets
+that would be possible to do on the long format data.table we read in above. The real advantages of the 
+`TRE` subsetting syntax will be more evident as we begin to analyze the data and create summaries later in this workshop, 
+where it can then keep the raw and derived datasets 'in sync' as the object is sliced using the row and column IDs.
+
+
+### Computing over a `TreatmentResponseExperiment`
 
 So far we have seen how a `TRE` allows for flexible definitions of treatments
 and samples to enable storage of dose-response observations across a range of
@@ -612,31 +846,30 @@ returned table.
 
 The utility of this option will also become apparent in subsequent sections.
 
-### Combining with Omics Data into a `PharmacoSet`
+### Hands on with a `TreatmentResponseExperiment`
 
-The NCI-ALMANAC study did not conduct its own set of molecular profiling
-experiments, since the NCI60 already profiled all cell-lines
-available in the NCI-ALMANAC. We have already curated a `PharmacoSet`
-for `NCI60`, so adding our molecular data to the NCI-ALMANAC `PharmacoSet`
+
+
+To practice working with `TreatmentResponseExperiment` objects, we will
+try to answer 3 questions:
+
+1. How many drug combinations were tested involving Paclitaxel as one of the two compounds?
+2. Which cell line was most sensitive (on average across concentrations) to co-treatment with 
+Vincristine and Vorinostat?
+3. Are there any biological replicates for drug combination experiments in the dataset?
+
+
+
+## Combining with Omics Data into a `PharmacoSet`
+
+We had already loaded the molecular data from the NCI-60 above,
+and prior to this workshop we curated the cellids to match between
+the datasets, so adding our molecular data to the NCI-ALMANAC `PharmacoSet`
 requires no manual curation. We must simply subset the `NCI60` dataset
 to those cell-lines present in NCI-ALMANAC.
 
-Lets examine the included molecualr data:
-```{r load_molecular_data}
-data(NCI60_molecular_data)
-(NCI60_molecular_data)
-```
-
-We can see the molecular data is available as `MultiAssayExperiment` containing
-four `RangedSummarizedExperiment` objects. The molecular data types are:
-
-  1. "rna" represents RNA expression microarray data.
-  2. "mirna" represents microRNA expression data.
-  3. "rnaseq.comp" contains RNA sequencing data.
-  4. "rnaseq.iso" is RNA sequencing data specifically targeting transcript isoforms.
-
-Once we have our `MultiAssayExperiment` and `TreatmentResponseExperiment`
-objects ready, we next have to extract and curate sample and treatment
+Since we have our `MultiAssayExperiment` and `TreatmentResponseExperiment`
+objects ready, we only need to extract and curate sample and treatment
 metadata tables which store a summary of metadata for available samples and
 treatments in our `PharmacoSet` object.
 
@@ -647,14 +880,9 @@ from sources like PubChem or ChEMBL for treatments and Cellosaurus for
 cancer cell-lines and using these to standardize identifiers in your data
 as well as adding links to additional information in external databases.
 
-```{r load_sample_metadata_files1, eval=FALSE}
+```{r load_sample_metadata_files1, eval=TRUE}
 data(NCI_ALMANAC_sample_metadata)
 head(NCI_ALMANAC_sample_metadata)
-```
-
-```{r load_sample_metadata_files2, echo=FALSE}
-data(NCI_ALMANAC_sample_metadata)
-knitr::kable(head(NCI_ALMANAC_sample_metadata))
 ```
 
 The above table contains the sample metadata which will comprise the `@sample`
@@ -662,14 +890,9 @@ slot of our `PharmacoSet`. It contains a set of standardized identifiers
 including `cellid` and `tissueid`, as well as cell-line identifiers from
 the NCI-ALMANAC publication and some additional metadata we have added.
 
-```{r load_treatment_metadata_files1, eval=FALSE}
+```{r load_treatment_metadata_files1, eval=TRUE}
 data(NCI_ALMANAC_treatment_metadata)
 head(NCI_ALMANAC_treatment_metadata)
-```
-
-```{r load_treatment_metadata_files2, echo=FALSE}
-data(NCI_ALMANAC_treatment_metadata)
-knitr::kable(head(NCI_ALMANAC_treatment_metadata))
 ```
 
 Similar to the sample table, this one contains treatment metadata which will
@@ -701,8 +924,7 @@ introduction of the `PharmacoSet2` contructor. This version enforces new
 requirements for the object such as a `MultiAssayExperiment` for the molecular
 profiles slot and a `TreatmentResponseExperiment` for treatment response slot.
 The original constructor is still included in the package for backwards
-compatibility but will be retired after we finish updating all our existing
-datasets on ORCESTRA.ca.
+compatibility but will be deprecated in a future release.
 
 If you have an old style `PharmacoSet` but want to use the new package features,
 simply call `updateObject` to return the dataset with an updated class
@@ -986,7 +1208,7 @@ NCI_TRE |>
     x="combo_response",
     y="mono_fits",
     by = c("treatment1id", "sampleid", "bio_rep"),
-    sort = FALSE # workaround to not have weird DT keys as a result.
+    sort = FALSE # Don't sort to avoid reordering and re-keying the data
   ) |>
   mergeAssays(
     x="combo_response",
@@ -994,7 +1216,7 @@ NCI_TRE |>
     by.x = c("treatment2id", "sampleid", "bio_rep"),
     by.y = c("treatment1id", "sampleid", "bio_rep"),
     suffixes = c("_1", "_2"),
-    sort = FALSE # workaround to not have weird DT keys as a result.
+    sort = FALSE # Don't sort to avoid reordering and re-keying the data
   ) ->
   NCI_TRE
 (NCI_TRE$combo_response)
@@ -1201,7 +1423,7 @@ head(NCI_TRE$combo_response)
 
 
 
-## BONUS: ZIP
+## Zero Interaction Potency
 
 The Zero interaction Potency model was recently introduced with the goal of capturing the ideas behind both the Bliss and Loewe assumptions. As the name implies
 the model assumes that the two drugs do not "potentiate" each other, meaning, that the only difference between the dose response curves of Drug 1 with and without
@@ -1367,7 +1589,7 @@ For our demo, we will summarize the combination profiles we have calculated into
 
 # Biomarker Discovery:
 
-## Monotherapy response
+## Monotherapy Response
 
 PharmacoGx makes an initial analysis for univariate biomarker discovery very simple, by providing the `drugSensitivitySig` function which will compute the association between molecular features and
 drug response summaries (such as AAC) across the cell lines in a PharmacoSet.
@@ -1423,6 +1645,8 @@ gene_exp_sigs <- drugSensitivitySig(NCI_ALMANAC_2017,
   mDataType = "rnaseq.comp",
   sProfiles = synergy_summaries,
   modeling.method = "pearson",
+  drugs="Vinblastine_+_Dasatinib",
+  inference.method = "resampling",
   features = sample(rownames(molecularProfiles(NCI_ALMANAC_2017, "rnaseq.comp")), 100),
   nthread = 1
 )
