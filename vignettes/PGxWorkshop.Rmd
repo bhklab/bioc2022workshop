@@ -167,7 +167,7 @@ knitr::opts_chunk$set(echo=TRUE, include=TRUE, warning=FALSE, message=TRUE)
 
 ```{r load_packages, eval=TRUE, echo=FALSE, include=FALSE}
 suppressPackageStartupMessages({
-    library(pgxBioc2022Workshop)
+    library(pgxDrugCombinationWorkshop)
     library(MultiAssayExperiment)
     library(PharmacoGx)
     library(data.table)
