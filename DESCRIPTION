@@ -54,6 +54,6 @@ Suggests:
 Remotes:
     bhklab/CoreGx@development,
     bhklab/PharmacoGx@development
-URL: https://bhklab.github.io/bioc2022workshop
+URL: http://psmirnov.com/DrugCombinationWorkshop/
 VignetteBuilder: knitr
-DockerImage: ghcr.io/bhklab/pgxBioc2022Workshop:latest
+DockerImage: ghcr.io/p-smirnov/pgxDrugCombinationWorkshop:latest
