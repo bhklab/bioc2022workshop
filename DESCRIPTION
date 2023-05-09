@@ -45,7 +45,8 @@ Imports:
     CoreGx,
     PharmacoGx,
     MultiAssayExperiment,
-    data.table
+    data.table,
+    ggplot2
 Suggests:
     knitr,
     rmarkdown,
