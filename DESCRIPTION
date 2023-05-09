@@ -1,4 +1,4 @@
-Package: pgxBioc2022Workshop
+Package: pgxDrugCombinationWorkshop
 Title: PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology
 Version: 1.0.10
 Authors@R: c(
@@ -11,7 +11,7 @@ Authors@R: c(
     person(
         given="Petr",
         family="Smirnov",
-        email="petr.smirnov@utoronto.ca",
+        email="petr.smirnov@embl.de",
         role=c("aut")),
     person(
         given="Feifei",
